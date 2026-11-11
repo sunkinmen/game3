@@ -67,9 +67,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 .tabs{display:flex;gap:8px}
 .tabs button{flex:1;padding:8px 0;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-weight:500}
 .tabs button.on{background:var(--paper);color:#1b1730;border-color:var(--paper);font-weight:700}
-.ico{position:relative;flex:none;display:block}
+.ico{position:relative;flex:none;display:block;background:url(art/species.webp) 0 0/500% 300% no-repeat}
 .ico svg{width:100%;height:100%;display:block}
-.ico img{position:absolute;left:26.5%;top:32.4%;width:47%;height:47%;border-radius:50%;object-fit:cover}
+.ico img{position:absolute;border-radius:50%;object-fit:cover}
 .tier{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;border:1px solid;margin-left:6px;vertical-align:middle}
 .t1{color:var(--jade)}.t2{color:#7fb2ff}.t3{color:var(--gold)}
 .hero{display:flex;gap:14px;align-items:center}
@@ -273,17 +273,13 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
  if(c.lv>=100)c.exp=0;return up}
 
 /* ====== Q 版圖示（排行榜用，不帶人臉） ====== */
-function icon(sid,face,size){const s=sp(sid);let e='';
- const E={point:`<path d="M10 22L14 3l14 12zM54 22L50 3 36 15z" fill="${s.c}"/>`,
-  round:`<circle cx="12" cy="14" r="9" fill="${s.c}"/><circle cx="52" cy="14" r="9" fill="${s.c}"/>`,
-  long:`<ellipse cx="22" cy="9" rx="6" ry="14" fill="${s.c}"/><ellipse cx="42" cy="9" rx="6" ry="14" fill="${s.c}"/>`,
-  none:`<path d="M27 58l5 5 5-5z" fill="#f3b33d"/>`,
-  wing:`<path d="M2 30l12-12v22zM62 30L50 18v22z" fill="${s.c}"/><path d="M32 2l5 10H27z" fill="${s.c2}"/>`,
-  crown:`<circle cx="32" cy="34" r="31" fill="none" stroke="#ecbc52" stroke-width="2"/><path d="M18 14l4-11 6 8 4-10 4 10 6-8 4 11z" fill="#ecbc52"/>`,
-  hat:`<circle cx="32" cy="34" r="31" fill="none" stroke="#ecbc52" stroke-width="2"/><ellipse cx="32" cy="13" rx="24" ry="5" fill="${s.c2}"/><rect x="21" y="2" width="22" height="11" rx="4" fill="${s.c}"/>`,
-  mane:`<circle cx="32" cy="36" r="31" fill="${s.c2}"/>`};
- e=E[s.ear]||'';
- return `<span class="ico" style="width:${size}px;height:${size}px"><svg viewBox="0 0 64 68">${e}<circle cx="32" cy="38" r="26" fill="${s.c}"/><circle cx="32" cy="38" r="17" fill="${s.c2}"/><circle cx="32" cy="38" r="16" fill="#1b1730" opacity=".12"/></svg>${face?`<img src="${face}" alt="">`:''}</span>`;}
+const HOLE=[[0.498,0.388,0.137,0.105],[0.503,0.375,0.137,0.123],[0.5,0.417,0.139,0.123],[0.503,0.399,0.137,0.1],[0.5,0.375,0.139,0.118],[0.498,0.341,0.142,0.131],[0.503,0.341,0.142,0.126],[0.498,0.378,0.137,0.121],[0.503,0.385,0.137,0.108],[0.5,0.341,0.139,0.126],[0.493,0.391,0.137,0.123],[0.503,0.38,0.142,0.123],[0.498,0.388,0.137,0.126],[0.525,0.404,0.139,0.11],[0.498,0.406,0.142,0.113]];
+const SHEET=new Image();SHEET.onload=()=>build3D();SHEET.src='art/species.webp';
+function icon(sid,face,size){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];
+ return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}</span>`}
+function spriteTex(c){const i=SP.findIndex(s=>s.id===c.sp),h=HOLE[i],cw=SHEET.naturalWidth/5,ch=SHEET.naturalHeight/3,cv=document.createElement('canvas');cv.width=Math.round(cw*2);cv.height=Math.round(ch*2);const g=cv.getContext('2d');
+ g.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,cv.width,cv.height);const tx=new THREE.CanvasTexture(cv),f=new Image();
+ f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height,s=Math.max(rx,ry)*2;g.save();g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.clip();g.drawImage(f,x-s/2,y-s/2,s,s);g.restore();tx.needsUpdate=true};f.src=faceOf(c);return tx}
 let DEF;function defFace(){if(DEF)return DEF;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
  g.fillStyle='#f6d7b8';g.fillRect(0,0,128,128);g.fillStyle='#2a2030';g.beginPath();g.arc(44,56,7,0,7);g.arc(84,56,7,0,7);g.fill();
  g.strokeStyle='#2a2030';g.lineWidth=5;g.lineCap='round';g.beginPath();g.arc(64,74,22,.25,Math.PI-.25);g.stroke();
@@ -318,12 +314,13 @@ function init3D(){if(!HAS3D)return;
  const wc=document.createElement('canvas');wc.width=64;wc.height=128;const w=wc.getContext('2d');w.fillStyle='#141831';w.fillRect(0,0,64,128);
  for(let y=4;y<124;y+=8)for(let x=4;x<60;x+=8)if(Math.random()<.42){w.fillStyle=Math.random()<.7?'#ffd98a':'#9fd0ff';w.fillRect(x,y,4,4)}
  const wt=new THREE.CanvasTexture(wc);wt.magFilter=THREE.NearestFilter;
- const bm=new THREE.MeshBasicMaterial({map:wt});
+ const bm=new THREE.MeshBasicMaterial({map:wt}),city=new THREE.Group();scene.add(city);
  for(let i=0;i<34;i++){const a=i/34*Math.PI*2,r=rnd(15,24),h=rnd(4,13);
-  const b=new THREE.Mesh(new THREE.BoxGeometry(rnd(2,3.6),h,rnd(2,3.6)),bm);b.position.set(Math.cos(a)*r,h/2-6,Math.sin(a)*r);scene.add(b)}
- for(let i=0;i<8;i++){const t=new THREE.Mesh(new THREE.BoxGeometry(2.6-i*.12,2.2,2.6-i*.12),bm);t.position.set(-9,-5+i*2.2,-20);scene.add(t)}
+  const b=new THREE.Mesh(new THREE.BoxGeometry(rnd(2,3.6),h,rnd(2,3.6)),bm);b.position.set(Math.cos(a)*r,h/2-6,Math.sin(a)*r);city.add(b)}
+ for(let i=0;i<8;i++){const t=new THREE.Mesh(new THREE.BoxGeometry(2.6-i*.12,2.2,2.6-i*.12),bm);t.position.set(-9,-5+i*2.2,-20);city.add(t)}
  const sg=new THREE.BufferGeometry(),sv=[];for(let i=0;i<260;i++){const a=rnd(0,6.28),r=rnd(28,36);sv.push(Math.cos(a)*r,rnd(4,26),Math.sin(a)*r)}
- sg.setAttribute('position',new THREE.Float32BufferAttribute(sv,3));scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.14,fog:false})));
+ sg.setAttribute('position',new THREE.Float32BufferAttribute(sv,3));city.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.14,fog:false})));
+ new THREE.TextureLoader().load('art/sky.webp',tx=>{tx.wrapS=THREE.MirroredRepeatWrapping;tx.repeat.x=4;const m=new THREE.Mesh(new THREE.CylinderGeometry(30,30,28,64,1,true),new THREE.MeshBasicMaterial({map:tx,side:THREE.BackSide,fog:false}));m.position.y=-1.3;scene.add(m);scene.remove(city)});
  resize();addEventListener('resize',resize);
  // 拖曳旋轉＋點選
  const cv=$('#gl');let dn=null;
@@ -335,7 +332,10 @@ function init3D(){if(!HAS3D)return;
 function resize(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
 function mesh(geo,col,o){const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial(Object.assign({color:col,roughness:.7},o||{})));return m}
 function build3D(){if(!HAS3D||!scene)return;const old={};objs.forEach(o=>{old[o.c.id]=o;scene.remove(o.g);o.b.remove();o.tg.remove()});objs=[];
- S.cr.forEach(c=>{const s=sp(c.sp),g=new THREE.Group();g.userData.cid=c.id;
+ S.cr.forEach(c=>{const s=sp(c.sp),g=new THREE.Group();g.userData.cid=c.id;const ART=SHEET.complete&&SHEET.naturalWidth;let spr=null;
+  if(ART){const H=[0,1.7,1.95,2.3][s.t];spr=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c),transparent:true,alphaTest:.03}));spr.scale.set(H*1.074,H,1);spr.center.set(.5,.03);g.add(spr);g.userData.h=H;
+   if(c.rb){const st=new THREE.Mesh(new THREE.OctahedronGeometry(.12),new THREE.MeshBasicMaterial({color:0x45d3a8}));st.position.y=H+.25;g.add(st)}
+   const sh=new THREE.Mesh(new THREE.CircleGeometry(.55,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.35}));sh.rotation.x=-Math.PI/2;sh.position.y=.012;g.add(sh)}else{
   const body=mesh(new THREE.SphereGeometry(.42,24,18),s.c);body.scale.set(1,1.08,.9);body.position.y=.5;g.add(body);
   const belly=mesh(new THREE.SphereGeometry(.3,20,14),s.c2);belly.position.set(0,.46,.2);g.add(belly);
   const head=mesh(new THREE.SphereGeometry(.5,28,20),s.c);head.position.y=1.15;g.add(head);
@@ -356,25 +356,25 @@ function build3D(){if(!HAS3D||!scene)return;const old={};objs.forEach(o=>{old[o.
   else{const t=mesh(new THREE.SphereGeometry(.13,10,8),s.c2);t.position.set(0,.4,-.42);g.add(t)}
   if(c.rb){const st=new THREE.Mesh(new THREE.OctahedronGeometry(.12),new THREE.MeshBasicMaterial({color:0x45d3a8}));st.position.y=2.25;g.add(st)}
   const sh=new THREE.Mesh(new THREE.CircleGeometry(.5,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.35}));sh.rotation.x=-Math.PI/2;sh.position.y=.012;g.add(sh);
-  g.scale.setScalar([0,.85,1,1.15][s.t]);
+  g.scale.setScalar([0,.85,1,1.15][s.t]);}
   const o=old[c.id],a=rnd(0,6.28),r=rnd(0,4.5);g.position.set(o?o.g.position.x:Math.cos(a)*r,0,o?o.g.position.z:Math.sin(a)*r);
   scene.add(g);
   const b=document.createElement('div');b.className='bub';const tg=document.createElement('div');tg.className='tag';$('#bubbles').append(tg,b);
-  objs.push({c,g,b,tg,tx:g.position.x,tz:g.position.z,wait:rnd(0,2),talk:rnd(1,6),say:0});});
+  objs.push({c,g,b,tg,spr,tx:g.position.x,tz:g.position.z,wait:rnd(0,2),talk:rnd(1,6),say:0});});
  $('#cnt').textContent=`已收服 ${S.cr.length} 位夥伴`;}
 let last=0;const V=HAS3D?new THREE.Vector3():null;
 function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000);last=t;
  if(!dn3d())ang+=dt*.03;
- cam.position.set(Math.sin(ang)*9.5,5.4,Math.cos(ang)*9.5);cam.lookAt(0,.9,0);
+ cam.position.set(Math.sin(ang)*9.5,5.4,Math.cos(ang)*9.5);cam.lookAt(0,1.5,0);
  const quiet=document.querySelector('#cap.on,#phone.on');
  objs.forEach(o=>{const g=o.g,dx=o.tx-g.position.x,dz=o.tz-g.position.z,d=Math.hypot(dx,dz);
-  if(d>.08){const v=.7*dt;g.position.x+=dx/d*v;g.position.z+=dz/d*v;g.position.y=Math.abs(Math.sin(t*.009+o.c.id))*.07;
+  if(d>.08){const v=.7*dt;g.position.x+=dx/d*v;g.position.z+=dz/d*v;g.position.y=Math.abs(Math.sin(t*.009+o.c.id))*.07;if(o.spr)o.spr.material.rotation=Math.sin(t*.009+o.c.id)*.06;
    let ta=Math.atan2(dx,dz),da=ta-g.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));g.rotation.y+=da*Math.min(1,dt*6)}
-  else{g.position.y=0;o.wait-=dt;if(o.wait<0){const a=rnd(0,6.28),r=rnd(0,5);o.tx=Math.cos(a)*r;o.tz=Math.sin(a)*r;o.wait=rnd(1,4)}}
+  else{g.position.y=0;if(o.spr)o.spr.material.rotation=0;o.wait-=dt;if(o.wait<0){const a=rnd(0,6.28),r=rnd(0,5);o.tx=Math.cos(a)*r;o.tz=Math.sin(a)*r;o.wait=rnd(1,4)}}
   o.talk-=dt;if(o.talk<0){o.talk=rnd(6,14);o.say=3.2;const m=o.c.mood;
    o.b.textContent=pick(m<35?TALK.bad:m>72?(Math.random()<.6?TALK.fl:TALK.fun):(Math.random()<.5?TALK.fun:pick([TALK.fl,TALK.bad])))}
   o.say-=dt;
-  V.set(g.position.x,g.position.y+2.15*g.scale.y,g.position.z).project(cam);
+  V.set(g.position.x,g.position.y+(g.userData.h?g.userData.h+.1:2.15*g.scale.y),g.position.z).project(cam);
   const x=(V.x+1)/2*innerWidth,y=(1-V.y)/2*innerHeight;
   o.b.style.left=x+'px';o.b.style.top=(y-4)+'px';o.b.classList.toggle('on',o.say>0&&!quiet);
   V.set(g.position.x,0,g.position.z).project(cam);
