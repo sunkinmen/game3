@@ -302,7 +302,7 @@ function init3D(){if(!HAS3D)return;
  g.lineWidth=2;g.strokeStyle='#ecbc52';g.beginPath();g.arc(256,256,150,0,7);g.stroke();
  g.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4;g.moveTo(256+Math.cos(a)*150,256+Math.sin(a)*150);g.lineTo(256+Math.cos(a+Math.PI*.75)*150,256+Math.sin(a+Math.PI*.75)*150)}g.stroke();
  g.fillStyle='#e5412f';g.font='900 90px serif';g.textAlign='center';g.textBaseline='middle';g.fillText('印',256,262);
- const fl=new THREE.Mesh(new THREE.CylinderGeometry(6.2,6.2,.5,48),[new THREE.MeshStandardMaterial({color:0x1b1e38}),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(fc),roughness:.85}),new THREE.MeshStandardMaterial({color:0x1b1e38})]);
+ const fl=new THREE.Mesh(new THREE.CylinderGeometry(6.2,6.2,.5,48),[new THREE.MeshStandardMaterial({color:0x1b1e38}),new THREE.MeshStandardMaterial({map:(()=>{const x=new THREE.CanvasTexture(fc);x.wrapS=THREE.RepeatWrapping;x.repeat.x=-1;return x})(),roughness:.85}),new THREE.MeshStandardMaterial({color:0x1b1e38})]);
  fl.position.y=-.25;scene.add(fl);
  const rail=new THREE.Mesh(new THREE.TorusGeometry(6.2,.07,8,64),new THREE.MeshStandardMaterial({color:0xecbc52,metalness:.6,roughness:.3}));rail.rotation.x=Math.PI/2;rail.position.y=.5;scene.add(rail);
  // 紅燈籠
