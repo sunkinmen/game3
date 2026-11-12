@@ -279,7 +279,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
-/* ====== 設定：自架後把報價代理網址填這裡（回傳 {"2330":1234.5,...}），留空則用模擬報價 ====== */
+/* ====== 設定：報價代理（Google Apps Script 網頁應用程式的 /exec 網址），留空則用模擬報價 ====== */
 const QUOTE_API='';
 
 const $=s=>document.querySelector(s);
@@ -626,7 +626,7 @@ const A={
  go(){trade(ordMode)},
  unwatch(k){if(S.port[k])return toast('還有持股，先賣出');S.watch=S.watch.filter(x=>x!==k);exp=null;save();drawPhone()},
  async addW(){const el=$('#addCode');const k=(el.value||'').trim().toUpperCase();if(!k)return;if(S.watch.includes(k))return toast('已在自選');
-  if(liveOK){try{const j=await (await fetch(QUOTE_API+'/q?ids='+k)).json();if(!j[k]||!j[k].y)return toast('查無此代號');S.nm[k]=j[k].n;S.px[k]=j[k].z||j[k].y;REF[k]=j[k].y;LIVE[k]=j[k]}catch(e){return toast('報價連線失敗')}}
+  if(liveOK){try{const j=await (await fetch(QUOTE_API+'?ids='+k)).json();if(!j[k]||!j[k].y)return toast('查無此代號');S.nm[k]=j[k].n;S.px[k]=j[k].z||j[k].y;REF[k]=j[k].y;LIVE[k]=j[k]}catch(e){return toast('報價連線失敗')}}
   else{const s=STK.find(x=>x[0]===k);if(!s)return toast('模擬盤只能加入清單內的股票');REF[k]=REF[k]||S.px[k]}
   HIST[k]=HIST[k]||[];S.watch.push(k);save();drawPhone()}
 };
@@ -664,12 +664,12 @@ const sname=k=>S.nm[k]||(STK.find(s=>s[0]===k)||[])[1]||k;
 function open(){const d=new Date(Date.now()+8*3600e3),m=d.getUTCHours()*60+d.getUTCMinutes(),w=d.getUTCDay();return w>=1&&w<=5&&m>=540&&m<810}
 const canTrade=()=>open()||S.prac;
 async function tick(){
- if(QUOTE_API){try{const j=await (await fetch(QUOTE_API+'/q?ids='+S.watch.join(','))).json();let n=0;
+ if(QUOTE_API){try{const j=await (await fetch(QUOTE_API+'?ids='+S.watch.join(','))).json();let n=0;
    for(const k in j){const q=j[k];if(q&&q.y){S.px[k]=+(q.z||q.y);REF[k]=+q.y;LIVE[k]=q;if(q.n)S.nm[k]=q.n;n++}}liveOK=n>0}catch(e){liveOK=false}}
  if(!liveOK&&canTrade())S.watch.forEach(k=>{if(!REF[k])REF[k]=S.px[k];let p=S.px[k]*(1+(Math.random()-.5)*.005);S.px[k]=+Math.max(REF[k]*.9,Math.min(REF[k]*1.1,p)).toFixed(2)});
  S.watch.forEach(k=>{HIST[k]=HIST[k]||[];if(!liveOK||open()){HIST[k].push(S.px[k]);if(HIST[k].length>400)HIST[k].shift()}});
  if($('#phone').classList.contains('on'))upd()}
-async function loadK(k){if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
+async function loadK(k){return;if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
  try{const j=await (await fetch(QUOTE_API+'/k?id='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
 function pv(){let v=0,c=0;for(const k in S.port){v+=S.port[k].q*S.px[k];c+=S.port[k].cost}return [v,v-c]}
 function head(){const o=open(),m=$('#mkt');m.textContent=o?'盤中':'休市';m.classList.toggle('open',o);
