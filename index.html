@@ -18,7 +18,7 @@
   --up:#ff5a4d; --down:#3ecf8e;
   --display:"Noto Serif TC","Songti TC",serif;
   --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-  --wood:radial-gradient(circle at 34% 26%,#fff6,#0000 42%),radial-gradient(circle at 50% 52%,#0000 52%,#1a0d04b0 100%),repeating-radial-gradient(circle at 50% 50%,#8a5e38 0 3px,#6f4727 3px 5px,#7d5330 5px 8px,#5a381d 8px 9.5px);
+  --wood:radial-gradient(circle at 34% 28%,#ffffff22,#0000 46%),url(art/wood.webp) center/104% no-repeat,#5a3a1f;
   --cal:"Ma Shan Zheng","Noto Serif TC",serif;
   color-scheme:dark;
 }
@@ -115,7 +115,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 #frame.hit{border-color:var(--jade);box-shadow:0 0 0 2000px #0006,0 0 30px var(--jade) inset}
 #capMsg{position:absolute;z-index:3;left:16px;right:16px;top:52%;text-align:center;font:900 22px var(--display);text-shadow:0 2px 10px #000;letter-spacing:.1em;pointer-events:none}
 #capBot{position:absolute;left:0;right:0;bottom:0;height:46%;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#0000,#000b)}
-#hands{position:absolute;bottom:-1%;left:50%;width:min(100%,440px);z-index:0;aspect-ratio:256/215;translate:-50% 0;background:url(art/hands.webp) 0 0/400% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
+#hands{position:absolute;bottom:-9%;left:50%;width:min(100%,440px);z-index:0;aspect-ratio:1/1;translate:-50% 0;background:url(art/hands.webp) 0 0/200% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
 #hands.cast{scale:1.12;filter:drop-shadow(0 0 18px var(--gold))}
 #cap:not(.demo) #ret{display:none}
 #capBtn{position:absolute;z-index:2;left:50%;translate:-50% 0;bottom:20px;width:92px;height:92px;border-radius:50%;background:var(--wood);color:#f6e7c5;font:400 46px/1 var(--cal);text-shadow:0 2px 0 #2a1608;box-shadow:0 0 0 4px #000,0 0 0 6px var(--gold),0 0 30px #000c}
@@ -297,6 +297,9 @@ body{background:var(--ink)}
 #battle .unit .hp b{position:absolute;inset:0;display:grid;place-items:center;font-size:9.5px;font-weight:800;color:#fff;line-height:1;text-shadow:0 0 2px #000,0 0 2px #000,0 0 3px #000}
 #battle .unit .qi{height:5px;border-radius:3px;overflow:hidden;background:#0008;box-shadow:0 0 0 1px #000a}
 #battle .unit .qi i{display:block;height:100%;background:linear-gradient(#8fc4ff,#2f6fe0);transition:width .3s}
+#nav .big span,#capBtn{background:var(--wood);color:#2a1507;text-shadow:0 1px 0 #f3d6a666,0 -1px 1px #000c,0 0 6px #0004}
+#capBtn{box-shadow:0 0 0 3px #1c1007,0 0 0 6px #8f6f36,0 0 0 8px #1c1007,0 6px 24px #000c}
+#nav .big span{box-shadow:0 0 0 3px #1c1007,0 0 0 5px #8f6f36,0 5px 0 #2a180b,0 10px 20px #000a}
 </style>
 </head>
 <body>
@@ -684,15 +687,15 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(e
 
 /* ====== 收服細節 ====== */
 let capTier=1,capSrc=null,capRun=false,capX=0,capDir=1,capT=0,stream=null,busy=false,demoMode=false,cutId=0,FD=null,fdState='';
-const POSE=[0,0,1,6];
+const POSE=[0,0,2,1];
 async function loadFD(){if(FD||fdState==='loading')return;fdState='loading';
  try{const v=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
   const fs=await v.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
   FD=await v.FaceDetector.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite'},runningMode:'IMAGE',minDetectionConfidence:.5});fdState='ok'}
  catch(e){fdState='fail';console.error(e)}}
 const frameW=()=>Math.min(innerWidth*.5,220);
-const hand=f=>{$('#hands').style.backgroundPosition=`${f%4*33.333}% ${Math.floor(f/4)*100}%`};
-function handAnim(){const h=$('#hands');h.classList.add('cast');let n=0;clearInterval(handAnim.t);handAnim.t=setInterval(()=>{if(n++<6){hand(Math.floor(Math.random()*8));sfx('tick')}else{clearInterval(handAnim.t);hand(POSE[capTier]);h.classList.remove('cast')}},70)}
+const hand=f=>{$('#hands').style.backgroundPosition=`${f%2*100}% ${Math.floor(f/2)*100}%`};
+function handAnim(){const h=$('#hands');h.classList.add('cast');let n=0;clearInterval(handAnim.t);handAnim.t=setInterval(()=>{if(n++<6){hand(Math.floor(Math.random()*4));sfx('tick')}else{clearInterval(handAnim.t);hand(POSE[capTier]);h.classList.remove('cast')}},70)}
 function drawSeals(){$('#seals').innerHTML=[1,2,3].map(t=>`<button class="${t===capTier?'on':''}" data-a="seal" data-v="${t}"><b class="cal">${SEAL[t].n}</b>${SEAL[t].d}<br>${SEAL[t].cost?fmt(SEAL[t].cost)+' zeny':'免費'}</button>`).join('');
  handAnim();const fw=frameW(),fr=$('#frame');fr.style.width=fw+'px';fr.style.height=fw*1.28+'px';fr.style.marginLeft=-fw/2+'px';fr.style.marginTop=-fw*.64+'px';}
 function capLoop(t){if(!capRun)return;requestAnimationFrame(capLoop);const dt=Math.min(.05,(t-capT)/1000);capT=t;if(busy)return;
