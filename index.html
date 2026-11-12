@@ -513,7 +513,7 @@ function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k
 /* 回合制戰鬥 */
 const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
 const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
-let B=null,pickIds=[];const BPOS={a:[[.31,.41],[.14,.6],[.33,.8]],f:[[.69,.41],[.86,.6],[.67,.8]]};
+let B=null,pickIds=[];const BPOS={a:[[.33,.47],[.17,.62],[.34,.77]],f:[[.67,.47],[.83,.62],[.66,.77]]};
 function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
  const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm">${esc(x.name)}${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
  let cmd='';
@@ -656,7 +656,7 @@ function loop3(t){requestAnimationFrame(loop3);const dt=Math.min(.05,(t-last)/10
 /* --- 戰鬥 3D --- */
 let BR=null,BS=null,BC=null,BCV=null,BU=new Map(),bLast=0,bOn=false;const AS=10;
 function b3Init(){if(BR)return;BCV=document.createElement('canvas');BCV.id='bgl';BR=mkR(BCV);BS=new THREE.Scene();BS.background=skyTex('#7cc4ff','#e7f4ff');
- BC=new THREE.PerspectiveCamera(30,765/1024,.1,200);BC.position.set(0,AS*.98,AS*1.48);BC.lookAt(0,AS*DIO.arena.g-.4,AS*.06);lights(BS,true);
+ BC=new THREE.PerspectiveCamera(30,765/1024,.1,200);BC.position.set(0,7.2,10.5);BC.lookAt(0,.6,.9);BC.updateMatrixWorld();lights(BS,true);
  gm('arena').then(p=>{const m=p.clone();m.scale.setScalar(AS);BS.add(m)}).catch(e=>console.warn(e));requestAnimationFrame(b3Loop)}
 function b3Ground(px,py){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(px*2-1,1-py*2),BC);const pl=new THREE.Plane(new THREE.Vector3(0,1,0),-AS*DIO.arena.g),p=new THREE.Vector3();rc.ray.intersectPlane(pl,p);return p}
 function b3Start(){if(!USE3D)return;b3Init();BU.forEach(v=>BS.remove(v.g));BU.clear();bOn=true;
