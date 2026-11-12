@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>結印物語</title>
+<title>封印物語</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0c0f1f">
 <link rel="icon" href="icon.svg">
@@ -18,7 +18,7 @@
   --up:#ff5a4d; --down:#3ecf8e;
   --display:"Noto Serif TC","Songti TC",serif;
   --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
-  --wood:radial-gradient(circle at 30% 24%,#fff3,#0000 58%),repeating-linear-gradient(94deg,#7b5231 0 4px,#6a4426 4px 7px,#855a36 7px 12px,#5c3a1f 12px 14px);
+  --wood:radial-gradient(circle at 34% 26%,#fff6,#0000 42%),radial-gradient(circle at 50% 52%,#0000 52%,#1a0d04b0 100%),repeating-radial-gradient(circle at 50% 50%,#8a5e38 0 3px,#6f4727 3px 5px,#7d5330 5px 8px,#5a381d 8px 9.5px);
   --cal:"Ma Shan Zheng","Noto Serif TC",serif;
   color-scheme:dark;
 }
@@ -113,12 +113,12 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 #ret::after{content:"";position:absolute;inset:9px;border-radius:50%;background:#fff}
 #frame{position:absolute;left:50%;top:40%;border:3px solid var(--gold);border-radius:50% 50% 46% 46%/42% 42% 58% 58%;box-shadow:0 0 0 2000px #0006,0 0 22px var(--gold) inset;will-change:transform}
 #frame.hit{border-color:var(--jade);box-shadow:0 0 0 2000px #0006,0 0 30px var(--jade) inset}
-#capMsg{position:absolute;left:16px;right:16px;top:64%;text-align:center;font:900 22px var(--display);text-shadow:0 2px 10px #000;letter-spacing:.1em;pointer-events:none}
-#capBot{position:absolute;left:0;right:0;bottom:0;height:34%;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#0000,#000b)}
-#hands{position:absolute;bottom:-4px;left:42%;width:min(72%,300px);aspect-ratio:256/286;translate:-50% 0;background:url(art/hands.webp) 0 0/400% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
+#capMsg{position:absolute;left:16px;right:16px;top:57%;text-align:center;font:900 22px var(--display);text-shadow:0 2px 10px #000;letter-spacing:.1em;pointer-events:none}
+#capBot{position:absolute;left:0;right:0;bottom:0;height:46%;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#0000,#000b)}
+#hands{position:absolute;bottom:118px;left:50%;width:min(66%,270px);aspect-ratio:256/215;translate:-50% 0;background:url(art/hands.webp) 0 0/400% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
 #hands.cast{scale:1.12;filter:drop-shadow(0 0 18px var(--gold))}
 #cap:not(.demo) #ret{display:none}
-#capBtn{position:absolute;right:16px;bottom:22px;width:92px;height:92px;border-radius:50%;background:var(--wood);color:#f6e7c5;font:400 46px/1 var(--cal);text-shadow:0 2px 0 #2a1608;box-shadow:0 0 0 4px #000,0 0 0 6px var(--gold),0 0 30px #000c}
+#capBtn{position:absolute;left:50%;translate:-50% 0;bottom:20px;width:92px;height:92px;border-radius:50%;background:var(--wood);color:#f6e7c5;font:400 46px/1 var(--cal);text-shadow:0 2px 0 #2a1608;box-shadow:0 0 0 4px #000,0 0 0 6px var(--gold),0 0 30px #000c}
 #capBtn small{display:block;font:500 11px var(--body);letter-spacing:.1em}
 #capBtn:active{transform:scale(.94)}
 #src{position:absolute;inset:0;background:#0c0f1fee;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
@@ -195,6 +195,28 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 .pn{background:var(--panel);border-radius:12px;padding:10px;margin:6px 0 10px;display:flex;flex-direction:column;gap:8px}
 .kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;color:var(--muted)}.kv b{display:block;color:var(--paper);font-size:13px;font-variant-numeric:tabular-nums}
 .addw{display:flex;gap:8px;margin:12px 0}.addw input,.addw select{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--paper);font:inherit;padding:8px 10px}
+.ico .pd{position:absolute;aspect-ratio:1;background:url(art/equip.webp) 0 0/600% 600% no-repeat;pointer-events:none;filter:drop-shadow(0 1px 2px #0008)}
+.ico .pd.a{left:30%;top:52%;width:40%}.ico .pd.w{left:60%;top:34%;width:50%;rotate:18deg}.ico .pd.c{left:2%;top:54%;width:28%}
+#battle{position:fixed;inset:0;display:none;flex-direction:column;background:linear-gradient(#0c0f1f99,#0c0f1fe6),url(art/sky.webp) center/cover;padding:56px 10px 10px;gap:8px}
+#battle.on{display:flex}
+#battle .foes,#battle .allies{flex:1;display:flex;justify-content:space-around;align-items:center;gap:4px}
+#battle .allies{align-items:flex-end}
+.unit{display:flex;flex-direction:column;align-items:center;gap:2px;width:31%;font-size:12px;position:relative}
+.unit b{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.unit small{color:var(--muted);font-size:10px}.unit .bar{width:86%;flex:none}
+.unit.dead{opacity:.25;filter:grayscale(1)}
+.unit.cur .ico{filter:drop-shadow(0 0 10px var(--gold))}
+.unit.hit .ico{animation:shk .06s 8 alternate}
+.unit em{position:absolute;top:10%;font:900 26px var(--display);color:#fff;-webkit-text-stroke:1px #000;animation:dmg .7s forwards;font-style:normal;pointer-events:none}
+.unit em.heal{color:var(--jade)}
+@keyframes dmg{from{translate:0 10px;opacity:0}30%{opacity:1}to{translate:0 -34px;opacity:0}}
+.bbox{background:#000;border:3px double #fff;border-radius:6px;padding:10px 12px;min-height:168px;display:flex;flex-direction:column;gap:8px;font-size:15px;letter-spacing:.04em}
+.bbox p{margin:0;min-height:2.6em;line-height:1.5}
+#bcmd{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#bcmd button{text-align:left;padding:9px 8px;border:1px solid #fff5;border-radius:4px;color:#fff}
+#bcmd button::before{content:"▶ ";color:var(--gold)}
+#bcmd button:disabled{opacity:.35}
+#bcmd button small{display:block;color:var(--muted);font-size:11px;padding-left:1.3em}
 #toast{position:fixed;left:50%;top:84px;transform:translateX(-50%) translateY(-20px);background:var(--paper);color:#1b1730;font-weight:700;padding:9px 16px;border-radius:20px;opacity:0;transition:.25s;pointer-events:none;max-width:86%;text-align:center;box-shadow:0 6px 20px #0009}
 #toast.on{opacity:1;transform:translateX(-50%)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -205,7 +227,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 <div id="bubbles"></div>
 
 <div id="hud">
-  <div class="logo"><i>印</i>結印物語<small id="cnt"></small></div>
+  <div class="logo"><i>封</i>封印物語<small id="cnt"></small></div>
   <span style="display:flex;gap:8px;align-items:center"><button id="snd" data-a="snd" aria-label="音樂與語音開關">♪</button><button id="coin" data-a="phone" aria-label="開啟手機台股"><span class="c">Z</span><span><span id="zeny">0</span><small>點我看盤</small></span></button></span>
 </div>
 <div id="hint">拖曳旋轉場景 · 點夥伴互動</div>
@@ -213,7 +235,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 <nav id="nav">
   <button data-a="list"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>夥伴</button>
   <button data-a="shop"><svg viewBox="0 0 24 24"><path d="M4 9h16l-1 11H5z"/><path d="M8 9a4 4 0 0 1 8 0"/></svg>商店</button>
-  <button class="big" data-a="cap"><span>印</span>結印收服</button>
+  <button class="big" data-a="cap"><span>封</span>結印收服</button>
   <button data-a="arena"><svg viewBox="0 0 24 24"><path d="M5 4l14 14M19 4L5 18M4 15l5 5M20 15l-5 5"/></svg>競技</button>
   <button data-a="rank"><svg viewBox="0 0 24 24"><path d="M4 20V11h5v9M9.5 20V5h5v15M15 20v-7h5v7"/></svg>排行</button>
 </nav>
@@ -225,9 +247,9 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
   <img id="ci" alt="" hidden>
   <div id="frame"></div><div id="ret"></div>
   <div id="capMsg"></div>
-  <div id="capBot"><div id="hands"></div><button id="capBtn" data-a="cast" aria-label="結印收服">印</button></div>
+  <div id="capBot"><div id="hands"></div><button id="capBtn" data-a="cast" aria-label="結印收服">封</button></div>
   <div id="capTop">
-    <div class="l1"><b style="font-family:var(--display);letter-spacing:.1em">臉進到移動的框裡，就按「印」</b><button class="x" data-a="capClose" aria-label="離開收服">×</button></div>
+    <div class="l1"><b style="font-family:var(--display);letter-spacing:.1em">臉進到移動的框裡，就按「封」</b><button class="x" data-a="capClose" aria-label="離開收服">×</button></div>
     <div id="seals"></div>
   </div>
   <div id="src">
@@ -249,6 +271,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
   </div>
   <div id="pbody"></div>
 </div></div></section>
+<section id="battle"></section>
 <section id="cut"></section>
 <section id="comic"></section>
 <div id="toast"></div>
@@ -330,11 +353,14 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
 /* ====== Q 版圖示（排行榜用，不帶人臉） ====== */
 const HOLE=[[0.498,0.388,0.137,0.105],[0.503,0.375,0.137,0.123],[0.5,0.417,0.139,0.123],[0.503,0.399,0.137,0.1],[0.5,0.375,0.139,0.118],[0.498,0.341,0.142,0.131],[0.503,0.341,0.142,0.126],[0.498,0.378,0.137,0.121],[0.503,0.385,0.137,0.108],[0.5,0.341,0.139,0.126],[0.493,0.391,0.137,0.123],[0.503,0.38,0.142,0.123],[0.498,0.388,0.137,0.126],[0.525,0.404,0.139,0.11],[0.498,0.406,0.142,0.113]];
 const SHEET=new Image();SHEET.onload=()=>build3D();SHEET.src='art/species.webp';
-function icon(sid,face,size){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];
- return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}</span>`}
+const EQS=new Image();EQS.onload=()=>build3D();EQS.src='art/equip.webp';
+function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const pd=eq?['a','w','c'].map(k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`}).join(''):'';
+ return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
 function spriteTex(c){const i=SP.findIndex(s=>s.id===c.sp),h=HOLE[i],cw=SHEET.naturalWidth/5,ch=SHEET.naturalHeight/3,cv=document.createElement('canvas');cv.width=Math.round(cw*2);cv.height=Math.round(ch*2);const g=cv.getContext('2d');
  g.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,cv.width,cv.height);const tx=new THREE.CanvasTexture(cv),f=new Image();
- f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height,s=Math.max(rx,ry)*2;g.save();g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.clip();g.drawImage(f,x-s/2,y-s/2,s,s);g.restore();tx.needsUpdate=true};f.src=faceOf(c);return tx}
+ const doll=()=>{if(!EQS.complete||!EQS.naturalWidth)return;const z=EQS.naturalWidth/6,W=cv.width,H2=cv.height;
+  [['a',.5,.72,.42,0],['w',.84,.56,.52,.32],['c',.16,.66,.3,0]].forEach(([k,x,y,s,rot])=>{const j=EQO.indexOf(c.eq[k]);if(j<0)return;g.save();g.translate(x*W,y*H2);g.rotate(rot);g.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,-s*W/2,-s*W/2,s*W,s*W);g.restore()})};
+ f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height,s=Math.max(rx,ry)*2;g.save();g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.clip();g.drawImage(f,x-s/2,y-s/2,s,s);g.restore();doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
 let DEF;function defFace(){if(DEF)return DEF;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
  g.fillStyle='#f6d7b8';g.fillRect(0,0,128,128);g.fillStyle='#2a2030';g.beginPath();g.arc(44,56,7,0,7);g.arc(84,56,7,0,7);g.fill();
  g.strokeStyle='#2a2030';g.lineWidth=5;g.lineCap='round';g.beginPath();g.arc(64,74,22,.25,Math.PI-.25);g.stroke();
@@ -424,19 +450,57 @@ function act(o,dt){const a=o.act,g=o.g,H=g.userData.h||1;a.t+=dt;
  if(a.t>2.6){o.act=null;g.position.y=0;if(o.spr){o.spr.material.rotation=0;o.spr.scale.y=H}}}
 function speak(o,cat){const i=Math.floor(Math.random()*VOX[cat].length);o.b.textContent=VOX[cat][i];o.say=3.6;o.talk=9;voice(cat,i)}
 function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k:good?'joy':'sad',t:0};speak(o,good?'fl':'bad')}
+/* 回合制戰鬥 */
+const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
+const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
+let B=null,pickIds=[];
+function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
+ const u=(x,i)=>`<button class="unit${x.hp<=0?' dead':''}${x===cu?' cur':''}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}">${x.c?icon(x.sp,faceOf(x.c),84,x.c.eq):icon(x.sp,null,84)}<b>${esc(x.name)}</b><small>Lv ${x.lv} · 氣 ${x.qi}${x.def?' · 防禦':''}</small><span class="bar"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'var(--seal)':'var(--jade)'}"></i></span><small>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</small></button>`;
+ let cmd='';
+ if(B.phase==='cmd'){if(B.pend)cmd=B.f.map((x,i)=>x.hp>0?`<button data-a="btgt" data-v="f${i}">${esc(x.name)}</button>`:'').join('')+'<button data-a="bback">返回</button>';
+  else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button><button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
+ else if(B.phase==='end')cmd='<button data-a="bexit">離開</button>';
+ const msg=B.phase==='cmd'?(B.pend?`${esc(cu.name)} 要打誰？`:`第 ${B.round} 回合　${esc(cu.name)} 要做什麼？`):B.msg;
+ $('#battle').innerHTML=`<div class="foes">${B.f.map(u).join('')}</div><div class="allies">${B.a.map(u).join('')}</div><div class="bbox"><p id="bmsg">${msg}</p><div id="bcmd">${cmd}</div></div>`}
+function bNext(){let i=B.i+1;while(i<B.a.length&&B.a[i].hp<=0)i++;if(i<B.a.length){B.i=i;return bDraw()}
+ B.f.forEach(e=>{if(e.hp<=0)return;const ty=SK[e.sp][1],r=Math.random();const k=e.qi>=2&&r<.6?'sk':r>.92?'def':'atk';B.acts.push({u:e,k,t:pick(B.a.filter(x=>x.hp>0))})});
+ B.acts.forEach(a=>{if(a.k==='def'){a.u.def=true;a.u.qi=Math.min(5,a.u.qi+1)}});
+ B.acts=B.acts.filter(a=>a.k!=='def').sort((x,y)=>y.u.t[2]+rnd(0,4)-x.u.t[2]-rnd(0,4));B.phase='run';B.msg='……';bDraw();setTimeout(bStep,350)}
+function bHit(u,t,mult,useInt){if(Math.random()<Math.min(.3,Math.max(.02,(t.t[2]-u.t[2])/200+.06)))return {miss:1,d:0};
+ let d=(useInt?u.t[1]*2.4+u.t[0]*.4:u.t[0]*2+u.t[1]*.8)*mult+rnd(0,6)-t.t[3]*.5;const crit=Math.random()<.05+u.t[4]/400;if(crit)d*=1.8;if(t.def)d*=.5;d=Math.max(3,Math.round(d));t.hp-=d;return {d,crit}}
+function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
+ if(!a){B.a.concat(B.f).forEach(x=>{x.def=false;if(x.hp>0)x.qi=Math.min(5,x.qi+1)});
+  const win=B.f.every(x=>x.hp<=0),lose=B.a.every(x=>x.hp<=0);
+  if(win||lose){B.phase='end';let z=0,ups=[];if(win){z=B.f.reduce((s,x)=>s+2000+x.lv*300,0);S.zeny+=z}
+   B.a.forEach(x=>{const e=win?30+x.lv*8:10+x.lv*2;if(gain(x.c,e))ups.push(x.c.name);x.c.mood=Math.max(0,Math.min(100,x.c.mood+(win?6:-6)))});
+   B.msg=(win?`勝利！獲得 ${fmt(z)} zeny，全員得到經驗。`:'全員倒下…… 得到少量經驗。')+(ups.length?` ${ups.join('、')} 升級了！`:'');hud();build3D();return bDraw()}
+  B.round++;B.phase='cmd';B.i=B.a.findIndex(x=>x.hp>0);return bDraw()}
+ const u=a.u;if(u.hp<=0)return bStep();const foes=(u.side==='a'?B.f:B.a).filter(x=>x.hp>0);if(!foes.length)return bStep();
+ let t=a.t&&a.t.hp>0?a.t:pick(foes),fx=[],m='';const nm=esc(u.name);
+ const say=(r,x)=>{fx.push([x,r.miss?'MISS':r.d]);return r.miss?`${esc(x.name)} 閃開了`:`${esc(x.name)} 受到 ${r.d} 傷害${r.crit?'（爆擊）':''}`};
+ if(a.k==='atk')m=`${nm} 的攻擊！`+say(bHit(u,t,1),t);
+ else{const s=SK[u.sp];u.qi-=2;m=`${nm} 使出「${s[0]}」！`;
+  if(s[1]===0)m+=say(bHit(u,t,1.9),t);
+  else if(s[1]===1)m+=foes.map(x=>say(bHit(u,x,.9,true),x)).join('，');
+  else if(s[1]===2)m+=say(bHit(u,t,.8),t)+'，'+(t.hp>0?say(bHit(u,t,.8),t):'');
+  else if(s[1]===3){const hl=Math.round(u.mx*.35);u.hp=Math.min(u.mx,u.hp+hl);fx.push([u,'+'+hl]);m+=`回復了 ${hl} 體力`}
+  else m+=Math.random()<.5?'大成功！'+say(bHit(u,t,3),t):'……撲空了';}
+ B.msg=m;bDraw();
+ fx.forEach(([x,v])=>{const el=$('#u_'+x.side+(x.side==='a'?B.a:B.f).indexOf(x));if(!el)return;if(typeof v==='number'||v==='MISS')el.classList.add('hit');el.insertAdjacentHTML('beforeend',`<em class="${String(v)[0]==='+'?'heal':''}">${v}</em>`)});
+ setTimeout(bStep,950)}
 /* 音樂與語音 */
 let BGM=null;const VC={};
 function voice(cat,i){if(S.mute)return;try{const k=cat+i,a=VC[k]||(VC[k]=new Audio('audio/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
 function music(){if(S.mute){if(BGM)BGM.pause();return}if(!BGM){BGM=new Audio('audio/bgm.m4a');BGM.loop=true;BGM.volume=.3}BGM.play().catch(()=>{})}
 addEventListener('pointerdown',()=>music(),{once:true});
 function comic(c,good,after){const el=$('#comic'),k=good?Math.floor(Math.random()*2):2+Math.floor(Math.random()*2);
- el.innerHTML=`<div class="pan" style="background-position:${k%2*100}% ${k>1?100:0}%"></div><div class="who">${icon(c.sp,faceOf(c),240)}</div><div class="sfx cal">${pick(good?['爽啦！！','讚啦～','揪感心！','賺爛了！']:['嗚哇啊啊！','不要啊！！','夭壽喔！','我錯了啦！'])}</div>`;
+ el.innerHTML=`<div class="pan" style="background-position:${k%2*100}% ${k>1?100:0}%"></div><div class="who">${icon(c.sp,faceOf(c),240,c.eq)}</div><div class="sfx cal">${pick(good?['爽啦！！','讚啦～','揪感心！','賺爛了！']:['嗚哇啊啊！','不要啊！！','夭壽喔！','我錯了啦！'])}</div>`;
  el.className='on '+(good?'good':'bad');clearTimeout(comic.t);comic.t=setTimeout(()=>{el.className='out';setTimeout(()=>{el.className='';after()},340)},1550)}
 let last=0;const V=HAS3D?new THREE.Vector3():null;
 function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000);last=t;
  if(!dn3d())ang+=dt*.03;
  cam.position.set(Math.sin(ang)*9.5,5.4,Math.cos(ang)*9.5);cam.lookAt(0,1.5,0);
- const quiet=document.querySelector('#cap.on,#phone.on,#cut.on');
+ const quiet=document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on');
  objs.forEach(o=>{const g=o.g,dx=o.tx-g.position.x,dz=o.tz-g.position.z,d=Math.hypot(dx,dz);
   if(o.act)act(o,dt);else if(d>.08){const v=.7*dt;g.position.x+=dx/d*v;g.position.z+=dz/d*v;g.position.y=Math.abs(Math.sin(t*.009+o.c.id))*.07;if(o.spr)o.spr.material.rotation=Math.sin(t*.009+o.c.id)*.06;
    let ta=Math.atan2(dx,dz),da=ta-g.rotation.y;da=Math.atan2(Math.sin(da),Math.cos(da));g.rotation.y+=da*Math.min(1,dt*6)}
@@ -465,10 +529,10 @@ const cur=()=>S.cr.find(c=>c.id===curId);let curId=0,shopTab='food';
 
 const A={
  close(){$('#sheet').classList.remove('on')},
- list(){sheet('夥伴名冊',S.cr.map(c=>{const s=sp(c.sp);return `<button class="row" data-a="cr" data-v="${c.id}" style="text-align:left">${icon(c.sp,faceOf(c),52)}<span class="g"><b>${esc(c.name)}${tierTag(s)}</b><small>${s.n}${c.rb?' · 二轉':''} · Lv ${c.lv} · 戰力 ${power(c)}</small></span><span style="color:var(--muted)">›</span></button>`}).join('')||'<p class="note">還沒有夥伴，按下方「結印收服」。</p>')},
+ list(){sheet('夥伴名冊',S.cr.map(c=>{const s=sp(c.sp);return `<button class="row" data-a="cr" data-v="${c.id}" style="text-align:left">${icon(c.sp,faceOf(c),52,c.eq)}<span class="g"><b>${esc(c.name)}${tierTag(s)}</b><small>${s.n}${c.rb?' · 二轉':''} · Lv ${c.lv} · 戰力 ${power(c)}</small></span><span style="color:var(--muted)">›</span></button>`}).join('')||'<p class="note">還沒有夥伴，按下方「結印收服」。</p>')},
  cr(id){curId=+id;const c=cur();if(!c)return;const s=sp(c.sp),t=total(c),mx=Math.max(40,...t);
   sheet('夥伴',`
-  <div class="hero">${icon(c.sp,faceOf(c),92)}<div style="flex:1;min-width:0"><input id="nm" value="${esc(c.name)}" maxlength="12" aria-label="名字">
+  <div class="hero">${icon(c.sp,faceOf(c),92,c.eq)}<div style="flex:1;min-width:0"><input id="nm" value="${esc(c.name)}" maxlength="12" aria-label="名字">
    <div style="margin-top:6px">${s.n}${tierTag(s)}${c.rb?'<span class="tier t1">二轉</span>':''}</div>
    <div class="stat" style="grid-template-columns:44px 1fr 86px;margin-top:8px"><span>Lv ${c.lv}</span><span class="bar"><i style="width:${c.lv>=100?100:c.exp/need(c.lv)*100}%;background:var(--gold)"></i></span><span>${c.lv>=100?'MAX':fmt(c.exp)+'/'+fmt(need(c.lv))}</span></div></div></div>
   <div class="sec">${[['心情',c.mood,'var(--seal)'],['服從',c.obey,'#7fb2ff'],['體力值',c.sta,'var(--jade)']].map(a=>`<div class="stat"><span>${a[0]}</span><span class="bar"><i style="width:${a[1]}%;background:${a[2]}"></i></span><span>${Math.round(a[1])}/100</span></div>`).join('')}</div>
@@ -496,8 +560,8 @@ const A={
  rebirth(){const c=cur(),s=sp(c.sp);c.rb=1;c.lv=1;c.exp=0;c.st=c.st.map((v,i)=>+(s.b[i]+v*.3).toFixed(1));toast(`${c.name} 完成二轉！`);save();build3D();A.cr(c.id)},
  eq(k){const c=cur(),list=Object.values(ITEMS).filter(it=>it.slot===k&&(!it.sp||it.sp===c.sp)&&S.eq[it.id]>0);
   $('#sub').innerHTML=`<h3>${SLOT[k]} · ${sp(c.sp).n}可用</h3>`+(c.eq[k]?`<button class="btn g2" data-a="uneq" data-v="${k}">卸下 ${ITEMS[c.eq[k]].n}</button>`:'')+(list.map(it=>`<div class="row">${eqi(it.id,44)}<span class="g"><b>${it.n} ×${S.eq[it.id]}</b><small>${bon(it.bon)}</small></span><button class="btn" data-a="wear" data-v="${it.id}">裝備</button></div>`).join('')||'<p class="note">背包裡沒有可用的。專屬裝備在商店的「裝備」分頁。</p>');$('#sub').scrollIntoView({block:'nearest'})},
- uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();A.cr(c.id)},
- wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();A.cr(c.id)},
+ uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();build3D();A.cr(c.id)},
+ wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();build3D();A.cr(c.id)},
  shop(t){if(t)shopTab=t;let h=`<div class="tabs">${[['food','食物'],['gear','專屬裝備'],['acc','飾品']].map(a=>`<button class="${shopTab===a[0]?'on':''}" data-a="shop" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
   if(shopTab==='food')h+=FOOD.map(f=>`<div class="row"><span class="g"><b>${f.n}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 持有 ${S.food[f.id]||0}</small></span><button class="btn" data-a="buyF" data-v="${f.id}">${fmt(f.price)}</button></div>`).join('');
   else h+=Object.values(ITEMS).filter(it=>shopTab==='acc'?!it.sp:it.sp).map(it=>`<div class="row">${eqi(it.id,48)}<span class="g"><b>${it.n}</b><small>${it.sp?sp(it.sp).n+'專屬'+SLOT[it.slot]:'全物種飾品'} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn" data-a="buyE" data-v="${it.id}">${fmt(it.price)}</button></div>`).join('');
@@ -510,18 +574,21 @@ const A={
   all.sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv));
   const mine=all.findIndex(a=>a.me);
   sheet('物種排行榜',`<p class="note">等級前 100 名。只顯示物種與 Q 版圖，人臉留在各自手機。目前其他玩家為示範資料，接上後端後換成真實排名。${mine>=100?'你的夥伴還沒進榜。':''}</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b><br><small style="color:var(--muted)">${sp(a.sp).n}${a.rb?' · 二轉':''}</small></span><span class="lv">Lv ${a.lv}</span></div>`).join('')+'</div>')},
- arena(){sheet('競技場',`<p class="note">選一位夥伴出戰，對手等級相近。贏了拿 zeny 和經驗。</p>`+S.cr.map(c=>`<div class="row">${icon(c.sp,faceOf(c),46)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)}</small></span><button class="btn" data-a="fight" data-v="${c.id}">出戰</button></div>`).join(''))},
- fight(id){const c=S.cr.find(x=>x.id===+id);if(c.sta<20)return toast('體力值不足 20');c.sta-=20;
-  const es=pick(SP.filter(s=>s.t<=sp(c.sp).t+1)),e={name:pick(NPCN)+'的'+es.n,sp:es.id,lv:Math.max(0,c.lv+Math.floor(rnd(-2,4)))};
-  e.t=es.b.map(v=>v*(1+e.lv*.085)+rnd(0,3));const me={name:c.name,t:total(c),luck:c.mood/100};e.luck=.5;
-  [me,e].forEach(u=>{u.hp=u.mx=50+u.t[3]*8});const lines=[];let a=me.t[2]>=e.t[2]?me:e,b=a===me?e:me,n=0;
-  while(me.hp>0&&e.hp>0&&n++<40){if(Math.random()<Math.min(.35,Math.max(.03,(b.t[2]-a.t[2])/200+.08)))lines.push(`${esc(b.name)} 閃過了攻擊`);
-   else{let d=a.t[0]*2+a.t[1]*.8+rnd(0,8)-b.t[3]*.5;const cr=Math.random()<.05+a.t[4]/400+a.luck*.05;if(cr)d*=1.8;d=Math.max(3,Math.round(d));b.hp-=d;lines.push(`${esc(a.name)} ${cr?'爆擊！':'出招，'}造成 ${d} 傷害（${esc(b.name)} 剩 ${Math.max(0,Math.round(b.hp))}）`)}
-   [a,b]=[b,a]}
-  const win=me.hp>0&&e.hp<=0||me.hp>e.hp,z=win?2000+c.lv*300:0,x=win?30+c.lv*8:10+c.lv*2;S.zeny+=z;const up=gain(c,x);c.mood=Math.max(0,Math.min(100,c.mood+(win?6:-6)));hud();
-  lines.push(`<span class="w">${win?`勝利！獲得 ${fmt(z)} zeny、經驗 +${x}`:`落敗… 經驗 +${x}`}${up?`，升到 Lv ${c.lv}`:''}</span>`);
-  sheet('對戰',`<div class="row">${icon(c.sp,faceOf(c),46)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv}</small></span><b>VS</b><span class="g" style="text-align:right"><b>${esc(e.name)}</b><small>Lv ${e.lv}</small></span>${icon(e.sp,null,46)}</div><div class="log" id="log"></div><div class="grid2"><button class="btn" data-a="fight" data-v="${c.id}">再戰</button><button class="btn g2" data-a="arena">換人</button></div>`);
-  let i=0;clearInterval(A.ft);A.ft=setInterval(()=>{const l=$('#log');if(!l||i>=lines.length)return clearInterval(A.ft);l.innerHTML+=lines[i++]+'<br>';$('#sbody').scrollTop=1e5},260)},
+ arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`)},
+ pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
+ battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
+  cs.forEach(c=>c.sta-=20);const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
+  const avg=Math.round(cs.reduce((a,c)=>a+c.lv,0)/cs.length),mt=Math.max(...cs.map(c=>sp(c.sp).t));
+  B={a:cs.map(c=>U('a',c.name,c.sp,total(c),c.lv,c)),f:cs.map(()=>{const es=pick(SP.filter(s=>s.t<=mt)),lv=Math.max(0,avg+Math.floor(rnd(-2,3)));return U('f',pick(NPCN)+'的'+es.n,es.id,es.b.map(v=>v*(1+lv*.085)+rnd(0,3)),lv,null)}),
+   round:1,phase:'cmd',i:0,pend:null,acts:[],msg:'野生的對手出現了！'};
+  A.close();$('#battle').classList.add('on');bDraw()},
+ bact(k){if(!B||B.phase!=='cmd')return;const u=B.a[B.i];if(k==='run'){B.phase='end';B.msg='你們逃走了。';return bDraw()}
+  if(k==='def'){B.acts.push({u,k});return bNext()}
+  const ty=SK[u.sp][1];if(k==='sk'&&(ty===1||ty===3)){B.acts.push({u,k});return bNext()}
+  B.pend=k;bDraw()},
+ btgt(v){if(!B||B.phase!=='cmd'||!B.pend||v[0]!=='f')return;const t=B.f[+v.slice(1)];if(!t||t.hp<=0)return;B.acts.push({u:B.a[B.i],k:B.pend,t});B.pend=null;bNext()},
+ bback(){B.pend=null;bDraw()},
+ bexit(){$('#battle').classList.remove('on');B=null;save();hud();A.arena()},
 
  /* ---- 收服 ---- */
  async cap(){A.close();capTier=capTier||1;demoMode=false;$('#cap').classList.add('on');$('#cap').classList.remove('demo');$('#capMsg').textContent='';drawSeals();loadFD();
@@ -546,7 +613,7 @@ const A={
   $('#frame').classList.add('hit');const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
-   $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">幫牠取名字</button>`;
+   $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250,c.eq)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">幫牠取名字</button>`;
    $('#cut').className='on';voice('cap',0)},620)},
  cutEnd(){$('#cut').className='';A.cr(cutId)},
 
@@ -567,7 +634,7 @@ document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(e
 
 /* ====== 收服細節 ====== */
 let capTier=1,capSrc=null,capRun=false,capX=0,capDir=1,capT=0,stream=null,busy=false,demoMode=false,cutId=0,FD=null,fdState='';
-const POSE=[0,0,1,7];
+const POSE=[0,0,1,6];
 async function loadFD(){if(FD||fdState==='loading')return;fdState='loading';
  try{const v=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
   const fs=await v.FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
