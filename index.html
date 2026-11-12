@@ -231,12 +231,12 @@ body{background:var(--ink)}
 #coin{background:repeating-linear-gradient(3deg,#0000 0 10px,#00000014 10px 12px),linear-gradient(#b98447,#8a5a2e);border:3px solid var(--wood3);border-radius:16px;color:#fff6df;font-size:18px;padding:4px 14px 4px 4px;box-shadow:inset 0 2px 0 #ffffff40,0 4px 0 #2a180b,0 10px 18px #0008}
 #coin .c{width:40px;height:40px;font-size:20px;box-shadow:0 0 0 3px #8a5a00,inset 0 -3px 0 #0003}
 #coin small{color:#f6d9a6;font-size:11px}
-#snd{width:46px;height:46px;border-radius:50%;font-size:22px;font-weight:900;color:var(--wood3);background:var(--wood);border:3px solid var(--wood3);box-shadow:0 4px 0 #2a180b}
+#snd{width:46px;height:46px;border-radius:50%;font-size:22px;font-weight:900;color:var(--wood3);background:radial-gradient(circle at 35% 30%,#fff8e6,#e8cf9c);border:3px solid var(--wood3);box-shadow:0 4px 0 #2a180b}
 #hint{color:#fff;text-shadow:0 1px 3px #000;bottom:110px}
 #nav{background:none;gap:6px;padding:0 8px 10px}
 #nav button{background:linear-gradient(#fffaf0,var(--parch));border:2px solid #d9c08e;border-radius:12px 12px 8px 8px;color:#5a3a1f;font-weight:800;font-size:14px;padding:8px 0 6px;box-shadow:0 4px 0 #b8975f,0 8px 16px #0007}
 #nav svg{width:34px;height:34px;stroke-width:2.6;filter:drop-shadow(0 2px 0 #0002)}
-.ic1{stroke:#159b97;fill:#bdeee8}.ic2{stroke:#e2472f;fill:#ffd6cb}.ic4{stroke:#2f63c4;fill:#cfe0ff}.ic5{stroke:#d99712;fill:#ffe39a}
+#nav .ic1{stroke:#159b97;fill:#bdeee8}#nav .ic2{stroke:#e2472f;fill:#ffd6cb}#nav .ic4{stroke:#2f63c4;fill:#cfe0ff}#nav .ic5{stroke:#d99712;fill:#ffe39a}
 #nav .big{padding-top:0;color:#5a3a1f}
 #nav .big span{margin-top:-30px;width:76px;height:76px;font-size:46px;box-shadow:0 0 0 3px var(--wood3),0 5px 0 #2a180b,0 10px 20px #000a}
 .tag{background:#f6e9c9;color:#4a2f18;border:2px solid #8a5a2e;border-radius:6px;font-weight:700;font-size:12px;padding:1px 8px;box-shadow:0 2px 0 #5a3a1f}
@@ -427,31 +427,31 @@ function init3D(){if(!HAS3D)return;
  R=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
  scene=new THREE.Scene();scene.background=new THREE.Color(0x1b2a5c);scene.fog=new THREE.Fog(0x1b2a5c,34,70);
  cam=new THREE.PerspectiveCamera(42,1,.1,160);
- scene.add(new THREE.HemisphereLight(0xd6e4ff,0x5a4630,1.1));
- const d=new THREE.DirectionalLight(0xffe2b8,.85);d.position.set(6,14,8);scene.add(d);
+ scene.add(new THREE.HemisphereLight(0x9fb4f0,0x3a2c1c,.62));
+ const d=new THREE.DirectionalLight(0xffd9a8,.62);d.position.set(6,14,8);scene.add(d);
  const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85,flatShading:true},o||{}));
  const add=(geo,mat,x,y,z,par)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);(par||scene).add(m);return m};
  // 毛氈草地＋泥土廣場
- add(new THREE.CylinderGeometry(28,29,1,72),M(0x5c9a45),0,-.5,0);
- add(new THREE.CylinderGeometry(10.5,10.8,.12,72),M(0xcfa66c),0,.03,0);
+ add(new THREE.CylinderGeometry(28,29,1,72),M(0x4a8a3c),0,-.5,0);
+ add(new THREE.CylinderGeometry(10.5,10.8,.12,72),M(0xa98352),0,.03,0);
  // 中央石造封印陣
  const fc=document.createElement('canvas');fc.width=fc.height=512;const g=fc.getContext('2d');
- g.fillStyle='#a29f96';g.fillRect(0,0,512,512);
+ g.fillStyle='#8f8c84';g.fillRect(0,0,512,512);
  for(let i=0;i<500;i++){g.fillStyle=Math.random()<.5?'#00000010':'#ffffff12';g.fillRect(Math.random()*512,Math.random()*512,3+Math.random()*8,3+Math.random()*8)}
  g.strokeStyle='#6e6b64';g.lineWidth=10;g.beginPath();g.arc(256,256,236,0,7);g.stroke();
  g.lineWidth=5;g.beginPath();g.arc(256,256,186,0,7);g.stroke();g.beginPath();g.arc(256,256,150,0,7);g.stroke();
  g.fillStyle='#6e6b64';for(let i=0;i<36;i++){g.save();g.translate(256,256);g.rotate(i/36*Math.PI*2);g.fillRect(-5,-226,10,26);g.fillRect(-11,-212,22,6);g.restore()}
  g.lineWidth=4;g.beginPath();for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*4/5;g[i?'lineTo':'moveTo'](256+Math.cos(a)*150,256+Math.sin(a)*150)}g.closePath();g.stroke();
  g.font='130px "Ma Shan Zheng",serif';g.textAlign='center';g.textBaseline='middle';
- const drawSealChar=()=>{g.fillStyle='#a29f96';g.beginPath();g.arc(256,256,74,0,7);g.fill();g.fillStyle='#5e5b55';g.fillText('封',256,262);if(floorTex)floorTex.needsUpdate=true};drawSealChar();
+ const drawSealChar=()=>{g.fillStyle='#8f8c84';g.beginPath();g.arc(256,256,74,0,7);g.fill();g.fillStyle='#4e4b46';g.fillText('封',256,262);if(floorTex)floorTex.needsUpdate=true};drawSealChar();
  if(document.fonts&&document.fonts.load)document.fonts.load('130px "Ma Shan Zheng"').then(drawSealChar).catch(()=>{});
- const fl=new THREE.Mesh(new THREE.CylinderGeometry(4.2,4.4,.36,64),[M(0x86847d),new THREE.MeshStandardMaterial({map:(()=>{const x=floorTex=new THREE.CanvasTexture(fc);x.wrapS=THREE.RepeatWrapping;x.repeat.x=-1;return x})(),roughness:.95}),M(0x86847d)]);
+ const fl=new THREE.Mesh(new THREE.CylinderGeometry(4.2,4.4,.36,64),[M(0x86847d),new THREE.MeshStandardMaterial({map:(()=>{const x=floorTex=new THREE.CanvasTexture(fc);return x})(),roughness:.95}),M(0x86847d)]);
  fl.position.y=.18;scene.add(fl);
  // 燈籠柱
  for(let i=0;i<12;i++){const a=i/12*Math.PI*2+.13,x=Math.cos(a)*11.2,z=Math.sin(a)*11.2;
   add(new THREE.CylinderGeometry(.1,.12,2.4,8),M(0x7a5230),x,1.2,z);add(new THREE.BoxGeometry(.9,.12,.12),M(0x5a3a1f),x,2.35,z);
   const l=add(new THREE.SphereGeometry(.34,16,12),new THREE.MeshBasicMaterial({color:0xffd27a}),x,2.0,z);l.scale.y=1.2;
-  if(i%3===0){const pl=new THREE.PointLight(0xffb860,.75,13);pl.position.set(x*.9,2.4,z*.9);scene.add(pl)}}
+  if(i%3===0){const pl=new THREE.PointLight(0xffb860,.6,12);pl.position.set(x*.9,2.4,z*.9);scene.add(pl)}}
  // 小木屋
  const roofC=[0x3d5fa8,0x2f4b8c,0x4a6fbe],wallC=[0xf0dfb8,0xd9b27a,0xe8cfa0];
  for(let i=0;i<10;i++){const a=i/10*Math.PI*2+.31,rr=16+Math.random()*3,hs=new THREE.Group();
@@ -578,7 +578,7 @@ function comic(c,good,after){const el=$('#comic'),k=good?Math.floor(Math.random(
 let last=0;const V=HAS3D?new THREE.Vector3():null;
 function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000);last=t;
  if(!dn3d())ang+=dt*.03;
- cam.position.set(Math.sin(ang)*camD,camD*.5+.8,Math.cos(ang)*camD);cam.lookAt(0,1.3,0);
+ cam.position.set(Math.sin(ang)*camD,camD*.3+1.6,Math.cos(ang)*camD);cam.lookAt(0,1.9,0);
  const quiet=document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on');
  objs.forEach(o=>{const g=o.g,dx=o.tx-g.position.x,dz=o.tz-g.position.z,d=Math.hypot(dx,dz);
   if(o.act)act(o,dt);else if(d>.08){const v=1.1*dt;g.position.x+=dx/d*v;g.position.z+=dz/d*v;g.position.y=Math.abs(Math.sin(t*.009+o.c.id))*.07;if(o.spr)o.spr.material.rotation=Math.sin(t*.009+o.c.id)*.06;
