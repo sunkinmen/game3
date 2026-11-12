@@ -113,12 +113,12 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 #ret::after{content:"";position:absolute;inset:9px;border-radius:50%;background:#fff}
 #frame{position:absolute;left:50%;top:40%;border:3px solid var(--gold);border-radius:50% 50% 46% 46%/42% 42% 58% 58%;box-shadow:0 0 0 2000px #0006,0 0 22px var(--gold) inset;will-change:transform}
 #frame.hit{border-color:var(--jade);box-shadow:0 0 0 2000px #0006,0 0 30px var(--jade) inset}
-#capMsg{position:absolute;left:16px;right:16px;top:57%;text-align:center;font:900 22px var(--display);text-shadow:0 2px 10px #000;letter-spacing:.1em;pointer-events:none}
+#capMsg{position:absolute;z-index:3;left:16px;right:16px;top:52%;text-align:center;font:900 22px var(--display);text-shadow:0 2px 10px #000;letter-spacing:.1em;pointer-events:none}
 #capBot{position:absolute;left:0;right:0;bottom:0;height:46%;display:flex;align-items:flex-end;justify-content:center;background:linear-gradient(#0000,#000b)}
-#hands{position:absolute;bottom:118px;left:50%;width:min(66%,270px);aspect-ratio:256/215;translate:-50% 0;background:url(art/hands.webp) 0 0/400% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
+#hands{position:absolute;bottom:-1%;left:50%;width:min(100%,440px);z-index:0;aspect-ratio:256/215;translate:-50% 0;background:url(art/hands.webp) 0 0/400% 200% no-repeat;pointer-events:none;transition:scale .12s;transform-origin:50% 100%}
 #hands.cast{scale:1.12;filter:drop-shadow(0 0 18px var(--gold))}
 #cap:not(.demo) #ret{display:none}
-#capBtn{position:absolute;left:50%;translate:-50% 0;bottom:20px;width:92px;height:92px;border-radius:50%;background:var(--wood);color:#f6e7c5;font:400 46px/1 var(--cal);text-shadow:0 2px 0 #2a1608;box-shadow:0 0 0 4px #000,0 0 0 6px var(--gold),0 0 30px #000c}
+#capBtn{position:absolute;z-index:2;left:50%;translate:-50% 0;bottom:20px;width:92px;height:92px;border-radius:50%;background:var(--wood);color:#f6e7c5;font:400 46px/1 var(--cal);text-shadow:0 2px 0 #2a1608;box-shadow:0 0 0 4px #000,0 0 0 6px var(--gold),0 0 30px #000c}
 #capBtn small{display:block;font:500 11px var(--body);letter-spacing:.1em}
 #capBtn:active{transform:scale(.94)}
 #src{position:absolute;inset:0;background:#0c0f1fee;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
@@ -530,6 +530,16 @@ function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
   if(ue&&te){const r1=ue.getBoundingClientRect(),r2=te.getBoundingClientRect(),f=ue.querySelector('.fig');if(f&&f.animate)f.animate([{transform:'translate(0,0)'},{transform:`translate(${(r2.left-r1.left)*.72}px,${(r2.top-r1.top)*.72}px)`,offset:.45},{transform:'translate(0,0)'}],{duration:480,easing:'ease-in-out'})}}
  fx.forEach(([x,v])=>{const el=$('#u_'+x.side+(x.side==='a'?B.a:B.f).indexOf(x));if(!el)return;if(typeof v==='number'||v==='MISS')el.classList.add('hit');el.insertAdjacentHTML('beforeend',`<em class="${String(v)[0]==='+'?'heal':''}">${v}</em>`)});
  setTimeout(bStep,950)}
+/* 音效（WebAudio 合成） */
+let AC=null;
+function sfx(k){if(S.mute)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();const t=AC.currentTime,out=AC.createGain();out.gain.value=.5;out.connect(AC.destination);
+ const tone=(f,t0,d,type,vol,f2)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t+t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+t0+d);g.gain.setValueAtTime(0,t+t0);g.gain.linearRampToValueAtTime(vol||.4,t+t0+.01);g.gain.exponentialRampToValueAtTime(.001,t+t0+d);o.connect(g);g.connect(out);o.start(t+t0);o.stop(t+t0+d+.02)};
+ const noise=(t0,d,f1,f2,vol)=>{const n=AC.createBuffer(1,AC.sampleRate*d,AC.sampleRate),a=n.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;const s=AC.createBufferSource(),bp=AC.createBiquadFilter(),g=AC.createGain();s.buffer=n;bp.type='bandpass';bp.Q.value=1.2;bp.frequency.setValueAtTime(f1,t+t0);bp.frequency.exponentialRampToValueAtTime(f2,t+t0+d);g.gain.setValueAtTime(vol||.5,t+t0);g.gain.exponentialRampToValueAtTime(.001,t+t0+d);s.connect(bp);bp.connect(g);g.connect(out);s.start(t+t0)};
+ if(k==='cast'){noise(0,.35,400,3200,.6);[0,.05,.1].forEach((d,i)=>tone([660,880,1320][i],d,.25,'triangle',.18));tone(110,0,.25,'sine',.5,55)}
+ else if(k==='ok'){[523,659,784,1047,1319].forEach((f,i)=>tone(f,.08*i,.5,'triangle',.25));for(let i=0;i<8;i++)tone(1800+Math.random()*1800,.45+i*.04,.18,'sine',.08);noise(0,.5,2000,6000,.25)}
+ else if(k==='fail'){tone(330,0,.22,'sawtooth',.18,300);tone(247,.2,.45,'sawtooth',.2,160);tone(80,.05,.3,'sine',.5,40);noise(0,.25,800,200,.3)}
+ else if(k==='tick')tone(1400+Math.random()*600,0,.05,'square',.04);
+}catch(e){}}
 /* 音樂與語音 */
 let BGM=null;const VC={};
 function voice(cat,i){if(S.mute)return;try{const k=cat+i,a=VC[k]||(VC[k]=new Audio('audio/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
@@ -641,7 +651,7 @@ const A={
  seal(t){capTier=+t;drawSeals()},
  cast(){if(!capSrc||busy)return;const sl=SEAL[capTier];
   if(!demoMode&&!FD)return msg(fdState==='fail'?'人臉偵測載入失敗，檢查網路後重開':'人臉偵測載入中…',1300);
-  if(!pay(sl.cost))return;busy=true;handAnim();
+  if(!pay(sl.cost))return;busy=true;handAnim();sfx('cast');
   const W=innerWidth,H=innerHeight,fw=frameW(),fh=fw*1.28;let acc,face;
   if(demoMode){const tol=fw*sl.tol,dx=Math.abs(capX);if(dx>tol)return fail('結印失敗，框沒對準');acc=1-dx/tol;const G=grab(W/2+capX-fw*.52,H*.4-fw*.52,fw*1.04,fw*1.04,160);face=G.toDataURL('image/jpeg',.8)}
   else{const G=grab(W/2+capX-fw/2,H*.4-fh/2,fw,fh,320);let d=[];try{d=FD.detect(G).detections||[]}catch(e){console.error(e)}
@@ -650,7 +660,7 @@ const A={
    const b=ok.boundingBox,cx=b.originX+b.width/2,cy=b.originY+b.height/2,s=Math.max(b.width,b.height)*1.2;
    acc=Math.max(0,Math.min(1,1.15-Math.hypot(cx-G.width/2,cy-G.height/2)/(G.width/2)));
    const c2=document.createElement('canvas');c2.width=c2.height=160;c2.getContext('2d').drawImage(G,cx-s/2,cy-s/2,s,s,0,0,160,160);face=c2.toDataURL('image/jpeg',.82)}
-  $('#frame').classList.add('hit');const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
+  $('#frame').classList.add('hit');setTimeout(()=>sfx('ok'),200);const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
    $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250,c.eq)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">幫牠取名字</button>`;
@@ -682,7 +692,7 @@ async function loadFD(){if(FD||fdState==='loading')return;fdState='loading';
  catch(e){fdState='fail';console.error(e)}}
 const frameW=()=>Math.min(innerWidth*.5,220);
 const hand=f=>{$('#hands').style.backgroundPosition=`${f%4*33.333}% ${Math.floor(f/4)*100}%`};
-function handAnim(){const h=$('#hands');h.classList.add('cast');let n=0;clearInterval(handAnim.t);handAnim.t=setInterval(()=>{if(n++<6)hand(Math.floor(Math.random()*8));else{clearInterval(handAnim.t);hand(POSE[capTier]);h.classList.remove('cast')}},70)}
+function handAnim(){const h=$('#hands');h.classList.add('cast');let n=0;clearInterval(handAnim.t);handAnim.t=setInterval(()=>{if(n++<6){hand(Math.floor(Math.random()*8));sfx('tick')}else{clearInterval(handAnim.t);hand(POSE[capTier]);h.classList.remove('cast')}},70)}
 function drawSeals(){$('#seals').innerHTML=[1,2,3].map(t=>`<button class="${t===capTier?'on':''}" data-a="seal" data-v="${t}"><b class="cal">${SEAL[t].n}</b>${SEAL[t].d}<br>${SEAL[t].cost?fmt(SEAL[t].cost)+' zeny':'免費'}</button>`).join('');
  handAnim();const fw=frameW(),fr=$('#frame');fr.style.width=fw+'px';fr.style.height=fw*1.28+'px';fr.style.marginLeft=-fw/2+'px';fr.style.marginTop=-fw*.64+'px';}
 function capLoop(t){if(!capRun)return;requestAnimationFrame(capLoop);const dt=Math.min(.05,(t-capT)/1000);capT=t;if(busy)return;
@@ -690,7 +700,7 @@ function capLoop(t){if(!capRun)return;requestAnimationFrame(capLoop);const dt=Ma
  $('#frame').style.transform=`translateX(${capX}px)`;
  if(!demoMode&&!FD&&!$('#capMsg').textContent)msg(fdState==='fail'?'人臉偵測載入失敗':'人臉偵測載入中…',600)}
 function msg(m,ms){const e=$('#capMsg');e.textContent=m;clearTimeout(msg.t);msg.t=setTimeout(()=>e.textContent='',ms)}
-function fail(m){msg(m,1100);setTimeout(()=>busy=false,450)}
+function fail(m){msg(m,1100);setTimeout(()=>sfx('fail'),260);setTimeout(()=>busy=false,450)}
 function setImg(url){const im=$('#ci');im.onload=()=>{im.hidden=false;$('#cv').hidden=true;capSrc=im;$('#src').classList.remove('on')};im.src=url}
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{demoMode=false;$('#cap').classList.remove('demo');setImg(r.result)};r.readAsDataURL(f);e.target.value=''};
 // 把螢幕上的一塊矩形（x,y,w,h）從鏡頭或照片取下來
