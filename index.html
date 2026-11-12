@@ -340,9 +340,9 @@ body{background:var(--ink)}
  padding:12px 20px 22px!important;min-width:96px;max-width:190px;text-align:center;line-height:1.3;opacity:0;filter:drop-shadow(0 3px 5px #0003)}
 .bub.on{opacity:.9!important}
 #battle .field{touch-action:none}
-#nav{background:url(art/dock.webp) center bottom/100% auto no-repeat!important;padding:0 4% 2.2vw!important;align-items:end!important;min-height:0}
+#nav{left:50%!important;right:auto!important;width:min(100vw,560px);transform:translateX(-50%);background:url(art/dock.webp) center bottom/100% auto no-repeat!important;padding:0 4% min(2.2vw,12px)!important;align-items:end!important;min-height:0}
 #nav img.ui{width:54px!important;height:54px!important;margin-bottom:-2px}
-#nav button:not(.big){color:#5a3414!important;font-size:13px!important;text-shadow:0 1px 0 #fff8e6,0 0 3px #fff8e6!important;padding-bottom:calc(2.4vw)!important}
+#nav button:not(.big){color:#5a3414!important;font-size:13px!important;text-shadow:0 1px 0 #fff8e6,0 0 3px #fff8e6!important;padding-bottom:min(2.4vw,13px)!important}
 #nav .big span{margin-top:-44px!important}
 #nav .big{color:#5a3414!important;text-shadow:0 1px 0 #fff8e6,0 0 3px #fff8e6!important;font-size:13px!important}
 #hint{display:none}
@@ -649,7 +649,7 @@ function fig3D(c,sid){const g=new THREE.Group(),sp0=c?c.sp:sid;g.userData.cid=c?
   img.src=c?faceOf(c):defFace();
   if(c&&c.eq)[['w',.36,.42,.17,.34],['c',-.34,.5,.14,.22],['a',0,.3,.33,.22]].forEach(([k,x,y,z,s])=>{const t=eqTex(c.eq[k]);if(!t)return;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false}));sp.scale.set(s,s,1);sp.position.set(x,y,z);sp.renderOrder=3;m.add(sp)});
  }).catch(e=>{console.warn('model',sp0,e);if(!SHEET.naturalWidth)return;const s2=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c||{sp:sp0,eq:{},face:null}),transparent:true,alphaTest:.03}));s2.scale.set(1.07,1,1);s2.center.set(.5,.03);g.add(s2)});return g}
-let SKYT=null;function skyImg(){if(!SKYT){SKYT=new THREE.TextureLoader().load('art/sky3d.jpg');SKYT.encoding=THREE.sRGBEncoding;SKYT.wrapS=THREE.MirroredRepeatWrapping;SKYT.minFilter=THREE.LinearFilter}return SKYT}
+function skyImg(){const t=new THREE.TextureLoader().load('art/sky3d.jpg');t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.MirroredRepeatWrapping;t.minFilter=THREE.LinearFilter;return t}
 // 讓天空背景以 cover 方式填滿畫面，水平隨視角轉動
 function skyFit(t,w,h,az){const ia=2048/868,va=w/Math.max(1,h);if(!t)return;let rx=1,ry=1;if(va>ia)ry=ia/va;else rx=va/ia;t.repeat.set(rx,ry);t.offset.set(((az||0)/(Math.PI*2))*1.5+(1-rx)/2,(1-ry)/2*.6)}
 function fillDisc(y,c){const m=new THREE.Mesh(new THREE.CircleGeometry(4.6,64),new THREE.MeshStandardMaterial({color:c,roughness:1}));m.rotation.x=-Math.PI/2;m.position.y=y;m.receiveShadow=true;return m}
@@ -661,7 +661,7 @@ function mkR(cv,alpha){const r=new THREE.WebGLRenderer({canvas:cv,antialias:true
 const HS=10;let hAz=.35,hEl=.62,hDist=15,hTgt=null,pcam=null,plazaOK=false;
 const gY=(x,z)=>Math.hypot(x,z)<DIO.plaza.c*HS?DIO.plaza.cy*HS:DIO.plaza.g*HS;
 function spot3(){const a=rnd(0,Math.PI*2),r=Math.sqrt(rnd(.08,1))*DIO.plaza.r*HS;return [Math.cos(a)*r,Math.sin(a)*r]}
-function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=skyImg().clone();scene.background.needsUpdate=true;
+function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=skyImg();
  pcam=new THREE.PerspectiveCamera(38,1,1,200);hTgt=new THREE.Vector3(0,DIO.plaza.g*HS+.5,0);cam=pcam;lights(scene,true);
  gm('plaza').then(p=>{const m=p.clone();m.scale.setScalar(HS);scene.add(m);plazaOK=true;scene.add(fillDisc(DIO.plaza.g*HS-.03,0xc9a57a))}).catch(e=>console.warn(e));
  if(innerWidth<innerHeight){hDist=17;hEl=.78}else hDist=12;resize3();addEventListener('resize',resize3);
@@ -713,7 +713,7 @@ function b3Ctl(){const el=$('#battle'),P=new Map();let d0=null,pin=0,z0=1;
  const up=e=>{P.delete(e.pointerId);if(P.size<2)pin=0;if(!P.size)d0=null};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
  el.addEventListener('wheel',e=>{if(!ok(e))return;e.preventDefault();bZ=Math.min(1.6,Math.max(.55,bZ*(1+e.deltaY*.0012)));b3Cam()},{passive:false});
  el.addEventListener('dblclick',e=>{if(ok(e)){bAz=0;bEl=.6;bZ=1;b3Cam()}})}
-function b3Init(){if(BR)return;b3Ctl();BCV=document.createElement('canvas');BCV.id='bgl';BR=mkR(BCV);BS=new THREE.Scene();BS.background=skyImg().clone();BS.background.needsUpdate=true;
+function b3Init(){if(BR)return;b3Ctl();BCV=document.createElement('canvas');BCV.id='bgl';BR=mkR(BCV);BS=new THREE.Scene();BS.background=skyImg();
  BC=new THREE.PerspectiveCamera(32,.75,.1,200);lights(BS,true);
  gm('arena').then(p=>{const m=p.clone();m.scale.setScalar(AS);BS.add(m);BS.add(fillDisc(DIO.arena.g*AS-.03,0x86b86c))}).catch(e=>console.warn(e));
  const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.3,'#ffffffaa');gr.addColorStop(1,'#fff0');g.fillStyle=gr;g.fillRect(0,0,64,64);PTX=new THREE.CanvasTexture(c);
