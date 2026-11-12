@@ -321,6 +321,18 @@ body{background:var(--ink)}
 #battle .field:has(.s3)::before{display:none}
 .bflash{position:absolute;inset:0;pointer-events:none;opacity:.0;animation:bfl .45s ease-out;z-index:5;mix-blend-mode:screen}
 @keyframes bfl{0%{opacity:.85}100%{opacity:0}}
+
+/* v25 Nano Banana UI */
+.logo img{display:block;height:46px;width:auto;filter:drop-shadow(0 3px 4px #0006)}
+.logo{text-shadow:none!important;-webkit-text-stroke:0!important;font-size:0!important}
+#snd{background:none!important;border:0!important;-webkit-backdrop-filter:none;backdrop-filter:none;width:46px!important;height:46px!important;padding:0}
+#snd img{width:100%;height:100%;filter:drop-shadow(0 3px 3px #0006)}#snd.off img{filter:grayscale(1) brightness(.8) drop-shadow(0 3px 3px #0006);opacity:.6}#snd.off{text-decoration:none!important;opacity:1!important}
+#coin{background:#0b0e1d40!important;border:1px solid #ffffff40!important;padding:2px 14px 2px 2px!important}
+#coin img.c{width:40px!important;height:40px!important;background:none!important;border-radius:0;filter:drop-shadow(0 2px 2px #0006)}
+#nav button:not(.big){background:none!important;border:0!important;box-shadow:none!important;color:#fff!important;font-size:15px!important;font-weight:900!important;letter-spacing:.08em;padding:0 0 4px!important;
+ text-shadow:0 0 3px #3a1d06,0 2px 0 #3a1d06,2px 0 0 #3a1d06,-2px 0 0 #3a1d06,0 -2px 0 #3a1d06,0 4px 6px #0008}
+#nav img.ui{width:64px;height:64px;filter:drop-shadow(0 4px 4px #0007);transition:transform .15s}
+#nav button:active img.ui{transform:scale(.9)}
 </style>
 </head>
 <body>
@@ -328,17 +340,17 @@ body{background:var(--ink)}
 <div id="bubbles"></div>
 
 <div id="hud">
-  <div class="logo"><i>封</i>封印物語<small id="cnt"></small></div>
-  <span style="display:flex;gap:8px;align-items:center"><button id="snd" data-a="snd" aria-label="音樂與語音開關">♪</button><button id="coin" data-a="phone" aria-label="開啟手機台股"><span class="c">Z</span><span><span id="zeny">0</span><small>點我看盤</small></span></button></span>
+  <div class="logo"><img src="art/logo.webp" alt="封印物語"><small id="cnt"></small></div>
+  <span style="display:flex;gap:8px;align-items:center"><button id="snd" data-a="snd" aria-label="音樂與語音開關"><img src="art/ui_music.webp" alt=""></button><button id="coin" data-a="phone" aria-label="開啟手機台股"><img class="c" src="art/ui_coin.webp" alt=""><span><span id="zeny">0</span><small>點我看盤</small></span></button></span>
 </div>
 <div id="hint">拖曳移動視角 · 雙指縮放 · 點夥伴互動</div>
 
 <nav id="nav">
-  <button data-a="list"><svg class="ic1" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><path d="M4 21c1-5 15-5 16 0"/></svg>夥伴</button>
-  <button data-a="shop"><svg class="ic2" viewBox="0 0 24 24"><path d="M4 9h16l-1 11H5z"/><path d="M8 9a4 4 0 0 1 8 0"/></svg>商店</button>
+  <button data-a="list"><img class="ui" src="art/ui_buddy.webp" alt="">夥伴</button>
+  <button data-a="shop"><img class="ui" src="art/ui_shop.webp" alt="">商店</button>
   <button class="big" data-a="cap"><span>封</span>結印收服</button>
-  <button data-a="arena"><svg class="ic4" viewBox="0 0 24 24"><path d="M5 4l14 14M19 4L5 18M4 15l5 5M20 15l-5 5"/></svg>競技</button>
-  <button data-a="rank"><svg class="ic5" viewBox="0 0 24 24"><path d="M4 20V11h5v9M9.5 20V5h5v15M15 20v-7h5v7"/></svg>排行</button>
+  <button data-a="arena"><img class="ui" src="art/ui_arena.webp" alt="">競技</button>
+  <button data-a="rank"><img class="ui" src="art/ui_rank.webp" alt="">排行</button>
 </nav>
 
 <section id="sheet" aria-live="polite"><header><h2 id="stitle"></h2><button class="x" data-a="close" aria-label="關閉">×</button></header><div id="sbody"></div></section>
