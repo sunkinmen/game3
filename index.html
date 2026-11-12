@@ -6,7 +6,10 @@
 <title>封印物語</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0c0f1f">
-<link rel="icon" href="icon.svg">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="封印物語">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
 <style>
@@ -676,7 +679,7 @@ const A={
   $('#frame').classList.add('hit');setTimeout(()=>sfx('ok'),200);const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
-   $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250,c.eq)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">幫牠取名字</button>`;
+   $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250,c.eq)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">取名字</button>`;
    $('#cut').className='on';voice('cap',0)},620)},
  cutEnd(){$('#cut').className='';A.cr(cutId)},
 
