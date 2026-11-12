@@ -275,10 +275,10 @@ body{background:var(--ink)}
 #bcmd [data-v=def]{background:linear-gradient(#6f9dff,#3f78d8);color:#fff;box-shadow:inset 0 2px 0 #fff6,inset 0 -3px 0 #0003,0 3px 0 #23509c}
 #bcmd [data-a=btgt],#bcmd [data-a=bexit]{background:linear-gradient(#ffd66b,#f2b632);color:#5a3a00}
 #battle{background:#2b1b0f;padding:0 0 8px;gap:0}
-#battle .field{flex:1;min-height:0;position:relative;display:grid;place-items:center;overflow:hidden;container-type:size}
-#battle .field::before{content:"";position:absolute;inset:-30px;background:url(art/field.webp) center/cover;filter:blur(16px) brightness(.8)}
+#battle .field{flex:1;min-height:0;position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden;container-type:size}
+#battle .field::before{content:"";position:absolute;inset:-30px;background:url(art/field.webp) center/cover;filter:blur(10px) brightness(.9) saturate(1.1)}
 #battle .stage{position:relative;width:min(100cqw,74.7cqh);aspect-ratio:765/1024;background:url(art/field.webp) center/100% 100%;container-type:size;box-shadow:0 0 40px #0008}
-#battle .unit{position:absolute;display:block;width:0;height:0;padding:0;margin:0;border:0;background:none;max-width:none;--h:calc(19cqh*var(--sc))}
+#battle .unit{position:absolute;display:block;width:0;height:0;padding:0;margin:0;border:0;background:none;max-width:none;--h:calc(17cqh*var(--sc))}
 #battle .unit .shd{position:absolute;left:0;top:0;translate:-50% -50%;width:calc(var(--h)*.6);height:calc(var(--h)*.15);border-radius:50%;background:#2a1a0a70;filter:blur(2px)}
 #battle .unit .fig{position:absolute;left:0;bottom:0;translate:-50% 0;display:block;transition:filter .2s}
 #battle .unit.f .fig{scale:-1 1}
@@ -466,7 +466,7 @@ function mesh(geo,col,o){const m=new THREE.Mesh(geo,new THREE.MeshStandardMateri
 function build3D(){if(!HAS3D||!scene)return;const old={};objs.forEach(o=>{old[o.c.id]=o;scene.remove(o.g);o.b.remove();o.tg.remove()});objs=[];
  $('#cnt').textContent=`已收服 ${S.cr.length} 位夥伴`;if(!(SHEET.complete&&SHEET.naturalWidth))return;
  S.cr.forEach(c=>{const s=sp(c.sp),g=new THREE.Group();g.userData.cid=c.id;
-  const H=1.75*[0,1,1.1,1.25][s.t],spr=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c),transparent:true,alphaTest:.03}));
+  const H=2.1*[0,1,1.1,1.25][s.t],spr=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c),transparent:true,alphaTest:.03}));
   spr.scale.set(H*1.074,H,1);spr.center.set(.5,.03);g.add(spr);g.userData.h=H;
   if(c.rb){const st=new THREE.Mesh(new THREE.OctahedronGeometry(.14),new THREE.MeshBasicMaterial({color:0x45d3a8}));st.position.set(0,H+.25,.1);g.add(st)}
   const sh=new THREE.Mesh(new THREE.CircleGeometry(.5,28),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.3,depthWrite:false}));sh.scale.y=.3;sh.position.z=-.05;g.add(sh);
@@ -484,9 +484,9 @@ function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k
 /* 回合制戰鬥 */
 const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
 const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
-let B=null,pickIds=[];const BPOS={a:[[.25,.47],[.14,.63],[.28,.8]],f:[[.75,.47],[.86,.63],[.72,.8]]};
+let B=null,pickIds=[];const BPOS={a:[[.31,.41],[.14,.6],[.33,.8]],f:[[.69,.41],[.86,.6],[.67,.8]]};
 function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
- const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.78+(pv-.47)/.33*.34).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="plate"><b>${esc(x.name)} <small>Lv${x.lv}</small></b><span class="bar"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'#f0603f':'#5fd36a'}"></i></span><small>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)} · 氣${x.qi}${x.def?' · 防禦':''}</small></span></button>`};
+ const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="plate"><b>${esc(x.name)} <small>Lv${x.lv}</small></b><span class="bar"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'#f0603f':'#5fd36a'}"></i></span><small>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)} · 氣${x.qi}${x.def?' · 防禦':''}</small></span></button>`};
  let cmd='';
  if(B.phase==='cmd'){if(B.pend)cmd=B.f.map((x,i)=>x.hp>0?`<button data-a="btgt" data-v="f${i}">${esc(x.name)}</button>`:'').join('')+'<button data-a="bback">返回</button>';
   else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button><button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
