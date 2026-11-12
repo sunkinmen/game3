@@ -72,7 +72,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 .tabs button.on{background:var(--paper);color:#1b1730;border-color:var(--paper);font-weight:700}
 .ico{position:relative;flex:none;display:block;background:url(art/species.webp) 0 0/500% 300% no-repeat}
 .ico svg{width:100%;height:100%;display:block}
-.ico img{position:absolute;border-radius:50%;object-fit:cover;scale:1.08;-webkit-mask:radial-gradient(closest-side,#000 84%,#0000 100%);mask:radial-gradient(closest-side,#000 84%,#0000 100%);filter:saturate(1.05)}
+.ico img{position:absolute;border-radius:50%;object-fit:cover;scale:1.15;-webkit-mask:radial-gradient(closest-side,#000 88%,#0000 100%);mask:radial-gradient(closest-side,#000 88%,#0000 100%);filter:saturate(1.05)}
 .ico::after{content:none}
 .tier{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;border:1px solid;margin-left:6px;vertical-align:middle}
 .t1{color:var(--jade)}.t2{color:#7fb2ff}.t3{color:var(--gold)}
@@ -332,6 +332,7 @@ body{background:var(--ink)}
   <div id="capTop">
     <div class="l1"><b style="font-family:var(--display);letter-spacing:.1em">臉進到移動的框裡，就按「封」</b><button class="x" data-a="capClose" aria-label="離開收服">×</button></div>
     <div id="seals"></div>
+    <label class="sw" id="bty" style="color:#fff;text-shadow:0 1px 2px #000"><input type="checkbox" id="btyOn" checked>美顏</label>
   </div>
   <div id="src">
     <h2 style="font-family:var(--display);margin:0">開不了即時鏡頭</h2>
@@ -432,7 +433,7 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
  if(c.lv>=100)c.exp=0;return up}
 
 /* ====== Q 版圖示（排行榜用，不帶人臉） ====== */
-const HOLE=[[0.479,0.412,0.137,0.112],[0.483,0.409,0.137,0.115],[0.483,0.441,0.143,0.115],[0.476,0.414,0.134,0.102],[0.476,0.404,0.14,0.115],[0.481,0.365,0.146,0.112],[0.479,0.367,0.137,0.115],[0.476,0.378,0.14,0.115],[0.476,0.378,0.14,0.115],[0.476,0.372,0.14,0.115],[0.469,0.375,0.167,0.124],[0.48,0.375,0.146,0.12],[0.464,0.367,0.149,0.128],[0.479,0.385,0.137,0.112],[0.48,0.37,0.159,0.134]];
+const HOLE=[[0.5,0.445,0.14,0.135],[0.5,0.445,0.14,0.135],[0.49,0.47,0.14,0.135],[0.49,0.45,0.14,0.13],[0.49,0.41,0.14,0.13],[0.505,0.39,0.145,0.12],[0.49,0.38,0.145,0.12],[0.49,0.385,0.14,0.12],[0.495,0.385,0.145,0.12],[0.49,0.39,0.145,0.125],[0.495,0.405,0.17,0.135],[0.5,0.38,0.16,0.11],[0.495,0.4,0.155,0.14],[0.5,0.385,0.15,0.12],[0.49,0.35,0.16,0.11]];
 const SHEET=new Image();SHEET.onload=()=>{if(scene)build3D()};SHEET.src='art/species.webp';
 const EQS=new Image();EQS.onload=()=>{if(scene)build3D()};EQS.src='art/equip.webp';
 function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const pd=eq?['a','w','c'].map(k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`}).join(''):'';
@@ -441,15 +442,15 @@ function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];co
 function fitFace(img,W,H){const c=document.createElement('canvas');c.width=Math.max(2,Math.round(W));c.height=Math.max(2,Math.round(H));const g=c.getContext('2d');g.imageSmoothingQuality='high';
  const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.max(c.width/iw,c.height/ih);g.drawImage(img,(c.width-iw*s)/2,(c.height-ih*s)/2,iw*s,ih*s);
  g.save();g.translate(c.width/2,c.height/2);g.scale(1,c.height/c.width);const R=c.width/2;
- let gr=g.createRadialGradient(0,0,R*.55,0,0,R);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.75,'rgba(40,20,5,.18)');gr.addColorStop(1,'rgba(30,15,5,.45)');
+ let gr=g.createRadialGradient(0,0,R*.55,0,0,R);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.8,'rgba(40,20,5,.12)');gr.addColorStop(1,'rgba(30,15,5,.4)');
  g.globalCompositeOperation='source-atop';g.fillStyle=gr;g.fillRect(-R,-R,R*2,R*2);
- gr=g.createRadialGradient(0,0,R*.86,0,0,R);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');
+ gr=g.createRadialGradient(0,0,R*.88,0,0,R);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');
  g.globalCompositeOperation='destination-in';g.fillStyle=gr;g.fillRect(-R,-R,R*2,R*2);g.restore();return c}
 function spriteTex(c){const i=SP.findIndex(s=>s.id===c.sp),h=HOLE[i],cw=SHEET.naturalWidth/5,ch=SHEET.naturalHeight/3,cv=document.createElement('canvas');cv.width=Math.round(cw*2);cv.height=Math.round(ch*2);const g=cv.getContext('2d');
  g.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,cv.width,cv.height);const tx=new THREE.CanvasTexture(cv),f=new Image();
  const doll=()=>{if(!EQS.complete||!EQS.naturalWidth)return;const z=EQS.naturalWidth/6,W=cv.width,H2=cv.height;
   [['a',.5,.72,.42,0],['w',.84,.56,.52,.32],['c',.16,.66,.3,0]].forEach(([k,x,y,s,rot])=>{const j=EQO.indexOf(c.eq[k]);if(j<0)return;g.save();g.translate(x*W,y*H2);g.rotate(rot);g.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,-s*W/2,-s*W/2,s*W,s*W);g.restore()})};
- f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height;g.drawImage(fitFace(f,rx*2.12,ry*2.12),x-rx*1.06,y-ry*1.06);doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
+ f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height;g.drawImage(fitFace(f,rx*2.3,ry*2.3),x-rx*1.15,y-ry*1.15);doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
 let DEF;function defFace(){if(DEF)return DEF;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
  g.fillStyle='#f6d7b8';g.fillRect(0,0,128,128);g.fillStyle='#2a2030';g.beginPath();g.arc(44,56,7,0,7);g.arc(84,56,7,0,7);g.fill();
  g.strokeStyle='#2a2030';g.lineWidth=5;g.lineCap='round';g.beginPath();g.arc(64,74,22,.25,Math.PI-.25);g.stroke();
@@ -653,7 +654,7 @@ const A={
  bexit(){$('#battle').classList.remove('on');B=null;save();hud();A.arena()},
 
  /* ---- 收服 ---- */
- async cap(){A.close();capTier=capTier||1;demoMode=false;$('#cap').classList.add('on');$('#cap').classList.remove('demo');$('#capMsg').textContent='';drawSeals();loadFD();
+ async cap(){A.close();$('#btyOn').checked=S.beauty!==false;capTier=capTier||1;demoMode=false;$('#cap').classList.add('on');$('#cap').classList.remove('demo');$('#capMsg').textContent='';drawSeals();loadFD();
   try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});const v=$('#cv');v.hidden=false;$('#ci').hidden=true;v.srcObject=stream;await v.play();capSrc=v;$('#src').classList.remove('on')}
   catch(e){$('#cv').hidden=true;$('#src').classList.add('on')}
   capRun=true;requestAnimationFrame(capLoop)},
@@ -671,7 +672,7 @@ const A={
    if(!ok)return fail(d.length?'五官沒有完整入框':'沒照到五官，結印失敗');
    const b=ok.boundingBox,cx=b.originX+b.width/2,cy=b.originY+b.height*.46,s=b.width*1.04;
    acc=Math.max(0,Math.min(1,1.15-Math.hypot(cx-G.width/2,cy-G.height/2)/(G.width/2)));
-   const c2=document.createElement('canvas');c2.width=c2.height=256;const x2=c2.getContext('2d');x2.imageSmoothingQuality='high';x2.drawImage(G,cx-s/2,cy-s/2,s,s,0,0,256,256);toneFix(c2);face=c2.toDataURL('image/jpeg',.88)}
+   const c2=document.createElement('canvas');c2.width=c2.height=256;const x2=c2.getContext('2d');x2.imageSmoothingQuality='high';x2.drawImage(G,cx-s/2,cy-s/2,s,s,0,0,256,256);if(S.beauty!==false)beauty(c2);toneFix(c2);face=c2.toDataURL('image/jpeg',.88)}
   $('#frame').classList.add('hit');setTimeout(()=>sfx('ok'),200);const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
@@ -712,6 +713,17 @@ function capLoop(t){if(!capRun)return;requestAnimationFrame(capLoop);const dt=Ma
  $('#frame').style.transform=`translateX(${capX}px)`;
  if(!demoMode&&!FD&&!$('#capMsg').textContent)msg(fdState==='fail'?'人臉偵測載入失敗':'人臉偵測載入中…',600)}
 function msg(m,ms){const e=$('#capMsg');e.textContent=m;clearTimeout(msg.t);msg.t=setTimeout(()=>e.textContent='',ms)}
+// 美顏：保邊磨皮（只作用在膚色區），再提亮、柔光
+function beauty(cv){try{const w=cv.width,hh=cv.height,x=cv.getContext('2d'),im=x.getImageData(0,0,w,hh),d=im.data,N=w*hh;
+ const bl=new Float32Array(N*3),tmp=new Float32Array(N*3),R=4;
+ for(let y=0;y<hh;y++)for(let k=0;k<3;k++){let s=0;for(let i=-R;i<=R;i++)s+=d[(y*w+Math.min(w-1,Math.max(0,i)))*4+k];for(let i=0;i<w;i++){tmp[(y*w+i)*3+k]=s/(2*R+1);s+=d[(y*w+Math.min(w-1,i+R+1))*4+k]-d[(y*w+Math.max(0,i-R))*4+k]}}
+ for(let i=0;i<w;i++)for(let k=0;k<3;k++){let s=0;for(let y=-R;y<=R;y++)s+=tmp[(Math.min(hh-1,Math.max(0,y))*w+i)*3+k];for(let y=0;y<hh;y++){bl[(y*w+i)*3+k]=s/(2*R+1);s+=tmp[(Math.min(hh-1,y+R+1)*w+i)*3+k]-tmp[(Math.max(0,y-R)*w+i)*3+k]}}
+ for(let p=0;p<N;p++){const q=p*4,r0=d[q],g0=d[q+1],b0=d[q+2],cb=128-.169*r0-.331*g0+.5*b0,cr=128+.5*r0-.419*g0-.081*b0;
+  const skin=(cb>72&&cb<132&&cr>130&&cr<180)?1:0;if(!skin)continue;
+  const L0=.299*r0+.587*g0+.114*b0,L1=.299*bl[p*3]+.587*bl[p*3+1]+.114*bl[p*3+2],w2=.75*Math.max(0,1-Math.abs(L0-L1)/16);
+  for(let k=0;k<3;k++)d[q+k]=d[q+k]*(1-w2)+bl[p*3+k]*w2;
+  d[q]=Math.min(255,d[q]*1.04+6);d[q+1]=Math.min(255,d[q+1]*1.03+5);d[q+2]=Math.min(255,d[q+2]*1.02+5)}
+ x.putImageData(im,0,0)}catch(e){}}
 // 臉部色調校正：亮度、對比、膚色暖度拉到一致
 function toneFix(cv){try{const x=cv.getContext('2d'),im=x.getImageData(0,0,cv.width,cv.height),d=im.data;let L=0,n=0,lo=255,hi=0;
  const w=cv.width,hgt=cv.height;for(let y=hgt*.2|0;y<hgt*.8;y+=2)for(let i=w*.2|0;i<w*.8;i+=2){const p=(y*w+i)*4,l=.299*d[p]+.587*d[p+1]+.114*d[p+2];L+=l;n++;if(l<lo)lo=l;if(l>hi)hi=l}
@@ -720,6 +732,7 @@ function toneFix(cv){try{const x=cv.getContext('2d'),im=x.getImageData(0,0,cv.wi
  x.putImageData(im,0,0)}catch(e){}}
 function fail(m){msg(m,1100);setTimeout(()=>sfx('fail'),260);setTimeout(()=>busy=false,450)}
 function setImg(url){const im=$('#ci');im.onload=()=>{im.hidden=false;$('#cv').hidden=true;capSrc=im;$('#src').classList.remove('on')};im.src=url}
+$('#btyOn').onchange=e=>{S.beauty=e.target.checked;save()};
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{demoMode=false;$('#cap').classList.remove('demo');setImg(r.result)};r.readAsDataURL(f);e.target.value=''};
 // 把螢幕上的一塊矩形（x,y,w,h）從鏡頭或照片取下來
 function grab(x,y,w,h,outW){const W=innerWidth,H=innerHeight,sw=capSrc.videoWidth||capSrc.naturalWidth||1,sh=capSrc.videoHeight||capSrc.naturalHeight||1,sc=Math.max(W/sw,H/sh);
