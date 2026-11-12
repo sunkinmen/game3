@@ -72,7 +72,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-o
 .tabs button.on{background:var(--paper);color:#1b1730;border-color:var(--paper);font-weight:700}
 .ico{position:relative;flex:none;display:block;background:url(art/species.webp) 0 0/500% 300% no-repeat}
 .ico svg{width:100%;height:100%;display:block}
-.ico img{position:absolute;border-radius:50%;object-fit:cover}
+.ico img{position:absolute;border-radius:50%;object-fit:cover;scale:1.08;-webkit-mask:radial-gradient(closest-side,#000 84%,#0000 100%);mask:radial-gradient(closest-side,#000 84%,#0000 100%);filter:saturate(1.05)}
+.ico::after{content:none}
 .tier{display:inline-block;font-size:11px;padding:1px 7px;border-radius:8px;border:1px solid;margin-left:6px;vertical-align:middle}
 .t1{color:var(--jade)}.t2{color:#7fb2ff}.t3{color:var(--gold)}
 .hero{display:flex;gap:14px;align-items:center}
@@ -436,11 +437,19 @@ const SHEET=new Image();SHEET.onload=()=>{if(scene)build3D()};SHEET.src='art/spe
 const EQS=new Image();EQS.onload=()=>{if(scene)build3D()};EQS.src='art/equip.webp';
 function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const pd=eq?['a','w','c'].map(k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`}).join(''):'';
  return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
+// 把臉以 cover 填滿圓洞，邊緣羽化並加內陰影，與頭套無縫融合
+function fitFace(img,W,H){const c=document.createElement('canvas');c.width=Math.max(2,Math.round(W));c.height=Math.max(2,Math.round(H));const g=c.getContext('2d');g.imageSmoothingQuality='high';
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.max(c.width/iw,c.height/ih);g.drawImage(img,(c.width-iw*s)/2,(c.height-ih*s)/2,iw*s,ih*s);
+ g.save();g.translate(c.width/2,c.height/2);g.scale(1,c.height/c.width);const R=c.width/2;
+ let gr=g.createRadialGradient(0,0,R*.55,0,0,R);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(.75,'rgba(40,20,5,.18)');gr.addColorStop(1,'rgba(30,15,5,.45)');
+ g.globalCompositeOperation='source-atop';g.fillStyle=gr;g.fillRect(-R,-R,R*2,R*2);
+ gr=g.createRadialGradient(0,0,R*.86,0,0,R);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(1,'rgba(0,0,0,0)');
+ g.globalCompositeOperation='destination-in';g.fillStyle=gr;g.fillRect(-R,-R,R*2,R*2);g.restore();return c}
 function spriteTex(c){const i=SP.findIndex(s=>s.id===c.sp),h=HOLE[i],cw=SHEET.naturalWidth/5,ch=SHEET.naturalHeight/3,cv=document.createElement('canvas');cv.width=Math.round(cw*2);cv.height=Math.round(ch*2);const g=cv.getContext('2d');
  g.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,cv.width,cv.height);const tx=new THREE.CanvasTexture(cv),f=new Image();
  const doll=()=>{if(!EQS.complete||!EQS.naturalWidth)return;const z=EQS.naturalWidth/6,W=cv.width,H2=cv.height;
   [['a',.5,.72,.42,0],['w',.84,.56,.52,.32],['c',.16,.66,.3,0]].forEach(([k,x,y,s,rot])=>{const j=EQO.indexOf(c.eq[k]);if(j<0)return;g.save();g.translate(x*W,y*H2);g.rotate(rot);g.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,-s*W/2,-s*W/2,s*W,s*W);g.restore()})};
- f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height,s=Math.max(rx,ry)*2;g.save();g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.clip();g.drawImage(f,x-s/2,y-s/2,s,s);g.restore();doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
+ f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height;g.drawImage(fitFace(f,rx*2.12,ry*2.12),x-rx*1.06,y-ry*1.06);doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
 let DEF;function defFace(){if(DEF)return DEF;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
  g.fillStyle='#f6d7b8';g.fillRect(0,0,128,128);g.fillStyle='#2a2030';g.beginPath();g.arc(44,56,7,0,7);g.arc(84,56,7,0,7);g.fill();
  g.strokeStyle='#2a2030';g.lineWidth=5;g.lineCap='round';g.beginPath();g.arc(64,74,22,.25,Math.PI-.25);g.stroke();
@@ -498,7 +507,7 @@ const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴'
 const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
 let B=null,pickIds=[];const BPOS={a:[[.31,.41],[.14,.6],[.33,.8]],f:[[.69,.41],[.86,.6],[.67,.8]]};
 function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
- const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm">${esc(x.name)} <small>Lv${x.lv}</small>${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
+ const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm">${esc(x.name)}${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
  let cmd='';
  if(B.phase==='cmd'){if(B.pend)cmd=B.f.map((x,i)=>x.hp>0?`<button data-a="btgt" data-v="f${i}">${esc(x.name)}</button>`:'').join('')+'<button data-a="bback">返回</button>';
   else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button><button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
@@ -566,7 +575,7 @@ function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000
   o.b.style.left=(V.x+1)/2*innerWidth+'px';o.b.style.top=((1-V.y)/2*innerHeight-4)+'px';o.b.classList.toggle('on',o.say>0&&!quiet);
   V.set(g.position.x,g.position.y,0).project(cam);
   o.tg.style.left=(V.x+1)/2*innerWidth+'px';o.tg.style.top=((1-V.y)/2*innerHeight+4)+'px';o.tg.style.display=quiet?'none':'';
-  const tx=`${esc(o.c.name)}<b>Lv${o.c.lv}</b>`;if(o.tg._t!==tx){o.tg.innerHTML=tx;o.tg._t=tx}});
+  const tx=esc(o.c.name);if(o.tg._t!==tx){o.tg.innerHTML=tx;o.tg._t=tx}});
  R.render(scene,cam);}
 function dn3d(){return document.querySelector('#sheet.on,#cap.on,#phone.on')}
 const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -657,12 +666,12 @@ const A={
   if(!pay(sl.cost))return;busy=true;handAnim();sfx('cast');
   const W=innerWidth,H=innerHeight,fw=frameW(),fh=fw*1.28;let acc,face;
   if(demoMode){const tol=fw*sl.tol,dx=Math.abs(capX);if(dx>tol)return fail('結印失敗，框沒對準');acc=1-dx/tol;const G=grab(W/2+capX-fw*.52,H*.4-fw*.52,fw*1.04,fw*1.04,160);face=G.toDataURL('image/jpeg',.8)}
-  else{const G=grab(W/2+capX-fw/2,H*.4-fh/2,fw,fh,320);let d=[];try{d=FD.detect(G).detections||[]}catch(e){console.error(e)}
+  else{const G=grab(W/2+capX-fw/2,H*.4-fh/2,fw,fh,640);let d=[];try{d=FD.detect(G).detections||[]}catch(e){console.error(e)}
    const ok=d.find(x=>x.categories&&x.categories[0].score>.6&&x.keypoints&&x.keypoints.length>=4&&x.keypoints.slice(0,4).every(p=>p.x>.04&&p.x<.96&&p.y>.04&&p.y<.96));
    if(!ok)return fail(d.length?'五官沒有完整入框':'沒照到五官，結印失敗');
-   const b=ok.boundingBox,cx=b.originX+b.width/2,cy=b.originY+b.height/2,s=Math.max(b.width,b.height)*1.2;
+   const b=ok.boundingBox,cx=b.originX+b.width/2,cy=b.originY+b.height*.46,s=b.width*1.04;
    acc=Math.max(0,Math.min(1,1.15-Math.hypot(cx-G.width/2,cy-G.height/2)/(G.width/2)));
-   const c2=document.createElement('canvas');c2.width=c2.height=160;c2.getContext('2d').drawImage(G,cx-s/2,cy-s/2,s,s,0,0,160,160);face=c2.toDataURL('image/jpeg',.82)}
+   const c2=document.createElement('canvas');c2.width=c2.height=256;const x2=c2.getContext('2d');x2.imageSmoothingQuality='high';x2.drawImage(G,cx-s/2,cy-s/2,s,s,0,0,256,256);toneFix(c2);face=c2.toDataURL('image/jpeg',.88)}
   $('#frame').classList.add('hit');setTimeout(()=>sfx('ok'),200);const fl=$('#flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='';fl.style.opacity=0});
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
@@ -703,6 +712,12 @@ function capLoop(t){if(!capRun)return;requestAnimationFrame(capLoop);const dt=Ma
  $('#frame').style.transform=`translateX(${capX}px)`;
  if(!demoMode&&!FD&&!$('#capMsg').textContent)msg(fdState==='fail'?'人臉偵測載入失敗':'人臉偵測載入中…',600)}
 function msg(m,ms){const e=$('#capMsg');e.textContent=m;clearTimeout(msg.t);msg.t=setTimeout(()=>e.textContent='',ms)}
+// 臉部色調校正：亮度、對比、膚色暖度拉到一致
+function toneFix(cv){try{const x=cv.getContext('2d'),im=x.getImageData(0,0,cv.width,cv.height),d=im.data;let L=0,n=0,lo=255,hi=0;
+ const w=cv.width,hgt=cv.height;for(let y=hgt*.2|0;y<hgt*.8;y+=2)for(let i=w*.2|0;i<w*.8;i+=2){const p=(y*w+i)*4,l=.299*d[p]+.587*d[p+1]+.114*d[p+2];L+=l;n++;if(l<lo)lo=l;if(l>hi)hi=l}
+ L/=n;const g=Math.max(.75,Math.min(1.6,150/Math.max(1,L))),c=Math.max(1,Math.min(1.25,170/Math.max(40,hi-lo)));
+ for(let p=0;p<d.length;p+=4){for(let k=0;k<3;k++){let v=d[p+k]*g;v=(v-L*g)*c+L*g;d[p+k]=v}d[p]*=1.03;d[p+2]*=.97}
+ x.putImageData(im,0,0)}catch(e){}}
 function fail(m){msg(m,1100);setTimeout(()=>sfx('fail'),260);setTimeout(()=>busy=false,450)}
 function setImg(url){const im=$('#ci');im.onload=()=>{im.hidden=false;$('#cv').hidden=true;capSrc=im;$('#src').classList.remove('on')};im.src=url}
 $('#file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{demoMode=false;$('#cap').classList.remove('demo');setImg(r.result)};r.readAsDataURL(f);e.target.value=''};
