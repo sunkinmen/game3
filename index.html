@@ -586,7 +586,7 @@ function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000
   const tx=esc(o.c.name);if(o.tg._t!==tx){o.tg.innerHTML=tx;o.tg._t=tx}});
  R.render(scene,cam);}
 /* ====== 真 3D：Tripo 模型（主場景 / 戰鬥） ====== */
-const F3={shiba:[0,.63,.135,.12],cat:[0,.667,.13,.125],rabbit:[0,.586,.142,.099],otter:[0,.69,.155,.155],penguin:[0,.707,.178,.157],bear:[0,.655,.158,.129],leopard:[-.01,.666,.18,.15],eagle:[0,.615,.138,.113],wolf:[0,.641,.13,.102],tiger:[0,.668,.175,.136],nezha:[0,.643,.147,.137],tudi:[0,.62,.14,.1],yuelao:[0,.62,.14,.11],guan:[0,.64,.15,.12],lion:[0,.595,.177,.108]};
+const F3={shiba:[0,.63,.135,.12],cat:[0,.667,.13,.125],rabbit:[0,.586,.142,.099],otter:[0,.69,.155,.155],penguin:[0,.707,.178,.157],bear:[0,.655,.158,.129],leopard:[-.01,.666,.18,.15],eagle:[0,.615,.138,.113],wolf:[0,.641,.13,.102],tiger:[0,.668,.175,.136],nezha:[0,.643,.147,.137],tudi:[0,.62,.14,.1],yuelao:[0,.612,.158,.127],guan:[0,.645,.135,.095],lion:[0,.595,.177,.108]};
 const DIO={plaza:{g:.151,r:.29,c:.135,cy:.163},arena:{g:.098,r:.24}};
 const USE3D=HAS3D&&!!THREE.GLTFLoader;let GLL=null;const MC={},FG={};
 function gm(id){if(!GLL)GLL=new THREE.GLTFLoader();return MC[id]||(MC[id]=new Promise((ok,no)=>GLL.load('models/'+id+'.glb',g=>{const s=g.scene;s.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;const m=o.material;if(m.map)m.map.anisotropy=4;m.side=THREE.FrontSide}});s.updateMatrixWorld(true);ok(s)},undefined,no)))}
@@ -616,7 +616,7 @@ function spot3(){const a=rnd(0,Math.PI*2),r=Math.sqrt(rnd(.08,1))*DIO.plaza.r*HS
 function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=skyTex('#6fb7ff','#d8ecff');
  pcam=new THREE.PerspectiveCamera(38,1,.1,200);hTgt=new THREE.Vector3(0,DIO.plaza.g*HS+.5,0);cam=pcam;lights(scene,true);
  gm('plaza').then(p=>{const m=p.clone();m.scale.setScalar(HS);scene.add(m);plazaOK=true}).catch(e=>console.warn(e));
- resize3();addEventListener('resize',resize3);
+ if(innerWidth<innerHeight){hDist=17;hEl=.78}else hDist=12;resize3();addEventListener('resize',resize3);
  const cv=$('#gl'),PT=new Map();let pin=0,d0=15;
  cv.addEventListener('wheel',e=>{e.preventDefault();hDist=Math.min(30,Math.max(5,hDist*(1+e.deltaY*.0012)))},{passive:false});
  cv.addEventListener('pointerdown',e=>{PT.set(e.pointerId,{x:e.clientX,y:e.clientY});if(PT.size===2){const [p,q]=[...PT.values()];pin=Math.hypot(p.x-q.x,p.y-q.y);d0=hDist;dn=null}else dn={x:e.clientX,y:e.clientY,az:hAz,el:hEl,m:0}});
@@ -631,8 +631,8 @@ function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=s
 function resize3(){R.setSize(innerWidth,innerHeight,false);pcam.aspect=innerWidth/innerHeight;pcam.updateProjectionMatrix()}
 function buildHome3D(){if(!scene)return;const old={};objs.forEach(o=>{old[o.c.id]=o;scene.remove(o.g);o.b.remove();o.tg.remove()});objs=[];
  $('#cnt').textContent=`已收服 ${S.cr.length} 位夥伴`;
- S.cr.forEach(c=>{const s=sp(c.sp),g=fig3D(c),sc=.8*[0,1,1.1,1.25][s.t];g.scale.setScalar(sc);g.userData.h=sc;
-  if(c.rb){const st=new THREE.Mesh(new THREE.OctahedronGeometry(.09),new THREE.MeshStandardMaterial({color:0x45d3a8,emissive:0x1a6b55}));st.position.set(0,1.15,0);g.add(st);g.userData.star=st}
+ S.cr.forEach(c=>{const s=sp(c.sp),g=fig3D(c),sc=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(sc);g.userData.h=sc;
+  if(c.rb){const st=new THREE.Mesh(new THREE.OctahedronGeometry(.09),new THREE.MeshStandardMaterial({color:0x45d3a8,emissive:0x1a6b55}));st.position.set(0,1.12,0);g.add(st);g.userData.star=st}
   scene.add(g);const o0=old[c.id],[x,z]=o0?[o0.x,o0.z]:spot3();
   const b=document.createElement('div');b.className='bub';const tg=document.createElement('div');tg.className='tag';$('#bubbles').append(tg,b);
   const o={c,g,b,tg,x,z,tx:x,tz:z,ry:rnd(-1,1),wait:rnd(0,2),talk:rnd(1,6),say:0};g.position.set(x,gY(x,z),z);objs.push(o)})}
