@@ -624,6 +624,7 @@ function fig3D(c,sid){const g=new THREE.Group(),sp0=c?c.sp:sid;g.userData.cid=c?
   img.src=c?faceOf(c):defFace();
   if(c&&c.eq)[['w',.36,.42,.17,.34],['c',-.34,.5,.14,.22],['a',0,.3,.33,.22]].forEach(([k,x,y,z,s])=>{const t=eqTex(c.eq[k]);if(!t)return;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false}));sp.scale.set(s,s,1);sp.position.set(x,y,z);sp.renderOrder=3;m.add(sp)});
  }).catch(e=>{console.warn('model',sp0,e);if(!SHEET.naturalWidth)return;const s2=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c||{sp:sp0,eq:{},face:null}),transparent:true,alphaTest:.03}));s2.scale.set(1.07,1,1);s2.center.set(.5,.03);g.add(s2)});return g}
+function fillDisc(y,c){const m=new THREE.Mesh(new THREE.CircleGeometry(4.6,64),new THREE.MeshStandardMaterial({color:c,roughness:1}));m.rotation.x=-Math.PI/2;m.position.y=y;m.receiveShadow=true;return m}
 function skyTex(a,b){const c=document.createElement('canvas');c.width=4;c.height=256;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,a);gr.addColorStop(1,b);g.fillStyle=gr;g.fillRect(0,0,4,256);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
 function lights(sc,sh){sc.add(new THREE.HemisphereLight(0xfff3e0,0x5b5470,1.05));const d=new THREE.DirectionalLight(0xffe2b8,1.35);d.position.set(4,9,6);if(sh){d.castShadow=true;d.shadow.mapSize.set(1024,1024);const s=d.shadow.camera;s.left=s.bottom=-6;s.right=s.top=6;s.near=1;s.far=30;d.shadow.bias=-.0015;d.shadow.normalBias=.02}sc.add(d);const r=new THREE.DirectionalLight(0x9fc4ff,.35);r.position.set(-6,4,-5);sc.add(r)}
 function mkR(cv,alpha){const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:!!alpha});r.setPixelRatio(Math.min(devicePixelRatio,2));r.outputEncoding=THREE.sRGBEncoding;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.08;r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;return r}
@@ -634,7 +635,7 @@ const gY=(x,z)=>Math.hypot(x,z)<DIO.plaza.c*HS?DIO.plaza.cy*HS:DIO.plaza.g*HS;
 function spot3(){const a=rnd(0,Math.PI*2),r=Math.sqrt(rnd(.08,1))*DIO.plaza.r*HS;return [Math.cos(a)*r,Math.sin(a)*r]}
 function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=skyTex('#6fb7ff','#d8ecff');
  pcam=new THREE.PerspectiveCamera(38,1,1,200);hTgt=new THREE.Vector3(0,DIO.plaza.g*HS+.5,0);cam=pcam;lights(scene,true);
- gm('plaza').then(p=>{const m=p.clone();m.scale.setScalar(HS);scene.add(m);plazaOK=true}).catch(e=>console.warn(e));
+ gm('plaza').then(p=>{const m=p.clone();m.scale.setScalar(HS);scene.add(m);plazaOK=true;scene.add(fillDisc(DIO.plaza.g*HS-.03,0xc9a57a))}).catch(e=>console.warn(e));
  if(innerWidth<innerHeight){hDist=17;hEl=.78}else hDist=12;resize3();addEventListener('resize',resize3);
  const cv=$('#gl'),PT=new Map();let pin=0,d0=15;
  cv.addEventListener('wheel',e=>{e.preventDefault();hDist=Math.min(26,Math.max(8,hDist*(1+e.deltaY*.0012)))},{passive:false});
@@ -677,10 +678,10 @@ let BR=null,BS=null,BC=null,BCV=null,BU=new Map(),bLast=0,bOn=false,FXL=[],shake
 const WPOS={a:[[-1.25,-.55],[-2.35,.4],[-1.25,1.35]],f:[[1.25,-.55],[2.35,.4],[1.25,1.35]]};
 function b3Init(){if(BR)return;BCV=document.createElement('canvas');BCV.id='bgl';BR=mkR(BCV);BS=new THREE.Scene();BS.background=skyTex('#7cc4ff','#e7f4ff');
  BC=new THREE.PerspectiveCamera(32,.75,.1,200);lights(BS,true);
- gm('arena').then(p=>{const m=p.clone();m.scale.setScalar(AS);BS.add(m)}).catch(e=>console.warn(e));
+ gm('arena').then(p=>{const m=p.clone();m.scale.setScalar(AS);BS.add(m);BS.add(fillDisc(DIO.arena.g*AS-.03,0x86b86c))}).catch(e=>console.warn(e));
  const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'#fff');gr.addColorStop(.3,'#ffffffaa');gr.addColorStop(1,'#fff0');g.fillStyle=gr;g.fillRect(0,0,64,64);PTX=new THREE.CanvasTexture(c);
  requestAnimationFrame(b3Loop)}
-function b3Cam(w,h){const a=w/Math.max(1,h),tg=new THREE.Vector3(0,AS*DIO.arena.g+.35,.35),hf=Math.atan(Math.tan(THREE.MathUtils.degToRad(16))*a),d=Math.max(9.5,3.9/Math.tan(hf)),el=THREE.MathUtils.degToRad(36);
+function b3Cam(w,h){const a=w/Math.max(1,h),tg=new THREE.Vector3(0,AS*DIO.arena.g+.55,.05),hf=Math.atan(Math.tan(THREE.MathUtils.degToRad(16))*a),d=Math.max(8,3.9/Math.tan(hf)),el=THREE.MathUtils.degToRad(34);
  BC.aspect=a;BC.position.set(0,tg.y+Math.sin(el)*d,tg.z+Math.cos(el)*d);BC.lookAt(tg);BC.updateProjectionMatrix();BC.updateMatrixWorld()}
 function b3Start(){if(!USE3D)return;b3Init();BU.forEach(v=>BS.remove(v.g));BU.clear();FXL.forEach(f=>BS.remove(f.o));FXL=[];bOn=true;
  [...B.a,...B.f].forEach(x=>{const i=(x.side==='a'?B.a:B.f).indexOf(x),[wx,wz]=WPOS[x.side][i]||[0,0],p=new THREE.Vector3(wx,AS*DIO.arena.g,wz),s=sp(x.sp),k=1.45*[0,1,1.08,1.18][s.t||1];
