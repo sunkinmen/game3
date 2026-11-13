@@ -552,7 +552,7 @@ function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k
 /* 回合制戰鬥 */
 const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
 const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
-let B=null,pickIds=[];const BPOS={a:[[.33,.47],[.17,.62],[.34,.77]],f:[[.67,.47],[.83,.62],[.66,.77]]};
+let B=null,pickIds=[],rankTab='lv';const BPOS={a:[[.33,.47],[.17,.62],[.34,.77]],f:[[.67,.47],[.83,.62],[.66,.77]]};
 function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
  const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm">${esc(x.name)}${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
  let cmd='';
@@ -835,12 +835,18 @@ const A={
   sheet('商店',h)},
  buyF(id){const f=FOOD.find(x=>x.id===id);if(pay(f.price)){S.food[id]=(S.food[id]||0)+1;toast(`買了 ${f.n}`);save();A.shop()}},
  buyE(id){const it=ITEMS[id];if(pay(it.price)){S.eq[id]=(S.eq[id]||0)+1;toast(`買了 ${it.n}`);save();A.shop()}},
- rank(){let seed=7;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
-  const all=[];for(let i=0;i<110;i++){const s=SP[Math.floor(r()*SP.length)];all.push({n:NPCN[Math.floor(r()*NPCN.length)]+'的'+s.n,sp:s.id,lv:Math.floor(28+r()*r()*72),rb:r()<.12})}
+ rank(t){if(t)rankTab=t;let seed=7;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;const anyRb=S.cr.some(c=>c.rb);
+  const tabs=`<div class="tabs">${[['lv','等級榜'],['w','財產榜']].map(a=>`<button class="${rankTab===a[0]?'on':''}" data-a="rank" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
+  let all=[];
+  if(rankTab==='w'){for(let i=0;i<110;i++){const s=SP[Math.floor(r()*SP.length)];all.push({n:NPCN[Math.floor(r()*NPCN.length)],sp:s.id,w:Math.round(4e5+r()*r()*r()*9e6)})}
+   const top=S.cr.slice().sort((a,b)=>b.lv-a.lv)[0];all.push({n:'你',sp:top?top.sp:'shiba',w:Math.round(S.zeny+pv()[0]),me:1});all.sort((a,b)=>b.w-a.w);
+   const mine=all.findIndex(a=>a.me);
+   return sheet('排行榜',tabs+`<p class="note">財產 = zeny 現金 + 持股市值。你目前第 ${mine+1} 名。其他玩家為示範資料，接上線上伺服器後換成真實排名。</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b></span><span class="lv">${fmt(a.w)} Z</span></div>`).join('')+'</div>')}
+  for(let i=0;i<110;i++){const s=SP[Math.floor(r()*SP.length)];all.push({n:NPCN[Math.floor(r()*NPCN.length)]+'的'+s.n,sp:s.id,lv:Math.floor(28+r()*r()*72),rb:0})}
   S.cr.forEach(c=>all.push({n:c.name,sp:c.sp,lv:c.lv,rb:c.rb,me:1}));
   all.sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv));
   const mine=all.findIndex(a=>a.me);
-  sheet('物種排行榜',`<p class="note">等級前 100 名。只顯示物種與 Q 版圖，人臉留在各自手機。目前其他玩家為示範資料，接上後端後換成真實排名。${mine>=100?'你的夥伴還沒進榜。':''}</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b><br><small style="color:var(--muted)">${sp(a.sp).n}${a.rb?' · 二轉':''}</small></span><span class="lv">Lv ${a.lv}</span></div>`).join('')+'</div>')},
+  sheet('排行榜',tabs+`<p class="note">等級前 100 名，只顯示物種圖，人臉留在各自手機。其他玩家為示範資料，接上線上伺服器後換成真實排名。${mine>=100?'你的夥伴還沒進榜。':''}</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b><br><small style="color:var(--muted)">${sp(a.sp).n}${anyRb&&a.rb?' · 二轉':''}</small></span><span class="lv">Lv ${a.lv}</span></div>`).join('')+'</div>')},
  arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`)},
  pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
  battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
