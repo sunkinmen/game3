@@ -441,6 +441,40 @@ body{background:var(--ink)}
 #acct{display:none;position:fixed;z-index:6;right:12px;top:calc(env(safe-area-inset-top) + 64px);width:34px;height:34px;border-radius:50%;border:0;background:#ffffff38;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:19px;line-height:1;text-shadow:0 1px 2px #0008;box-shadow:inset 0 0 0 1.5px #ffffff70}
 .rc{display:flex;align-items:center;gap:8px;justify-content:center;background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:inset 0 0 0 2px #e3b54a}
 .rc b{font:900 22px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;color:#5a2e08}
+
+/* v36 擬真台股（遊戲風格）、暱稱視窗、GM 優惠碼 */
+#phone{background:#1b173099;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.ph{background:none!important;border:30px solid transparent!important;border-image:url(art/frame.webp) 184 fill/30px stretch!important;border-radius:0!important;padding:0!important;box-shadow:0 20px 50px #0008!important;
+ --paper:#4a2f18;--muted:#8a6a4a;--panel:#fff8e8;--line:#e2cc9c;--up:#e0453a;--down:#22a058;color:#4a2f18}
+.ph .scr{background:none!important;border-radius:0!important;margin:-8px -6px -6px}
+.ph .top{border-bottom:2px dashed #d9bf8b!important;padding:4px 6px 10px!important}
+.ph h2.pt{height:40px;width:150px;font-size:0!important;background:url(art/t_stock.webp) left center/contain no-repeat}
+.ph .disc{margin:-4px 0 0;font-size:10.5px;line-height:1.35;color:#9a7a55}
+.ph .x{width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8e6,#e9cf9c)!important;color:#5a2e08!important;box-shadow:0 0 0 2px #8a5a24,0 2px 0 #5a2e08;font-weight:900;border:0}
+.ph .pill{background:#fff8e8;border-color:#d9bf8b;color:#8a6a4a}.ph .pill.open{color:#e0453a;border-color:#e0453a}
+.ph .sum{background:#fff8e8;border-radius:12px;padding:8px 10px;box-shadow:inset 0 0 0 1.5px #e2cc9c}
+.ph .sum b{color:#4a2f18}
+.ph #pbody{padding:8px 6px 12px}
+.ph .q2{background:#fffaf0;border-radius:12px;border:0!important;margin-bottom:7px;padding:8px 8px;box-shadow:inset 0 0 0 1.5px #e8d3a2,0 2px 0 #d9bd85}
+.ph .q2 .qi b{color:#4a2f18}
+.ph .ch{border-radius:8px!important}
+.ph .bs{border-radius:10px;box-shadow:0 3px 0 #0003;font-weight:900}.ph .bs.s{color:#fff!important}
+.ph .pn{background:#fff8e8;box-shadow:inset 0 0 0 1.5px #e2cc9c}
+.ph .note{color:#8a6a4a}
+.ph input,.ph select{background:#fffaf0!important;color:#4a2f18!important;border:1.5px solid #dcc394!important;border-radius:10px}
+.ph .sw{color:#8a6a4a}
+#nickm{position:fixed;inset:0;z-index:60;background:#1b1730b3;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px}
+#nickm.on{display:flex}
+#nickm .nkb{width:min(100%,360px);border:30px solid transparent;border-image:url(art/frame.webp) 184 fill/30px stretch;color:#4a2f18;text-align:center;display:flex;flex-direction:column;gap:8px;animation:tipIn .4s both}
+#nickm .nkl{width:78%;margin:-14px auto 0}
+#nickm h3{margin:0;font-size:17px;color:#5a2e08}#nickm p{margin:0;font-size:12.5px;color:#8a6a4a}
+#nickm input{width:100%;font-size:18px;text-align:center;padding:10px;border-radius:12px;border:2px solid #dcc394;background:#fffaf0;color:#4a2f18}
+#nickm .nk1,#nickm .nk2{display:flex;flex-direction:column;gap:8px}#nickm .nk2,#nickm.rc .nk1{display:none}#nickm.rc .nk2{display:flex}
+#nkMsg{min-height:16px;font-size:12px}#nkMsg.ok{color:#22a058}#nkMsg.bad{color:#d63a2f}
+#nickm .nkt{background:none;border:0;color:#a8743d;font-size:12.5px;text-decoration:underline}#nickm .nkt .b,#nickm.rc .nkt .a{display:none}#nickm.rc .nkt .b{display:inline}
+.gmsec{background:#fff1d0;border-radius:12px;padding:8px;box-shadow:inset 0 0 0 1.5px #e7b84a}
+.gpf{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}.gpf input,.gpf select{min-width:0;padding:7px 8px;border-radius:9px;border:1.5px solid #dcc394;background:#fffaf0;color:#4a2f18;font-size:13px}
+.vgb{margin-left:6px;font-size:11px;font-weight:800;padding:2px 9px;border-radius:99px;border:1.5px solid #c8923f;background:#fff8e8;color:#8a5a24}
 </style>
 </head>
 <body>
@@ -487,7 +521,8 @@ body{background:var(--ink)}
 
 <section id="phone"><div class="ph"><div class="scr">
   <div class="top">
-    <div class="l1"><h2>台股下單</h2><span><span class="pill" id="srcp"></span> <span class="pill" id="mkt"></span> <button class="x" data-a="phoneClose" aria-label="關閉手機">×</button></span></div>
+    <div class="l1"><h2 class="pt">擬真台股</h2><span><span class="pill" id="srcp"></span> <span class="pill" id="mkt"></span> <button class="x" data-a="phoneClose" aria-label="關閉手機">×</button></span></div>
+    <p class="disc">遊戲模擬功能：zeny 為遊戲虛擬幣，不可兌換現金；行情取自台股公開資料，僅供遊戲娛樂，不構成任何投資建議。</p>
     <div class="sum"><span>可用 zeny<b id="pz"></b></span><span>持股市值<b id="pv"></b></span><span>未實現損益<b id="pl"></b></span></div>
     <label class="sw"><input type="checkbox" id="prac">練習盤（休市也能試單）</label>
   </div>
@@ -497,6 +532,10 @@ body{background:var(--ink)}
 <section id="cut"></section>
 <section id="comic"></section>
 <div id="toast"></div>
+<div id="nickm"><div class="nkb"><img src="art/logo.webp" alt="封印物語" class="nkl"><h3>歡迎來到封印物語</h3><p>請取一個遊戲暱稱，會顯示在排行榜上（全服不可重複）。</p>
+ <div class="nk1"><input id="nkIn" maxlength="12" placeholder="2–12 個字" autocomplete="off" oninput="nkCheck()"><div id="nkMsg"></div><button class="btn gd" id="nkGo" data-a="nkGo">開始冒險</button></div>
+ <div class="nk2"><input id="nkRc" maxlength="14" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters"><button class="btn" data-a="nkRecover">找回帳號</button></div>
+ <button class="nkt" data-a="nkRc"><span class="a">已經有帳號？用引繼碼找回</span><span class="b">← 我是新玩家，取暱稱</span></button></div></div>
 <div id="tips"></div><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -509,10 +548,11 @@ const GAME_API='https://seal-game.sunkinmen.workers.dev',QUOTE_API=GAME_API+'/';
 let ONLINE=false;
 async function net(path,body){const o={headers:{'content-type':'application/json'}};if(S.tok)o.headers.authorization='Bearer '+S.tok;if(body!==undefined){o.method='POST';o.body=JSON.stringify(body)}
  const r=await fetch(GAME_API+path,o);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('連線失敗 '+r.status));return j}
-function applyW(w){if(!w||w.zeny==null)return;S.zeny=w.zeny;S.port={};for(const k in w.port||{}){S.port[k]={q:w.port[k].q,cost:w.port[k].cost};if(w.port[k].n)S.nm[k]=w.port[k].n;if(!S.watch.includes(k))S.watch.push(k)}if(w.name)S.nick=w.name;ONLINE=true;hud()}
+function applyW(w){if(!w||w.zeny==null)return;S.zeny=w.zeny;S.port={};for(const k in w.port||{}){S.port[k]={q:w.port[k].q,cost:w.port[k].cost};if(w.port[k].n)S.nm[k]=w.port[k].n;if(!S.watch.includes(k))S.watch.push(k)}if(w.name)S.nick=w.name;S.gm=w.gm?1:0;ONLINE=true;hud()}
 function topCr(){return S.cr.slice().sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv))[0]}
-async function netInit(){try{if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);net('/api/load').then(()=>{$('#acct').style.display='block';cloudSave()}).catch(()=>{});setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
- else{applyW(await net('/api/me'));try{const l=await net('/api/load');$('#acct').style.display='block';if(l.save&&l.ts>(S.ts||0)+5000&&adopt(l.save,S.tok)){toast('已從雲端載入較新的存檔');setTimeout(()=>location.reload(),900);return}if(!l.save||l.ts<(S.ts||0))cloudLater()}catch(e){}}netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
+const AUTO=/^玩家\d{4,5}$/;
+async function netInit(){try{if(!S.tok&&!S.named)return nickAsk();if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);net('/api/load').then(()=>{$('#acct').style.display='block';cloudSave()}).catch(()=>{});setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
+ else{const me=await net('/api/me');applyW(me);if(me.name&&!AUTO.test(me.name)&&!S.named){S.named=1;save()}if(!S.named)setTimeout(nickAsk,600);try{const l=await net('/api/load');$('#acct').style.display='block';if(l.save&&l.ts>(S.ts||0)+5000&&adopt(l.save,S.tok)){toast('已從雲端載入較新的存檔');setTimeout(()=>location.reload(),900);return}if(!l.save||l.ts<(S.ts||0))cloudLater()}catch(e){}}netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
 async function netSync(){if(!S.tok)return;const t=topCr();if(!t)return;try{await net('/api/sync',{lv:t.lv,rb:t.rb,sp:t.sp})}catch(e){}}
 setInterval(()=>{if(S.tok&&!document.hidden)net('/api/me').then(applyW).catch(()=>{ONLINE=false})},60000);setInterval(netSync,120000);
 
@@ -566,7 +606,18 @@ const TALK={
  fun:['是在哈囉？','傻眼貓咪','歸剛欸','今天要吃什麼？這題比台股還難','珍奶半糖少冰，謝謝','揪咪～','我就爛','先不要','好喔','笑死','真的假的啦','母湯喔','剛剛誰偷吃我的雞排'],
  fl:['老闆今天也太帥了吧','主人英明，眼光比外資還準','跟著老闆有肉吃','老闆說的都對','這波操作我給滿分','能被您收服是我三生有幸','老闆辛苦了，我幫您搥背'],
  bad:['蛤？又要訓練喔','好想下班','颱風假咧？','薪水咧？','我要請特休','肚子餓了啦','慣老闆','心好累','可以不要嗎','這裡有勞基法嗎','我想回家']};
-const VOX={fl:['老闆今天也太帥了吧','跟著老闆有肉吃','主人英明，眼光比外資還準'],bad:['蛤？又要訓練喔','我要請特休','慣老闆啦'],fun:['是在哈囉？','傻眼貓咪','珍奶半糖少冰，謝謝'],cap:['結印！收服成功！'],eat:['好吃！再來一碗！']};
+// 語音：男女聲各一套台詞（audio/v/<m|f>_<類別><序號>.mp3），每位夥伴有固定聲線
+const VOX={m:{fl:['老闆今天也太帥了吧','跟著老闆有肉吃','主人英明，眼光比外資還準','老闆說的都對','這波操作我給滿分','能被您收服是我三生有幸'],
+ bad:['蛤？又要訓練喔','我要請特休','慣老闆啦','薪水咧？','颱風假咧？','這裡有勞基法嗎？'],
+ fun:['是在哈囉？','傻眼貓咪','珍奶半糖少冰，謝謝','今天要吃什麼？這題比台股還難','剛剛誰偷吃我的雞排','笑死，真的假的啦'],
+ cap:['結印！收服成功！','從今天起，我就跟定你了'],eat:['好吃！再來一碗！','雞排配珍奶，人生圓滿','吃飽了才有力氣上班']},
+ f:{fl:['主人最棒了！','我最喜歡主人了啦','主人眼光真好，連台股都看得懂','跟著主人準沒錯','主人今天也好帥喔','被主人收服是我的福氣'],
+ bad:['人家不要訓練啦','好累喔，可以休息嗎？','嗚嗚，主人好兇','我想放假','珍奶呢？說好的珍奶呢？','哼，不理你了'],
+ fun:['欸欸，你有聽到嗎？','今天天氣好好喔','哈囉哈囉～','好無聊喔，陪我玩嘛','我剛剛夢到吃到飽','揪咪～'],
+ cap:['結印成功！請多指教！','從今天起，我就是你的夥伴囉'],eat:['好好吃喔！','雞排耶！最愛了！','吃飽飽，好幸福']}};
+const VGF={nezha:'m',tudi:'m',yuelao:'m',guan:'m',lion:'m'};
+const vg=c=>c?(c.vg||VGF[c.sp]||(c.id%2?'f':'m')):'m';
+const VLAST={};function vpick(g,cat){const n=VOX[g][cat].length;let i=Math.floor(Math.random()*n);if(n>1&&VLAST[g+cat]===i)i=(i+1)%n;VLAST[g+cat]=i;return i}
 const EQO=SP.flatMap(s=>[s.id+'_w',s.id+'_a']).concat(['c1','c2','c3','c4','c5','c6'],PREM.map(a=>a[0]));
 const fdi=(id,z)=>`<span class="fdi" style="width:${z}px;height:${z}px;background-position:${(+id.slice(1)-1)*25}% 0"></span>`;
 const eqi=(id,z)=>{const i=EQO.indexOf(id);return `<span class="eqi" style="width:${z}px;height:${z}px;background-position:${i%6*20}% ${(Math.floor(i/6)*100/7).toFixed(3)}%"></span>`};
@@ -591,7 +642,7 @@ function adopt(data,keepTok){let o;try{o=JSON.parse(data)}catch(e){return false}
  const faces={};(S.cr||[]).forEach(c=>{if(c.face)faces[c.id+'|'+c.sp]=c.face});o.cr.forEach(c=>{if(!c.face&&faces[c.id+'|'+c.sp])c.face=faces[c.id+'|'+c.sp]});
  o.tok=keepTok;S=o;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}return true}
 function mk(sid,iv,face,name){const s=sp(sid);
- return {id:S.nid++,sp:sid,name:name||s.n,lv:0,exp:0,iv,st:s.b.map(v=>+(v*(1+iv*.25)+rnd(0,2)).toFixed(1)),mood:70,obey:50,sta:100,eq:{},face,rb:0};}
+ return {id:S.nid++,sp:sid,name:name||s.n,lv:0,exp:0,iv,st:s.b.map(v=>+(v*(1+iv*.25)+rnd(0,2)).toFixed(1)),mood:70,obey:50,sta:100,eq:{},face,rb:0,vg:VGF[sid]||(Math.random()<.5?'f':'m')};}
 const need=l=>40+l*l*6;
 function total(c){const t=c.st.slice();for(const k in c.eq){const it=ITEMS[c.eq[k]];if(it)it.bon.forEach((v,i)=>t[i]+=v)}return t}
 const power=c=>Math.round(total(c).reduce((a,b)=>a+b,0));
@@ -672,7 +723,7 @@ function act(o,dt){const a=o.act,H=o.g.userData.h||1;a.t+=dt;let hop=0,rot=0;
  else{rot=Math.sin(a.t*40)*.07;if(o.spr)o.spr.scale.y=H*(.8+.05*Math.sin(a.t*6))}
  if(a.t>2.6){o.act=null;if(o.spr)o.spr.scale.y=H}
  return [hop,rot]}
-function speak(o,cat){const i=Math.floor(Math.random()*VOX[cat].length);o.b.textContent=VOX[cat][i];o.say=3.6;o.talk=9;voice(cat,i)}
+function speak(o,cat){const g=vg(o.c),i=vpick(g,cat);o.b.textContent=VOX[g][cat][i];o.say=3.6;o.talk=9;voice(cat,i,g)}
 function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k:good?'joy':'sad',t:0};speak(o,good?'fl':'bad')}
 /* 回合制戰鬥 */
 const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
@@ -756,7 +807,7 @@ function sfxSynth(k){if(S.mute)return;try{AC=AC||new (window.AudioContext||windo
 }catch(e){}}
 /* 音樂與語音 */
 let BGM=null;const VC={};
-function voice(cat,i){if(S.mute)return;try{const k=cat+i,a=VC[k]||(VC[k]=new Audio('audio/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+function voice(cat,i,g){if(S.mute)return;g=g||'m';if(i==null)i=vpick(g,cat);try{const k=g+'_'+cat+i,a=VC[k]||(VC[k]=new Audio('audio/v/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
 let BGK='';const SFXK=['click','cast','tick','ok','fail','dash','hit','crit','miss','guard','heal','fire','slash','roar','charge','win','lose','ko','coin'],SB={};let sfxL=false;
 function acx(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
 function loadSfx(){if(sfxL)return;sfxL=true;const c=acx();SFXK.forEach(k=>fetch('audio/sfx/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(k)).then(b=>new Promise((ok,no)=>c.decodeAudioData(b,ok,no))).then(d=>SB[k]=d).catch(()=>{}))}
@@ -963,7 +1014,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1900)}
 function hud(){$('#zeny').textContent=fmt(S.zeny);save()}
 const TT={'夥伴名冊':'list','夥伴':'cr','商店':'shop','競技場':'arena','排行榜':'rank'};
-function sheet(title,html,k){qClose();$('#sheet').dataset.k=k||'';const st=$('#stitle');st.textContent=title;st.classList.toggle('tt',!!TT[title]);st.style.setProperty('--tt',TT[title]?`url(art/t_${TT[title]}.webp)`:'');$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
+function sheet(title,html,k){qClose();$('#sheet').dataset.k=k||'';const st=$('#stitle');st.textContent=title;st.classList.toggle('tt',!!TT[title]);st.style.setProperty('--tt',TT[title]?`url(art/t_${TT[title]}.webp)`:'');const sb=$('#sbody'),same=$('#sheet').classList.contains('on')&&sheet.last===title,y=sb.scrollTop;sheet.last=title;sb.innerHTML=html;$('#sheet').classList.add('on');sb.scrollTop=same?y:0}
 function pay(n){if(S.zeny<n){toast('zeny 不夠，去股市賺一點');return false}S.zeny-=n;hud();if(S.tok)net('/api/spend',{n}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>net('/api/me').then(applyW).catch(()=>{}));return true}
 const tierTag=s=>`<span class="tier t${s.t}">${TN[s.t]}</span>`;
 const bon=b=>b.map((v,i)=>v?SN[i]+'+'+v:'').filter(Boolean).join(' ');
@@ -985,7 +1036,7 @@ const A={
  cr(id){curId=+id;const c=cur();if(!c)return;const s=sp(c.sp),t=total(c),mx=Math.max(40,...t);
   sheet('夥伴',`
   <div class="hero">${icon(c.sp,faceOf(c),92,c.eq)}<div style="flex:1;min-width:0"><input id="nm" value="${esc(c.name)}" maxlength="12" aria-label="名字">
-   <div style="margin-top:6px">${s.n}${tierTag(s)}${c.rb?'<span class="tier t1">二轉</span>':''}</div><div class="indl"><i class="wx" style="background:${WXC[WX[c.sp]]}">${WX[c.sp]}</i>剋${KE[WX[c.sp]]}・${IND[c.sp][0]}（${IND[c.sp][1]}）今日 <b class="${indChg(c.sp)>=0?'up':'dn'}">${indChg(c.sp)>=0?'+':''}${indChg(c.sp).toFixed(2)}%</b> → 戰鬥攻擊 ${((indM(c.sp)-1)*100>=0?'+':'')}${Math.round((indM(c.sp)-1)*100)}%</div>
+   <div style="margin-top:6px">${s.n}${tierTag(s)}${c.rb?'<span class="tier t1">二轉</span>':''}<button class="vgb" data-a="vgSw">${vg(c)==='f'?'♀ 女聲':'♂ 男聲'}</button></div><div class="indl"><i class="wx" style="background:${WXC[WX[c.sp]]}">${WX[c.sp]}</i>剋${KE[WX[c.sp]]}・${IND[c.sp][0]}（${IND[c.sp][1]}）今日 <b class="${indChg(c.sp)>=0?'up':'dn'}">${indChg(c.sp)>=0?'+':''}${indChg(c.sp).toFixed(2)}%</b> → 戰鬥攻擊 ${((indM(c.sp)-1)*100>=0?'+':'')}${Math.round((indM(c.sp)-1)*100)}%</div>
    <div class="stat" style="grid-template-columns:44px 1fr 86px;margin-top:8px"><span>Lv ${c.lv}</span><span class="bar"><i style="width:${c.lv>=100?100:c.exp/need(c.lv)*100}%;background:var(--gold)"></i></span><span>${c.lv>=100?'MAX':fmt(c.exp)+'/'+fmt(need(c.lv))}</span></div></div></div>
   <div class="sec">${[['心情',c.mood,'var(--seal)'],['服從',c.obey,'#7fb2ff'],['體力值',c.sta,'var(--jade)']].map(a=>`<div class="stat"><span>${a[0]}</span><span class="bar"><i style="width:${a[1]}%;background:${a[2]}"></i></span><span>${Math.round(a[1])}/100</span></div>`).join('')}</div>
   <div class="sec"><h3>能力值 · 戰力 ${power(c)}</h3>${t.map((v,i)=>`<div class="stat"><span>${SN[i]}</span><span class="bar"><i style="width:${Math.min(100,v/mx*100)}%"></i></span><span>${Math.round(v)}${Math.round(v-c.st[i])?` <em>+${Math.round(v-c.st[i])}</em>`:''}</span></div>`).join('')}</div>
@@ -997,7 +1048,7 @@ const A={
  feed(){const own=FOOD.filter(f=>S.food[f.id]>0);
   SUB().innerHTML='<h3>選擇食物</h3>'+(own.map(f=>`<div class="row">${fdi(f.id,40)}<span class="g"><b>${f.n} ×${S.food[f.id]}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 體力 +15</small></span><button class="btn" data-a="eat" data-v="${f.id}">餵</button></div>`).join('')||'<p class="note">沒有食物了。</p>')+'<button class="btn g2" data-a="shop">去商店買</button>';SUB().scrollIntoView({block:'nearest'})},
  eat(id){const c=cur(),f=FOOD.find(x=>x.id===id);if(!(S.food[id]>0))return;S.food[id]--;const up=gain(c,f.exp);c.mood=Math.min(100,c.mood+f.mood);c.sta=Math.min(100,c.sta+15);
-  toast(up?`${c.name} 升到 Lv ${c.lv}！`:`${c.name}：${f.n}好吃！`);voice('eat',0);save();reCr(c.id,'feed')},
+  toast(up?`${c.name} 升到 Lv ${c.lv}！`:`${c.name}：${f.n}好吃！`);voice('eat',null,vg(c));save();reCr(c.id,'feed')},
  trainMenu(){const c=cur(),cost=200+c.lv*50;SUB().innerHTML=`<h3>訓練項目 · 每次 ${fmt(cost)} zeny、體力值 −25（服從越高效果越好）</h3><div class="grid5">${SN.map((n,i)=>`<button class="btn g2" style="padding:10px 0" data-a="train" data-v="${i}">${n}</button>`).join('')}</div>`;SUB().scrollIntoView({block:'nearest'})},
  train(i){const c=cur(),s=sp(c.sp);if(c.sta<25)return toast('太累了，先餵點東西');if(!pay(200+c.lv*50))return;
   c.sta-=25;const g=+((.6+c.obey/100)*(1+s.t*.3)*(c.rb?1.5:1)).toFixed(1);c.st[i]=+(c.st[i]+g).toFixed(1);c.mood=Math.max(0,c.mood-4);const up=gain(c,15+c.lv*3);
@@ -1028,9 +1079,9 @@ const A={
   net('/api/rank?type='+rankTab).then(r=>{const w=rankTab==='w';
    $('#sbody').innerHTML=tabs+nick+`<div>`+
    r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n${i<3?' md m'+(i+1):''}">${i<3?'':i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
- nick(){const n=($('#nick').value||'').trim().slice(0,12);if(!n)return toast('請輸入暱稱');S.nick=n;save();net('/api/name',{name:n}).then(()=>{toast('暱稱已更新');A.rank()}).catch(e=>toast(e.message))},
+ nick(){const n=($('#nick').value||'').trim().slice(0,12);if(!n)return toast('請輸入暱稱');net('/api/name',{name:n}).then(r=>{S.nick=r.name||n;S.named=1;save();toast('暱稱已更新');A.rank()}).catch(e=>toast(e.message))},
  arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`,'arena')},
- pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}const y=$('#sbody').scrollTop;A.arena();$('#sbody').scrollTop=y},
+ pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
  battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
   cs.forEach(c=>c.sta-=20);const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
   const avg=Math.round(cs.reduce((a,c)=>a+c.lv,0)/cs.length),mt=Math.max(...cs.map(c=>sp(c.sp).t));
@@ -1070,7 +1121,7 @@ const A={
   const s=pick(SP.filter(x=>x.t===capTier)),c=mk(s.id,acc,face);S.cr.push(c);save();build3D();
   setTimeout(()=>{busy=false;$('#frame').classList.remove('hit');A.capClose();cutId=c.id;
    $('#cut').innerHTML=`<div class="rays"></div><div class="who">${icon(c.sp,faceOf(c),250,c.eq)}</div><div class="ttl"><small>${SEAL[s.t].n} · ${TN[s.t]}</small><b class="cal">${s.n}</b><span>${acc>.75?'完美結印':'收服成功'}　戰力 ${power(c)}</span></div><button class="btn gd" data-a="cutEnd">取名字</button>`;
-   $('#cut').className='on';voice('cap',0)},620)},
+   $('#cut').className='on';voice('cap',null,vg(S.cr[S.cr.length-1]))},620)},
  cutEnd(){$('#cut').className='';A.cr(cutId)},
 
  /* ---- 台股 ---- */
@@ -1093,16 +1144,44 @@ A.qBack=()=>{if(QK==='eq'){QK='qEq';A.qEq()}else{const c=cur();qClose();if(c){co
 A.qX=qClose;
 
 
+
+// 首次進入：設定遊戲暱稱（全服不重複），或用引繼碼找回舊帳號
+function nickAsk(){const m=$('#nickm');if(!m||m.classList.contains('on'))return;$('#nkIn').value=S.nick&&!AUTO.test(S.nick)?S.nick:'';$('#nkMsg').textContent='';m.classList.toggle('rc',false);m.classList.add('on');setTimeout(()=>$('#nkIn').focus(),300)}
+let NKT=0;function nkCheck(){clearTimeout(NKT);const n=$('#nkIn').value.trim(),msg=$('#nkMsg');if([...n].length<2){msg.textContent='';return}
+ NKT=setTimeout(async()=>{try{const r=await (await fetch(GAME_API+'/api/nick?name='+encodeURIComponent(n))).json();if($('#nkIn').value.trim()!==n)return;msg.textContent=r.ok?'✓ 這個暱稱可以使用':'✗ '+r.error;msg.className=r.ok?'ok':'bad'}catch(e){}},350)}
+A.nkGo=async()=>{const n=$('#nkIn').value.trim().slice(0,12),btn=$('#nkGo');if([...n].length<2)return toast('暱稱至少 2 個字');btn.disabled=true;
+ try{if(S.tok){const r=await net('/api/name',{name:n});S.nick=r.name||n}else{const t=topCr();const w=await net('/api/reg',{name:n,zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;applyW(w);S.nick=w.name||n}
+  S.named=1;save();$('#nickm').classList.remove('on');toast(`歡迎，${S.nick}！`);netInit()}
+ catch(e){const msg=$('#nkMsg');msg.textContent='✗ '+(e.message||'連線失敗');msg.className='bad';if(/連線失敗|Failed|fetch/.test(e.message||'')){toast('暫時連不上伺服器，先離線遊玩，下次開啟會再請你設定暱稱');$('#nickm').classList.remove('on')}}
+ btn.disabled=false};
+A.nkRc=()=>$('#nickm').classList.toggle('rc');
+A.nkRecover=async()=>{const c=$('#nkRc').value.trim();if(c.replace(/[^0-9a-z]/ig,'').length!==12)return toast('引繼碼是 12 碼');
+ try{const r=await net('/api/recover',{code:c});if(!r.token)return toast(r.error||'找不到這組引繼碼');if(!(r.save&&adopt(r.save,r.token))){S.tok=r.token}S.named=1;S.nick=r.name;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  toast('帳號已找回，重新載入中…');setTimeout(()=>location.reload(),900)}catch(e){toast(e.message||'連線失敗')}};
+// 優惠碼
+A.vgSw=()=>{const c=cur();if(!c)return;c.vg=vg(c)==='f'?'m':'f';save();A.cr(c.id);voice('fl',null,c.vg)};
+A.redeem=async()=>{const c=$('#pcIn').value.trim();if(!c)return toast('請輸入優惠碼');if(!S.tok)return toast('連上伺服器後才能兌換');
+ try{const r=await net('/api/redeem',{code:c});applyW(r);const it=r.items||{},got=[];if(r.zenyGot)got.push(fmt(r.zenyGot)+' zeny');
+  for(const k in it.food||{}){const f=FOOD.find(x=>x.id===k);if(f){S.food[k]=(S.food[k]||0)+(+it.food[k]||0);got.push(f.n+'×'+it.food[k])}}
+  for(const k in it.eq||{}){if(ITEMS[k]){S.eq[k]=(S.eq[k]||0)+(+it.eq[k]||0);got.push(ITEMS[k].n+'×'+it.eq[k])}}
+  save();cloudSave();$('#pcIn').value='';sfx&&sfx('win');toast('兌換成功！獲得 '+(got.join('、')||'獎勵'))}catch(e){toast(e.message||'兌換失敗')}};
+A.promoNew=async()=>{const v=id=>$(id).value.trim(),food={},eq={};const fc=+v('#gpF')||0;if(fc)food[v('#gpFi')]=fc;const ei=v('#gpE');if(ei)eq[ei]=1;
+ try{const r=await net('/api/promo',{code:v('#gpC'),zeny:+v('#gpZ')||0,uses:+v('#gpU')||0,days:+v('#gpD')||0,note:v('#gpN'),items:{food,eq}});toast('優惠碼已建立');promoList(r.list)}catch(e){toast(e.message)}};
+A.promoDel=async c=>{try{const r=await net('/api/promo',{code:c,del:1});promoList(r.list)}catch(e){toast(e.message)}};
+function promoList(l){const b=$('#gpL');if(!b)return;b.innerHTML=(l||[]).map(p=>{let it={};try{it=JSON.parse(p.items||'{}')}catch(e){}const g=[p.zeny?fmt(p.zeny)+'z':''].concat(Object.entries(it.food||{}).map(([k,n])=>(FOOD.find(f=>f.id===k)||{}).n+'×'+n),Object.keys(it.eq||{}).map(k=>(ITEMS[k]||{}).n)).filter(Boolean).join('、');
+ return `<div class="row"><span class="g"><b>${esc(p.code)}</b><small>${g||'—'} · 已領 ${p.used}${p.uses?'/'+p.uses:''}${p.exp?' · 到 '+new Date(p.exp).toLocaleDateString('zh-TW'):''}${p.note?' · '+esc(p.note):''}</small></span><button class="btn g2" data-a="promoDel" data-v="${esc(p.code)}">刪除</button></div>`}).join('')||'<p class="note">尚無優惠碼</p>'}
 // 帳號與存檔：雲端備份、引繼碼、找回帳號
 A.acct=()=>{const t=CLS?new Date(CLS).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'—';
- sheet('帳號與存檔',`<div class="sec"><h3>雲端存檔</h3><p class="note">夥伴、等級、物品、裝備會自動同步到伺服器；zeny 和持股本來就存在伺服器。${S.tok?'':'<b>目前尚未連線，連上後會自動備份。</b>'}</p>
+ sheet('帳號與存檔',`<div class="sec"><h3>優惠碼</h3><div class="row"><input id="pcIn" placeholder="輸入活動優惠碼" maxlength="20" autocapitalize="characters" style="flex:1;letter-spacing:.08em"><button class="btn" data-a="redeem">兌換</button></div></div>
+ ${S.gm?`<div class="sec gmsec"><h3>GM · 建立優惠碼</h3><div class="gpf"><input id="gpC" placeholder="代碼（英數）" maxlength="20" autocapitalize="characters"><input id="gpZ" type="number" inputmode="numeric" placeholder="zeny"><select id="gpFi">${FOOD.map(f=>`<option value="${f.id}">${f.n}</option>`).join('')}</select><input id="gpF" type="number" inputmode="numeric" placeholder="食物數量"><select id="gpE"><option value="">（不送裝備）</option>${Object.values(ITEMS).map(i=>`<option value="${i.id}">${i.n}</option>`).join('')}</select><input id="gpU" type="number" inputmode="numeric" placeholder="總次數（0＝不限）"><input id="gpD" type="number" inputmode="numeric" placeholder="有效天數（0＝永久）"><input id="gpN" placeholder="備註（例：開服禮）" maxlength="40"></div><button class="btn gd" data-a="promoNew">建立／更新</button><div id="gpL" style="margin-top:8px"><p class="note">讀取中…</p></div></div>`:''}
+ <div class="sec"><h3>雲端存檔</h3><p class="note">夥伴、等級、物品、裝備會自動同步到伺服器；zeny 和持股本來就存在伺服器。${S.tok?'':'<b>目前尚未連線，連上後會自動備份。</b>'}</p>
  <div class="row"><span class="g"><b>上次備份</b><small>${t}</small></span><button class="btn" data-a="bkNow" ${S.tok?'':'disabled'}>立即備份</button></div>
  <label class="row"><span class="g"><b>一併備份夥伴臉照</b><small>預設臉照只留在這支手機；勾選後換機也能找回臉</small></span><input type="checkbox" id="fbk" ${S.faceBk?'checked':''}></label></div>
  <div class="sec"><h3>引繼碼（換機／重裝時找回帳號）</h3><p class="note">產生後請截圖或抄下來保存，不要給別人。重新產生後，舊的引繼碼會失效。</p>
  <div id="rcBox"></div><button class="btn gd" data-a="rcode" ${S.tok?'':'disabled'}>產生引繼碼</button></div>
  <div class="sec"><h3>用引繼碼找回帳號</h3><p class="note">會用找回的帳號取代這支手機目前的進度。</p>
  <div class="row"><input id="rcIn" placeholder="XXXX-XXXX-XXXX" maxlength="14" autocapitalize="characters" style="flex:1;letter-spacing:.1em"><button class="btn" data-a="recover">找回</button></div></div>`);
- $('#fbk').onchange=e=>{S.faceBk=e.target.checked;save();if(S.faceBk)cloudSave(true)}};
+ $('#fbk').onchange=e=>{S.faceBk=e.target.checked;save();if(S.faceBk)cloudSave(true)};if(S.gm)net('/api/promo').then(r=>promoList(r.list)).catch(e=>promoList([]))};
 A.bkNow=()=>cloudSave(true);
 A.rcode=async()=>{try{const r=await net('/api/rcode',{});if(!r.code)return toast(r.error||'產生失敗');await cloudSave();$('#rcBox').innerHTML=`<div class="rc"><b>${r.code}</b><button class="btn g2" data-a="rcCopy" data-v="${r.code}">複製</button></div>`}catch(e){toast(e.message||'連線失敗')}};
 A.rcCopy=v=>{navigator.clipboard&&navigator.clipboard.writeText(v).then(()=>toast('已複製引繼碼'),()=>toast('請長按手動複製'))};
@@ -1213,7 +1292,7 @@ function drawPhone(){head();const b=$('#pbody');const pr=$('#prac');if(pr)pr.par
  b.innerHTML=h;const q=$('#qty');if(q)q.oninput=est;upd()}
 function upd(){head();S.watch.forEach(k=>{const [p,c,cl]=ptxt(k),a=$('#p_'+k),b=$('#c_'+k);if(a){a.textContent=p;a.className='p '+cl;b.textContent=c;b.className='ch '+cl}});
  const s=$('#sp');if(!exp||!s)return;const k=exp,p=S.px[k],ref=REF[k]||p,c=chg(k),hh=(HIST[k]&&HIST[k].length>1)?HIST[k]:[ref,p],mn=Math.min(...hh,ref),mx=Math.max(...hh,ref),rg=mx-mn||1,
-  pt=hh.map((v,i)=>`${(i/(hh.length-1)*296+2).toFixed(1)},${(82-(v-mn)/rg*72).toFixed(1)}`),col=c>=0?'#ff5a4d':'#3ecf8e',ry=82-(ref-mn)/rg*72,l=pt[pt.length-1].split(',');
+  pt=hh.map((v,i)=>`${(i/(hh.length-1)*296+2).toFixed(1)},${(82-(v-mn)/rg*72).toFixed(1)}`),col=c>=0?'#e0453a':'#22a058',ry=82-(ref-mn)/rg*72,l=pt[pt.length-1].split(',');
  s.innerHTML=`<line x1="0" x2="300" y1="${ry}" y2="${ry}" stroke="#9ea4c8" stroke-dasharray="3 4" stroke-width="1" opacity=".5"/><polygon points="2,90 ${pt.join(' ')} ${l[0]},90" fill="${col}" opacity=".14"/><polyline points="${pt.join(' ')}" fill="none" stroke="${col}" stroke-width="2"/><circle cx="${l[0]}" cy="${l[1]}" r="3.5" fill="${col}"/>`;
  const hd=S.port[k],e=$('#dpl');if(hd&&e){const pl=hd.q*p-hd.cost;e.textContent=(pl>=0?'+':'')+fmt(pl);e.className=pl>=0?'up':'dn'}est()}
 function est(){const q0=$('#qty'),e=$('#est');if(!q0||!e)return;const q=Math.max(0,Math.floor(+q0.value||0)),a=q*S.px[exp],fee=Math.max(1,Math.ceil(a*.001425));

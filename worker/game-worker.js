@@ -2,6 +2,7 @@
 // 綁定：D1 資料庫 → 變數名 DB；加密變數 FUGLE_KEY（富果行情金鑰）；排程 */10 * * * *（更新財產榜）
 // 報價：GET /?ids=2330,2603　GET /k?id=2330
 // 存檔：POST /api/save　GET /api/load　POST /api/rcode（產生引繼碼）　POST /api/recover（用引繼碼找回）
+// 優惠碼：POST /api/redeem　GM：GET/POST /api/promo　暱稱檢查：GET /api/nick?name=
 // 帳號：POST /api/reg　GET /api/me　POST /api/trade　POST /api/spend　POST /api/earn　POST /api/sync　GET /api/rank?type=lv|w　POST /api/name
 const FAPI = 'https://api.fugle.tw/marketdata/v1.0/stock';
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type,authorization', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'content-type': 'application/json; charset=utf-8' };
@@ -61,7 +62,9 @@ async function ensure(db) {
   await db.batch([
     db.prepare('CREATE TABLE IF NOT EXISTS saves(pid INTEGER PRIMARY KEY, data TEXT, ts INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS recov(hash TEXT PRIMARY KEY, pid INTEGER)'),
-    db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)')
+    db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS promo(code TEXT PRIMARY KEY, zeny INTEGER DEFAULT 0, items TEXT, uses INTEGER DEFAULT 0, used INTEGER DEFAULT 0, exp INTEGER DEFAULT 0, note TEXT, created INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS redeem(pid INTEGER, code TEXT, ts INTEGER, PRIMARY KEY(pid, code))')
   ]);
   try { await db.prepare('ALTER TABLE players ADD COLUMN seen INTEGER DEFAULT 0').run(); } catch (e) {}
   try { await db.prepare('ALTER TABLE players ADD COLUMN gm INTEGER DEFAULT 0').run(); } catch (e) {}
@@ -75,6 +78,14 @@ async function stats(db) {
   const now = Date.now(), day = Date.parse(today() + 'T00:00:00+08:00');
   const r = await db.prepare('SELECT SUM(seen>?) online, SUM(seen>?) today, SUM(created>?) newToday, COUNT(*) total FROM players').bind(now - 180000, day, day).first();
   return { online: r.online || 0, today: r.today || 0, newToday: r.newToday || 0, total: r.total || 0, t: now };
+}
+// 暱稱：2–12 字、不可空白開頭結尾、不可用 GM、全服不重複（不分大小寫）
+function cleanName(n) { return String(n || '').replace(/[\u0000-\u001f<>"'`]/g, '').trim().slice(0, 12); }
+async function nameErr(db, n, selfId) {
+  if ([...n].length < 2) return '暱稱至少 2 個字';
+  if (/^gm$/i.test(n)) return '這個暱稱已保留';
+  const hit = await db.prepare('SELECT id FROM players WHERE lower(name)=lower(?) AND id!=? LIMIT 1').bind(n, selfId || 0).first();
+  return hit ? '這個暱稱已經有人使用' : null;
 }
 async function body(req) { try { return await req.json(); } catch (e) { return {}; } }
 
@@ -91,7 +102,9 @@ async function api(req, env, path) {
   }
   if (path === '/api/reg' && req.method === 'POST') {
     const b = await body(req), tok = [...crypto.getRandomValues(new Uint8Array(24))].map(x => x.toString(16).padStart(2, '0')).join('');
-    let name = String(b.name || '').slice(0, 12) || '玩家'; if (/^\s*gm\s*$/i.test(name)) name = '玩家';
+    let name = cleanName(b.name);
+    if (name) { const e = await nameErr(db, name); if (e) return J({ error: e, nameTaken: 1 }, 409); }
+    else { for (let i = 0; i < 20; i++) { name = '玩家' + Math.floor(1000 + Math.random() * 90000); if (!(await nameErr(db, name))) break; } }
     // 首次上線可匯入本機錢包（現金上限 200 萬）
     const z = Math.max(0, Math.min(2000000, +b.zeny || START));
     const r = await db.prepare('INSERT INTO players(token,name,zeny,created,lv,rb,sp,wealth,wts) VALUES(?,?,?,?,0,0,?,?,?)').bind(tok, name, z, Date.now(), String(b.sp || 'shiba').slice(0, 10), z, Date.now()).run();
@@ -107,10 +120,39 @@ async function api(req, env, path) {
     return J({ token: tok, ...(await wallet(env, await db.prepare('SELECT * FROM players WHERE id=?').bind(id).first())) });
   }
   if (path === '/api/stats') return J(await stats(db));
+  if (path === '/api/nick') { const n = cleanName(new URL(req.url).searchParams.get('name')); const e = await nameErr(db, n); return J({ ok: !e, error: e }); }
   const p = await auth(req, env);
   if (!p) return J({ error: '未登入' }, 401);
   if (Date.now() - (p.seen || 0) > 30000) await db.prepare('UPDATE players SET seen=? WHERE id=?').bind(Date.now(), p.id).run();
   if (path === '/api/me') return J(await wallet(env, p));
+  if (path === '/api/redeem' && req.method === 'POST') {
+    const b = await body(req), c = String(b.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pr = c && await db.prepare('SELECT * FROM promo WHERE code=?').bind(c).first();
+    if (!pr) return J({ error: '優惠碼不存在' }, 404);
+    if (pr.exp && Date.now() > pr.exp) return J({ error: '優惠碼已過期' }, 400);
+    if (pr.uses && pr.used >= pr.uses) return J({ error: '優惠碼已被領完' }, 400);
+    if (await db.prepare('SELECT 1 FROM redeem WHERE pid=? AND code=?').bind(p.id, c).first()) return J({ error: '你已經領過這組優惠碼' }, 400);
+    const r = await db.prepare('INSERT OR IGNORE INTO redeem(pid,code,ts) VALUES(?,?,?)').bind(p.id, c, Date.now()).run();
+    if (!r.meta.changes) return J({ error: '你已經領過這組優惠碼' }, 400);
+    await db.batch([db.prepare('UPDATE promo SET used=used+1 WHERE code=?').bind(c), db.prepare('UPDATE players SET zeny=zeny+? WHERE id=?').bind(Math.max(0, pr.zeny || 0), p.id)]);
+    const np = await db.prepare('SELECT * FROM players WHERE id=?').bind(p.id).first();
+    let items = {}; try { items = JSON.parse(pr.items || '{}'); } catch (e) {}
+    return J({ ok: true, code: c, zenyGot: pr.zeny || 0, items, note: pr.note || '', ...(await wallet(env, np)) });
+  }
+  if (path === '/api/promo') {
+    if (!p.gm) return J({ error: '沒有權限' }, 403);
+    if (req.method === 'POST') {
+      const b = await body(req), c = String(b.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20);
+      if (c.length < 4) return J({ error: '優惠碼至少 4 碼（英數）' }, 400);
+      if (b.del) { await db.prepare('DELETE FROM promo WHERE code=?').bind(c).run(); return J({ ok: true }); }
+      const z = Math.max(0, Math.min(10000000, Math.floor(+b.zeny || 0))), uses = Math.max(0, Math.floor(+b.uses || 0)), days = Math.max(0, +b.days || 0);
+      const items = JSON.stringify(b.items && typeof b.items === 'object' ? b.items : {}).slice(0, 2000);
+      await db.prepare('INSERT INTO promo(code,zeny,items,uses,used,exp,note,created) VALUES(?,?,?,?,0,?,?,?) ON CONFLICT(code) DO UPDATE SET zeny=excluded.zeny,items=excluded.items,uses=excluded.uses,exp=excluded.exp,note=excluded.note')
+        .bind(c, z, items, uses, days ? Date.now() + days * 864e5 : 0, String(b.note || '').slice(0, 40), Date.now()).run();
+    }
+    const { results } = await db.prepare('SELECT code,zeny,items,uses,used,exp,note FROM promo ORDER BY created DESC LIMIT 50').all();
+    return J({ list: results });
+  }
   if (path === '/api/save' && req.method === 'POST') {
     const b = await body(req), d = typeof b.data === 'string' ? b.data : '';
     if (!d || d.length > 1800000) return J({ error: '存檔太大或空白' }, 400);
@@ -128,8 +170,8 @@ async function api(req, env, path) {
     return J({ code: c.replace(/(.{4})(?=.)/g, '$1-') });
   }
   if (path === '/api/name' && req.method === 'POST') {
-    const b = await body(req), n = String(b.name || '').trim().slice(0, 12);
-    if (!p.gm && /^gm$/i.test(n)) return J({ error: '這個暱稱已保留' }, 400);
+    const b = await body(req), n = cleanName(b.name);
+    if (!(p.gm && /^gm$/i.test(n))) { const e = await nameErr(db, n, p.id); if (e) return J({ error: e, nameTaken: 1 }, 409); }
     if (n) await db.prepare('UPDATE players SET name=? WHERE id=?').bind(n, p.id).run();
     return J({ ok: true, name: n || p.name });
   }
