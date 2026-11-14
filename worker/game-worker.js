@@ -3,6 +3,7 @@
 // 報價：GET /?ids=2330,2603　GET /k?id=2330
 // 存檔：POST /api/save　GET /api/load　POST /api/rcode（產生引繼碼）　POST /api/recover（用引繼碼找回）
 // 優惠碼：POST /api/redeem　GM：GET/POST /api/promo　暱稱檢查：GET /api/nick?name=
+// 城鎮大廳：GET /town（WebSocket，Durable Object 綁定 TOWN → 類別 Town）　禮物：POST /api/gifts
 // 帳號：POST /api/reg　GET /api/me　POST /api/trade　POST /api/spend　POST /api/earn　POST /api/sync　GET /api/rank?type=lv|w　POST /api/name
 const FAPI = 'https://api.fugle.tw/marketdata/v1.0/stock';
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type,authorization', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'content-type': 'application/json; charset=utf-8' };
@@ -64,7 +65,8 @@ async function ensure(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS recov(hash TEXT PRIMARY KEY, pid INTEGER)'),
     db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)'),
     db.prepare('CREATE TABLE IF NOT EXISTS promo(code TEXT PRIMARY KEY, zeny INTEGER DEFAULT 0, items TEXT, uses INTEGER DEFAULT 0, used INTEGER DEFAULT 0, exp INTEGER DEFAULT 0, note TEXT, created INTEGER)'),
-    db.prepare('CREATE TABLE IF NOT EXISTS redeem(pid INTEGER, code TEXT, ts INTEGER, PRIMARY KEY(pid, code))')
+    db.prepare('CREATE TABLE IF NOT EXISTS redeem(pid INTEGER, code TEXT, ts INTEGER, PRIMARY KEY(pid, code))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS gifts(id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, item TEXT, note TEXT, ts INTEGER)')
   ]);
   try { await db.prepare('ALTER TABLE players ADD COLUMN seen INTEGER DEFAULT 0').run(); } catch (e) {}
   try { await db.prepare('ALTER TABLE players ADD COLUMN gm INTEGER DEFAULT 0').run(); } catch (e) {}
@@ -152,6 +154,11 @@ async function api(req, env, path) {
     }
     const { results } = await db.prepare('SELECT code,zeny,items,uses,used,exp,note FROM promo ORDER BY created DESC LIMIT 50').all();
     return J({ list: results });
+  }
+  if (path === '/api/gifts' && req.method === 'POST') {
+    const { results } = await db.prepare('SELECT id,item,note FROM gifts WHERE pid=?').bind(p.id).all();
+    if (results.length) await db.prepare('DELETE FROM gifts WHERE pid=? AND id<=?').bind(p.id, Math.max(...results.map(r => r.id))).run();
+    return J({ gifts: results });
   }
   if (path === '/api/save' && req.method === 'POST') {
     const b = await body(req), d = typeof b.data === 'string' ? b.data : '';
@@ -250,6 +257,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { headers: H });
     try {
       if (u.pathname.startsWith('/api/')) return await api(req, env, u.pathname);
+      if (u.pathname === '/town') { if (!env.TOWN) return new Response('town offline', { status: 503 }); return env.TOWN.get(env.TOWN.idFromName('town-1')).fetch(req); }
       if (u.pathname === '/stats') { await ensure(env.DB); const s = await stats(env.DB);
         return new Response(`<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width"><meta http-equiv=refresh content=30><title>封印物語 即時人數</title><body style="font:16px system-ui;background:#1b1730;color:#fff;display:grid;place-items:center;min-height:90vh;margin:0"><div style="text-align:center"><div style="font-size:15px;opacity:.7">封印物語 · 同時在線</div><div style="font:900 88px system-ui;color:#7CFC9A">${s.online}</div><div style="display:flex;gap:28px;justify-content:center;margin-top:8px"><div>今日活躍<br><b style="font-size:26px">${s.today}</b></div><div>今日新玩家<br><b style="font-size:26px">${s.newToday}</b></div><div>總玩家<br><b style="font-size:26px">${s.total}</b></div></div><div style="opacity:.5;font-size:12px;margin-top:14px">每 30 秒自動更新 · ${new Date(s.t + 8 * 3600e3).toISOString().slice(11, 19)}</div></div>`, { headers: { 'content-type': 'text/html; charset=utf-8' } }); }
       if (u.pathname === '/k') {
@@ -277,3 +285,113 @@ export default {
     for (const p of results) await wallet(env, p);
   }
 };
+
+// ───────── 城鎮大廳（Durable Object）：即時位置、聊天、私訊、對戰邀請、每小時世界王 ─────────
+const BOSS = ['玉山黑熊王', '太魯閣雲豹', '大冠鷲天空霸主', '合歡山白狼', '八卦山猛虎', '金門風獅爺', '府城土地公', '霞海城隍月老', '中壇元帥哪吒', '行天宮關聖帝君'];
+const BOSS_SP = ['bear', 'leopard', 'eagle', 'wolf', 'tiger', 'lion', 'tudi', 'yuelao', 'nezha', 'guan'];
+const MVP_STOCKS = ['2303', '2609', '2603', '2317', '2882', '1301', '2002', '2412', '2881', '1216'];
+const SPECIES = ['shiba', 'cat', 'rabbit', 'otter', 'penguin', 'bear', 'leopard', 'eagle', 'wolf', 'tiger', 'nezha', 'tudi', 'yuelao', 'guan', 'lion'];
+const GEAR = SPECIES.flatMap(s => [s + '_w', s + '_a']).concat(['c1', 'c2', 'c3', 'c4', 'c5', 'c6']);
+const BAD = /幹|靠北|靠腰|操你|機掰|雞掰|白癡|智障|去死|fuck|shit/gi;
+const nextHour = () => { const t = Date.now(); return t - (t % 3600e3) + 3600e3; };
+export class Town {
+  constructor(state, env) {
+    this.state = state; this.env = env; this.boss = null;
+    state.blockConcurrencyWhile(async () => {
+      this.boss = (await state.storage.get('boss')) || null;
+      if (!(await state.storage.getAlarm())) await state.storage.setAlarm(nextHour());
+    });
+  }
+  socks() { return this.state.getWebSockets(); }
+  info(ws) { try { return ws.deserializeAttachment() || {}; } catch (e) { return {}; } }
+  send(ws, o) { try { ws.send(JSON.stringify(o)); } catch (e) {} }
+  all(o, skip) { const m = JSON.stringify(o); for (const w of this.socks()) if (w !== skip) { try { w.send(m); } catch (e) {} } }
+  pub(a) { return { id: a.id, name: a.name, sp: a.sp, x: a.x, z: a.z, gm: a.gm ? 1 : 0 }; }
+  bossPub() { const b = this.boss; return b ? { i: b.i, lv: b.lv, hp: Math.max(0, Math.round(b.hp)), mx: b.mx, name: b.name, sp: b.sp, ends: b.ends } : null; }
+  async fetch(req) {
+    if (req.headers.get('Upgrade') !== 'websocket') return new Response(JSON.stringify({ online: this.socks().length, boss: this.bossPub() }), { headers: H });
+    const u = new URL(req.url), tok = u.searchParams.get('tok') || '';
+    if (!/^[0-9a-f]{32,64}$/.test(tok)) return new Response('unauthorized', { status: 401 });
+    const p = await this.env.DB.prepare('SELECT id,name,gm FROM players WHERE token=?').bind(tok).first();
+    if (!p) return new Response('unauthorized', { status: 401 });
+    for (const w of this.state.getWebSockets('p' + p.id)) { try { w.close(4000, 'dup'); } catch (e) {} }
+    const pair = new WebSocketPair(), [c, s] = Object.values(pair);
+    this.state.acceptWebSocket(s, ['p' + p.id]);
+    const sp = SPECIES.includes(u.searchParams.get('sp')) ? u.searchParams.get('sp') : 'shiba';
+    const a = { id: p.id, name: p.name, gm: p.gm ? 1 : 0, sp, pw: 0, x: (Math.random() - .5) * 3, z: (Math.random() - .5) * 3, lc: 0, lh: 0 };
+    s.serializeAttachment(a);
+    this.send(s, { t: 'hi', me: a.id, list: this.socks().filter(w => w !== s).map(w => this.pub(this.info(w))).filter(x => x.id), boss: this.bossPub() });
+    this.all({ t: 'join', p: this.pub(a) }, s);
+    return new Response(null, { status: 101, webSocket: c });
+  }
+  async webSocketMessage(ws, raw) {
+    let m; try { m = JSON.parse(raw); } catch (e) { return; }
+    const a = this.info(ws); if (!a.id) return; const now = Date.now();
+    if (m.t === 'pos') { a.x = Math.max(-3.2, Math.min(3.2, +m.x || 0)); a.z = Math.max(-3.2, Math.min(3.2, +m.z || 0)); ws.serializeAttachment(a); this.all({ t: 'pos', id: a.id, x: a.x, z: a.z }, ws); return; }
+    if (m.t === 'me') { if (SPECIES.includes(m.sp)) a.sp = m.sp; a.pw = Math.max(0, Math.min(6000, +m.pw || 0)); ws.serializeAttachment(a); this.all({ t: 'sp', id: a.id, sp: a.sp }, ws); return; }
+    if (m.t === 'chat' || m.t === 'pm') {
+      if (now - a.lc < 1200) return this.send(ws, { t: 'sys', m: '說話太快了，休息一下' });
+      a.lc = now; ws.serializeAttachment(a);
+      const text = String(m.m || '').replace(/[<>]/g, '').slice(0, 60).replace(BAD, '＊＊').trim(); if (!text) return;
+      if (a.gm && m.t === 'chat' && /^\/boss/.test(text)) { await this.spawn(+text.split(/\s+/)[1] || 0, true); return; }
+      const o = { t: m.t, id: a.id, name: a.name, m: text, gm: a.gm ? 1 : 0 };
+      if (m.t === 'pm') { const to = this.state.getWebSockets('p' + (+m.to)); if (!to.length) return this.send(ws, { t: 'sys', m: '對方已離線' }); to.forEach(w => this.send(w, o)); this.send(ws, { ...o, to: +m.to }); }
+      else this.all(o);
+      return;
+    }
+    if (m.t === 'emote') { this.all({ t: 'emote', id: a.id, e: String(m.e || '👋').slice(0, 4), to: +m.to || 0 }); return; }
+    if (m.t === 'inv' || m.t === 'invr') {
+      const to = this.state.getWebSockets('p' + (+m.to)); if (!to.length) return this.send(ws, { t: 'sys', m: '對方已離線' });
+      const team = Array.isArray(m.team) ? m.team.slice(0, 3).map(x => ({ name: String(x.name || '').slice(0, 12), sp: SPECIES.includes(x.sp) ? x.sp : 'shiba', lv: Math.max(0, Math.min(110, +x.lv || 0)), t: (Array.isArray(x.t) ? x.t : []).slice(0, 5).map(v => Math.max(0, Math.min(2000, +v || 0))) })) : [];
+      if (m.t === 'inv') { to.forEach(w => this.send(w, { t: 'inv', from: a.id, name: a.name, team })); return; }
+      if (!m.ok) { to.forEach(w => this.send(w, { t: 'sys', m: `${a.name} 婉拒了對戰邀請` })); return; }
+      const o = this.info(to[0]);
+      to.forEach(w => this.send(w, { t: 'duel', vs: { id: a.id, name: a.name, team } }));
+      this.send(ws, { t: 'duel', vs: { id: o.id, name: o.name, team: m.oppTeam || [] } });
+      this.all({ t: 'sys', m: `⚔ ${o.name} 與 ${a.name} 展開對戰！` });
+      return;
+    }
+    if (m.t === 'hit') {
+      const b = this.boss; if (!b || b.hp <= 0) return;
+      if (now - a.lh < 850) return; a.lh = now; ws.serializeAttachment(a);
+      const d = Math.max(5, Math.round((a.pw || 30) / 3 * (0.8 + Math.random() * 0.4)));
+      b.hp -= d; b.dmg[a.id] = (b.dmg[a.id] || 0) + d; b.names[a.id] = a.name;
+      this.send(ws, { t: 'dmg', d });
+      if (b.hp <= 0) return this.kill();
+      if (now - (b.lb || 0) > 500) { b.lb = now; this.all({ t: 'bhp', hp: Math.round(b.hp), mx: b.mx, id: a.id }); }
+      if (now - (b.ls || 0) > 5000) { b.ls = now; await this.state.storage.put('boss', b); }
+      return;
+    }
+  }
+  async webSocketClose(ws) { const a = this.info(ws); if (a.id && !this.state.getWebSockets('p' + a.id).some(w => w !== ws)) this.all({ t: 'leave', id: a.id }, ws); }
+  async webSocketError(ws) { return this.webSocketClose(ws); }
+  async spawn(lv, force) {
+    const n = this.socks().length; if (!n && !force) return;
+    lv = Math.max(1, Math.min(100, lv || 1 + Math.floor(Math.random() * 100)));
+    const i = Math.min(9, Math.floor((lv - 1) / 10)), mx = Math.round((600 + lv * 120) * Math.pow(Math.max(1, Math.min(n, 30)), .8));
+    this.boss = { i, lv, name: BOSS[i], sp: BOSS_SP[i], hp: mx, mx, ends: Date.now() + 600e3, dmg: {}, names: {} };
+    await this.state.storage.put('boss', this.boss); await this.state.storage.setAlarm(this.boss.ends);
+    this.all({ t: 'boss', boss: this.bossPub() });
+  }
+  async kill() {
+    const b = this.boss; this.boss = null; await this.state.storage.delete('boss'); await this.state.storage.setAlarm(nextHour());
+    const rank = Object.entries(b.dmg).sort((x, y) => y[1] - x[1]); if (!rank.length) return;
+    const mvp = +rank[0][0], name = b.names[mvp]; let reward;
+    if (Math.random() < .5) {
+      const item = GEAR[Math.floor(Math.random() * GEAR.length)];
+      await this.env.DB.prepare('INSERT INTO gifts(pid,item,note,ts) VALUES(?,?,?,?)').bind(mvp, item, b.name + ' MVP', Date.now()).run();
+      reward = { k: 'eq', item };
+    } else {
+      const code = MVP_STOCKS[Math.floor(Math.random() * MVP_STOCKS.length)], q = await quote(this.env, code), price = px(q) || 50;
+      const h = await this.env.DB.prepare('SELECT q FROM holdings WHERE pid=? AND code=?').bind(mvp, code).first();
+      await this.env.DB.prepare(h ? 'UPDATE holdings SET q=q+1000,cost=cost+? WHERE pid=? AND code=?' : 'INSERT INTO holdings(cost,pid,code,q) VALUES(?,?,?,1000)').bind(Math.round(price * 1000), mvp, code).run();
+      reward = { k: 'stk', code, n: q ? q.n : code, price };
+    }
+    this.all({ t: 'bkill', name: b.name, mvp, mvpName: name, reward, top: rank.slice(0, 5).map(([id, d]) => ({ name: b.names[id], d })) });
+  }
+  async alarm() {
+    const b = this.boss;
+    if (b && Date.now() >= b.ends - 1000) { this.boss = null; await this.state.storage.delete('boss'); this.all({ t: 'bgone', name: b.name }); await this.state.storage.setAlarm(nextHour()); return; }
+    if (!b) { await this.spawn(0, false); if (!this.boss) await this.state.storage.setAlarm(nextHour()); }
+  }
+}
