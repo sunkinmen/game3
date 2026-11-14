@@ -414,7 +414,18 @@ body{background:var(--ink)}
 <script>
 "use strict";
 /* ====== 設定：報價代理（Google Apps Script 網頁應用程式的 /exec 網址），留空則用模擬報價 ====== */
-const QUOTE_API='https://script.google.com/macros/s/AKfycbw9FsTuoYoHuPhIXF0qU2zCQcLfs9gVeZ3EY-p77yoYHAJi5N07Qwg_kvxV6kLJMY-V/exec';let QT=0;
+const GAME_API='https://seal-game.sunkinmen.workers.dev',QUOTE_API=GAME_API+'/';let QT=0;
+/* ====== 線上伺服器：錢包、交易、排行榜 ====== */
+let ONLINE=false;
+async function net(path,body){const o={headers:{'content-type':'application/json'}};if(S.tok)o.headers.authorization='Bearer '+S.tok;if(body!==undefined){o.method='POST';o.body=JSON.stringify(body)}
+ const r=await fetch(GAME_API+path,o);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('連線失敗 '+r.status));return j}
+function applyW(w){if(!w||w.zeny==null)return;S.zeny=w.zeny;S.port={};for(const k in w.port||{}){S.port[k]={q:w.port[k].q,cost:w.port[k].cost};if(w.port[k].n)S.nm[k]=w.port[k].n;if(!S.watch.includes(k))S.watch.push(k)}if(w.name)S.nick=w.name;ONLINE=true;hud()}
+function topCr(){return S.cr.slice().sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv))[0]}
+async function netInit(){try{if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
+ else applyW(await net('/api/me'));netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
+async function netSync(){if(!S.tok)return;const t=topCr();if(!t)return;try{await net('/api/sync',{lv:t.lv,rb:t.rb,sp:t.sp})}catch(e){}}
+setInterval(()=>{if(S.tok)net('/api/me').then(applyW).catch(()=>{ONLINE=false})},60000);setInterval(netSync,120000);
+
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Math.round(n).toLocaleString('en-US');
@@ -598,9 +609,9 @@ function bHit(u,t,mult,useInt){const fog=B.wx&&B.wx[0]==='霧'?.1:0;if(Math.rand
 function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
  if(!a){B.a.concat(B.f).forEach(x=>{x.def=false;x.skipc=0;if(x.hp>0)x.qi=Math.min(5,x.qi+1)});
   const win=B.f.every(x=>x.hp<=0),lose=B.a.every(x=>x.hp<=0);
-  if(win||lose){B.phase='end';let z=0,ups=[];if(win){z=B.f.reduce((s,x)=>s+2000+x.lv*300,0);S.zeny+=z}
+  if(win||lose){B.phase='end';let z=0,ups=[];if(win){z=B.f.reduce((s,x)=>s+2000+x.lv*300,0);if(S.tok)net('/api/earn',{n:z}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>{});else S.zeny+=z}
    B.a.forEach(x=>{const e=win?30+x.lv*8:10+x.lv*2;if(gain(x.c,e))ups.push(x.c.name);x.c.mood=Math.max(0,Math.min(100,x.c.mood+(win?6:-6)))});
-   sfx2(win?'win':'lose');B.msg=(win?`勝利！獲得 ${fmt(z)} zeny，全員得到經驗。`:'全員倒下…… 得到少量經驗。')+(ups.length?` ${ups.join('、')} 升級了！`:'');hud();build3D();return bDraw()}
+   sfx2(win?'win':'lose');B.msg=(win?`勝利！獲得 ${fmt(z)} zeny，全員得到經驗。`:'全員倒下…… 得到少量經驗。')+(ups.length?` ${ups.join('、')} 升級了！`:'');hud();build3D();netSync();return bDraw()}
   B.round++;B.phase='cmd';B.i=B.a.findIndex(x=>x.hp>0);return bDraw()}
  const u=a.u;if(u.hp<=0)return bStep();const foes=(u.side==='a'?B.f:B.a).filter(x=>x.hp>0);if(!foes.length)return bStep();
  let t=a.t&&a.t.hp>0?a.t:pick(foes),fx=[],m='';const nm=esc(u.name);
@@ -829,7 +840,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1900)}
 function hud(){$('#zeny').textContent=fmt(S.zeny);save()}
 function sheet(title,html){$('#stitle').textContent=title;$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
-function pay(n){if(S.zeny<n){toast('zeny 不夠，去股市賺一點');return false}S.zeny-=n;hud();return true}
+function pay(n){if(S.zeny<n){toast('zeny 不夠，去股市賺一點');return false}S.zeny-=n;hud();if(S.tok)net('/api/spend',{n}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>net('/api/me').then(applyW).catch(()=>{}));return true}
 const tierTag=s=>`<span class="tier t${s.t}">${TN[s.t]}</span>`;
 const bon=b=>b.map((v,i)=>v?SN[i]+'+'+v:'').filter(Boolean).join(' ');
 const cur=()=>S.cr.find(c=>c.id===curId);let curId=0,shopTab='food';
@@ -875,18 +886,14 @@ const A={
   sheet('商店',h)},
  buyF(id){const f=FOOD.find(x=>x.id===id);if(pay(f.price)){S.food[id]=(S.food[id]||0)+1;toast(`買了 ${f.n}`);save();A.shop()}},
  buyE(id){const it=ITEMS[id];if(pay(it.price)){S.eq[id]=(S.eq[id]||0)+1;toast(`買了 ${it.n}`);save();A.shop()}},
- rank(t){if(t)rankTab=t;let seed=7;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;const anyRb=S.cr.some(c=>c.rb);
-  const tabs=`<div class="tabs">${[['lv','等級榜'],['w','財產榜']].map(a=>`<button class="${rankTab===a[0]?'on':''}" data-a="rank" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
-  let all=[];
-  if(rankTab==='w'){for(let i=0;i<110;i++){const s=SP[Math.floor(r()*SP.length)];all.push({n:NPCN[Math.floor(r()*NPCN.length)],sp:s.id,w:Math.round(4e5+r()*r()*r()*9e6)})}
-   const top=S.cr.slice().sort((a,b)=>b.lv-a.lv)[0];all.push({n:'你',sp:top?top.sp:'shiba',w:Math.round(S.zeny+pv()[0]),me:1});all.sort((a,b)=>b.w-a.w);
-   const mine=all.findIndex(a=>a.me);
-   return sheet('排行榜',tabs+`<p class="note">財產 = zeny 現金 + 持股市值。你目前第 ${mine+1} 名。其他玩家為示範資料，接上線上伺服器後換成真實排名。</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b></span><span class="lv">${fmt(a.w)} Z</span></div>`).join('')+'</div>')}
-  for(let i=0;i<110;i++){const s=SP[Math.floor(r()*SP.length)];all.push({n:NPCN[Math.floor(r()*NPCN.length)]+'的'+s.n,sp:s.id,lv:Math.floor(28+r()*r()*72),rb:0})}
-  S.cr.forEach(c=>all.push({n:c.name,sp:c.sp,lv:c.lv,rb:c.rb,me:1}));
-  all.sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv));
-  const mine=all.findIndex(a=>a.me);
-  sheet('排行榜',tabs+`<p class="note">等級前 100 名，只顯示物種圖，人臉留在各自手機。其他玩家為示範資料，接上線上伺服器後換成真實排名。${mine>=100?'你的夥伴還沒進榜。':''}</p><div>`+all.slice(0,100).map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp,null,40)}<span><b>${esc(a.n)}</b><br><small style="color:var(--muted)">${sp(a.sp).n}${anyRb&&a.rb?' · 二轉':''}</small></span><span class="lv">Lv ${a.lv}</span></div>`).join('')+'</div>')},
+ rank(t){if(t)rankTab=t;const tabs=`<div class="tabs">${[['lv','等級榜'],['w','財產榜']].map(a=>`<button class="${rankTab===a[0]?'on':''}" data-a="rank" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
+  const nick=`<div class="row"><span class="g"><b>我的暱稱</b><small>顯示在排行榜上，人臉不會上傳</small></span><input id="nick" maxlength="12" value="${esc(S.nick||'')}" style="width:120px"><button class="btn g2" data-a="nick">儲存</button></div>`;
+  if(!S.tok||!ONLINE){netInit();return sheet('排行榜',tabs+'<p class="note">正在連線伺服器…稍後再打開一次。</p>')}
+  sheet('排行榜',tabs+nick+'<p class="note">讀取中…</p>');
+  net('/api/rank?type='+rankTab).then(r=>{const w=rankTab==='w';
+   $('#sbody').innerHTML=tabs+nick+`<p class="note">${w?'財產 = zeny 現金 + 持股市值（伺服器依真實股價計算）':'以玩家最強夥伴的等級排名'}。共 ${r.total} 位玩家，你是第 ${r.mine} 名。人臉只留在各自手機。</p><div>`+
+   r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b><br><small style="color:var(--muted)">${sp(a.sp||'shiba').n}${a.rb?' · 二轉':''}</small></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
+ nick(){const n=($('#nick').value||'').trim().slice(0,12);if(!n)return toast('請輸入暱稱');S.nick=n;save();net('/api/name',{name:n}).then(()=>{toast('暱稱已更新');A.rank()}).catch(e=>toast(e.message))},
  arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`)},
  pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
  battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
@@ -994,7 +1001,7 @@ function grab(x,y,w,h,outW){const W=innerWidth,H=innerHeight,sw=capSrc.videoWidt
 let exp=null,ordMode=0,liveOK=false;const REF={},HIST={},LIVE={},KLOAD={};
 const sname=k=>S.nm[k]||(STK.find(s=>s[0]===k)||[])[1]||k;
 function open(){const d=new Date(Date.now()+8*3600e3),m=d.getUTCHours()*60+d.getUTCMinutes(),w=d.getUTCDay();return w>=1&&w<=5&&m>=540&&m<810}
-const canTrade=()=>open()||S.prac;
+const canTrade=()=>open()||(!S.tok&&S.prac);
 function mktLine(spid){const [n]=IND[spid]||['大盤'],c=indChg(spid),p=(c>=0?'+':'')+c.toFixed(1)+'%';
  return c>3?pick([`${n}噴啦 ${p}！今天我最強`,`${n} ${p}，老闆要加碼嗎？`]):c>0?pick([`${n}小漲 ${p}，心情不錯`,`${n}紅盤 ${p}，晚餐加菜`]):c<-3?pick([`${n}跌 ${p}…套牢了啦`,`${n} ${p}，我要去拜土地公`]):pick([`${n} ${p}，盤整好無聊`,`${n}今天綠綠的 ${p}`])}
 function dailyBonus(){const d=dayKey();if(S.day===d)return;const w=S.zeny+pv()[0];if(S.day&&S.lastW){const g=w-S.lastW;
@@ -1008,16 +1015,16 @@ async function tick(){loadInd();dailyBonus();
  S.watch.forEach(k=>{HIST[k]=HIST[k]||[];if(!liveOK||open()){HIST[k].push(S.px[k]);if(HIST[k].length>400)HIST[k].shift()}});
  if($('#phone').classList.contains('on'))upd()}
 async function loadK(k){if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
- try{const j=await (await fetch(QUOTE_API+'?k='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
+ try{const j=await (await fetch(GAME_API+'/k?id='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
 function pv(){let v=0,c=0;for(const k in S.port){v+=S.port[k].q*S.px[k];c+=S.port[k].cost}return [v,v-c]}
 function head(){const o=open(),m=$('#mkt');m.textContent=o?'盤中':'休市';m.classList.toggle('open',o);
  const sp2=$('#srcp');sp2.textContent=liveOK?'即時行情':'模擬報價';sp2.classList.toggle('open',liveOK);
  const [v,pl]=pv();$('#pz').textContent=fmt(S.zeny);$('#pv').textContent=fmt(v);const e=$('#pl');e.textContent=(pl>=0?'+':'')+fmt(pl);e.className=pl>=0?'up':'dn'}
 const chg=k=>REF[k]?(S.px[k]-REF[k])/REF[k]*100:0;
 const ptxt=k=>{const c=chg(k);return [S.px[k].toFixed(2),(c>=0?'+':'')+c.toFixed(2)+'%',c>=0?'up':'dn']};
-function drawPhone(){head();const b=$('#pbody');
+function drawPhone(){head();const b=$('#pbody');const pr=$('#prac');if(pr)pr.parentElement.style.display=S.tok?'none':'';
  let h=liveOK?'':`<p class="note">目前是模擬報價，不是真實行情。接上報價代理後會自動換成台股即時價。</p>`;
- if(!canTrade())h+='<p class="note">現在休市（週一至週五 09:00–13:30）。勾「練習盤」可先試單。</p>';
+ if(!canTrade())h+=S.tok?'<p class="note">現在休市（週一至週五 09:00–13:30），開盤後由伺服器依真實成交價撮合。</p>':'<p class="note">現在休市（週一至週五 09:00–13:30）。勾「練習盤」可先試單。</p>';
  h+=S.watch.map(k=>{const [p,c,cl]=ptxt(k),hd=S.port[k];
   let r=`<div class="q2"><button class="qi" data-a="stk" data-v="${k}"><b>${esc(sname(k))}</b><small>${k}${hd?` · 持有 ${fmt(hd.q)} 股`:''} ${exp===k?'▴':'▾'}</small></button><span class="p ${cl}" id="p_${k}">${p}</span><span class="ch ${cl}" id="c_${k}">${c}</span><button class="bs b" data-a="ord" data-v="${k}|1" aria-label="買進${k}">買</button><button class="bs s" data-a="ord" data-v="${k}|-1" aria-label="賣出${k}">賣</button></div>`;
   if(exp===k){const L=LIVE[k]||{};r+=`<div class="pn"><svg id="sp" viewBox="0 0 300 90" style="width:100%;height:90px"></svg>
@@ -1037,7 +1044,9 @@ function upd(){head();S.watch.forEach(k=>{const [p,c,cl]=ptxt(k),a=$('#p_'+k),b=
  const hd=S.port[k],e=$('#dpl');if(hd&&e){const pl=hd.q*p-hd.cost;e.textContent=(pl>=0?'+':'')+fmt(pl);e.className=pl>=0?'up':'dn'}est()}
 function est(){const q0=$('#qty'),e=$('#est');if(!q0||!e)return;const q=Math.max(0,Math.floor(+q0.value||0)),a=q*S.px[exp],fee=Math.max(1,Math.ceil(a*.001425));
  e.textContent=ordMode>0?`約需 ${fmt(Math.ceil(a)+fee)} zeny（含手續費 ${fmt(fee)}）`:`約可得 ${fmt(Math.floor(a)-fee-Math.ceil(a*.003))} zeny（已扣手續費與證交稅）`}
-function trade(dir){if(!canTrade())return toast('休市中，勾「練習盤」可試單');const k=exp,q=Math.floor(+$('#qty').value||0);if(q<1)return toast('請輸入股數');
+function trade(dir){const k=exp,q=Math.floor(+$('#qty').value||0);if(q<1)return toast('請輸入股數');
+ if(S.tok){if(!ONLINE)return toast('目前連不上伺服器，稍後再試');toast('下單中…');net('/api/trade',{code:k,q,dir}).then(r=>{applyW(r);toast(r.msg);ordMode=0;drawPhone()}).catch(e=>toast(e.message));return}
+ if(!canTrade())return toast('休市中，勾「練習盤」可試單');
  const p=S.px[k],a=q*p,fee=Math.max(1,Math.ceil(a*.001425));let h=S.port[k];
  if(dir>0){const cost=Math.ceil(a)+fee;if(S.zeny<cost)return toast('zeny 不夠');S.zeny-=cost;h=S.port[k]=h||{q:0,cost:0};h.q+=q;h.cost+=cost;toast(`買進 ${sname(k)} ${fmt(q)} 股，花費 ${fmt(cost)}`)}
  else{if(!h||h.q<q)return toast('持股不足');const get=Math.floor(a)-fee-Math.ceil(a*.003),part=h.cost*q/h.q;S.zeny+=get;h.q-=q;h.cost-=part;if(!h.q)delete S.port[k];toast(`賣出 ${sname(k)} ${fmt(q)} 股，${get-part>=0?'賺':'賠'} ${fmt(Math.abs(get-part))}`)}
@@ -1045,7 +1054,7 @@ function trade(dir){if(!canTrade())return toast('休市中，勾「練習盤」�
 $('#prac').onchange=e=>{S.prac=e.target.checked;save();drawPhone()};
 
 /* ====== 啟動 ====== */
-load();S.watch.forEach(k=>{REF[k]=S.px[k];HIST[k]=[S.px[k]]});
+load();S.watch.forEach(k=>{REF[k]=S.px[k];HIST[k]=[S.px[k]]});setTimeout(netInit,500);
 hud();$('#snd').classList.toggle('off',!!S.mute);
 try{if(USE3D){build3D=buildHome3D;initHome3D()}else init3D()}catch(e){console.error(e)}
 if(!R)$('#cnt').textContent=`已收服 ${S.cr.length} 位夥伴`;
