@@ -346,6 +346,12 @@ body{background:var(--ink)}
 #nav .big span{margin-top:-44px!important}
 #nav .big{color:#5a3414!important;text-shadow:0 1px 0 #fff8e6,0 0 3px #fff8e6!important;font-size:13px!important}
 #hint{display:none}
+
+.wx{display:inline-block;font-style:normal;font-size:10px!important;color:#fff!important;border-radius:4px;padding:0 3px;margin:0 3px 0 0!important;line-height:14px;vertical-align:1px;text-shadow:none}
+#battle .unit .nm i.ai{color:#ffd76a}
+#battle .wea{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;background:#0b0e1d66;color:#fff;font-size:13px;font-weight:800;padding:3px 12px;border-radius:14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#bcmd button.cmb{background:linear-gradient(#ffe58a,#f0a52a)!important;color:#4a2400!important}
+.indl{margin-top:6px;font-size:12px;color:var(--muted)}.indl .up{color:#e5463a}.indl .dn{color:#27a35a}
 </style>
 </head>
 <body>
@@ -551,24 +557,46 @@ function speak(o,cat){const i=Math.floor(Math.random()*VOX[cat].length);o.b.text
 function react(c,good){const o=objs.find(x=>x.c.id===c.id);if(!o)return;o.act={k:good?'joy':'sad',t:0};speak(o,good?'fl':'bad')}
 /* 回合制戰鬥 */
 const SK={shiba:['柴犬連咬',2],cat:['貓拳連打',2],rabbit:['月兔連蹴',2],otter:['蛤蜊亂舞',1],penguin:['冰敷休息',3],bear:['熊掌重擊',0],leopard:['雲影連爪',2],eagle:['俯衝連啄',2],wolf:['月牙斬',0],tiger:['虎嘯猛擊',0],nezha:['火尖槍連刺',2],tudi:['福德賭運',4],yuelao:['紅線纏繞',1],guan:['青龍偃月斬',0],lion:['鎮風護體',3]};
+const WX={shiba:'土',bear:'土',tudi:'土',cat:'金',leopard:'金',lion:'金',otter:'水',penguin:'水',wolf:'水',rabbit:'木',tiger:'木',guan:'木',nezha:'火',yuelao:'火',eagle:'火'};
+const KE={木:'土',土:'水',水:'火',火:'金',金:'木'},WXC={木:'#3fae55',火:'#ff6a3a',土:'#c8933c',金:'#e8c040',水:'#3a9cff'};
+function wxm(a,b){const x=WX[a],y=WX[b];return KE[x]===y?1.3:KE[y]===x?.8:1}
+const IND={shiba:['食品','1216'],cat:['零售','2912'],rabbit:['生技','6446'],otter:['航運','2603'],penguin:['塑化','1301'],bear:['鋼鐵','2002'],leopard:['汽車','2207'],eagle:['航空','2618'],wolf:['網通','2345'],tiger:['AI伺服器','2382'],nezha:['半導體','2330'],tudi:['營建','2542'],yuelao:['觀光','2731'],guan:['金融','2881'],lion:['電信','2412']};
+let INDQ={},INDT=0;
+function dayKey(){const t=new Date(Date.now()+8*3600e3);return t.toISOString().slice(0,10)}
+function simChg(code){let h=0;const s=dayKey()+code;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return ((h>>>0)%1300)/100-5.5}
+// 產業今日漲跌（%）：有真實報價用真實，沒有就用每日固定的模擬值
+function indChg(spid){const c=(IND[spid]||[])[1];if(!c)return 0;const q=INDQ[c];return q&&q.y?(q.z-q.y)/q.y*100:simChg(c)}
+function indM(spid){return 1+Math.max(-.1,Math.min(.15,indChg(spid)*.03))}
+async function loadInd(){if(!QUOTE_API||Date.now()-INDT<3e5)return;INDT=Date.now();try{const j=await (await fetch(QUOTE_API+'?ids='+Object.values(IND).map(a=>a[1]).join(','))).json();INDQ=j}catch(e){}}
+const PAIR=[[['tudi','yuelao'],'天作之合','heal'],[['nezha','tiger'],'風火虎嘯','aoe'],[['guan','lion'],'武聖獅吼','big'],[['shiba','cat'],'貓狗大戰','multi'],[['otter','penguin'],'冰海狂潮','aoe'],[['eagle','wolf'],'月夜獵殺','big'],[['rabbit','bear'],'森林守護','heal'],[['leopard','tiger'],'雙獸撕裂','multi'],[['nezha','guan'],'神將降臨','big'],[['shiba','bear'],'台灣黑白配','multi']];
+function pairOf(u,team){for(const [p,n,k] of PAIR){if(!p.includes(u.sp))continue;const o=p[0]===u.sp?p[1]:p[0];const m=team.find(x=>x!==u&&x.sp===o&&x.hp>0);if(m)return {m,n,k}}return null}
+const WEA=[['晴','☀️','火系 +20%，水系 -10%'],['雨','🌧️','水系 +20%，火系 -20%'],['霧','🌫️','雙方閃避率提高'],['雷','⚡','金系爆擊率提高'],['風','🍃','木系 +20%']];
+function weaM(spid){const w=B&&B.wx&&B.wx[0],e=WX[spid];if(w==='晴')return e==='火'?1.2:e==='水'?.9:1;if(w==='雨')return e==='水'?1.2:e==='火'?.8:1;if(w==='風'&&e==='木')return 1.2;return 1}
+const AIK=['莽撞','龜縮','補師','狡猾'];
 const SKD=['單體重擊','攻擊敵方全體','連打兩下','回復自己體力','一半機率三倍傷害'];
 let B=null,pickIds=[],rankTab='lv';const BPOS={a:[[.33,.47],[.17,.62],[.34,.77]],f:[[.67,.47],[.83,.62],[.66,.77]]};
 function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
- const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm">${esc(x.name)}${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
+ const u=(x,i)=>{const [pu,pv]=(BPOS[x.side][i]||[.5,.6]),sc=(.8+(pv-.41)/.39*.32).toFixed(3);return `<button class="unit ${x.side}${x.hp<=0?' dead':''}${x===cu?' cur':''}" style="left:${pu*100}%;top:${pv*100}%;--sc:${sc};z-index:${Math.round(pv*100)}" id="u_${x.side}${i}" data-a="btgt" data-v="${x.side}${i}"><span class="shd"></span><span class="fig">${x.c?icon(x.sp,faceOf(x.c),100,x.c.eq):icon(x.sp,null,100)}</span><span class="nm"><i class="wx" style="background:${WXC[WX[x.sp]]}">${WX[x.sp]}</i>${esc(x.name)}${x.ai?`<i class="ai">${x.ai}</i>`:''}${x.def?'<i>防禦</i>':''}</span><span class="bars"><span class="hp"><i style="width:${Math.max(0,x.hp/x.mx*100)}%;background:${x.side==='f'?'linear-gradient(#ff8a6a,#e0442a)':'linear-gradient(#8ef08f,#3cb956)'}"></i><b>${Math.max(0,Math.round(x.hp))}/${Math.round(x.mx)}</b></span><span class="qi"><i style="width:${x.qi/5*100}%"></i></span></span></span></button>`};
  let cmd='';
  if(B.phase==='cmd'){if(B.pend)cmd=B.f.map((x,i)=>x.hp>0?`<button data-a="btgt" data-v="f${i}">${esc(x.name)}</button>`:'').join('')+'<button data-a="bback">返回</button>';
-  else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button><button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
+  else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button>${(()=>{const p=pairOf(cu,B.a);return p?`<button class="cmb" data-a="bact" data-v="cmb" ${cu.qi<2||p.m.qi<2||p.m.done?'disabled':''}>合體「${p.n}」<small>與 ${esc(p.m.name)} · 各耗氣 2</small></button>`:''})()}<button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
  else if(B.phase==='end')cmd='<button data-a="bexit">離開</button>';
  const msg=B.phase==='cmd'?(B.pend?`${esc(cu.name)} 要打誰？`:`第 ${B.round} 回合　${esc(cu.name)} 要做什麼？`):B.msg;
- $('#battle').innerHTML=`<div class="field"><div class="stage">${B.a.map(u).join('')}${B.f.map(u).join('')}</div></div><div class="bbox"><p id="bmsg">${msg}</p><div id="bcmd">${cmd}</div></div>`;b3Draw()}
-function bNext(){let i=B.i+1;while(i<B.a.length&&B.a[i].hp<=0)i++;if(i<B.a.length){B.i=i;return bDraw()}
- B.f.forEach(e=>{if(e.hp<=0)return;const ty=SK[e.sp][1],r=Math.random();const k=e.qi>=2&&r<.6?'sk':r>.92?'def':'atk';B.acts.push({u:e,k,t:pick(B.a.filter(x=>x.hp>0))})});
+ $('#battle').innerHTML=`<div class="field"><div class="wea">${B.wx[1]} ${B.wx[0]}</div><div class="stage">${B.a.map(u).join('')}${B.f.map(u).join('')}</div></div><div class="bbox"><p id="bmsg">${msg}</p><div id="bcmd">${cmd}</div></div>`;b3Draw()}
+function bNext(){let i=B.i+1;while(i<B.a.length&&(B.a[i].hp<=0||B.a[i].skipc))i++;if(i<B.a.length){B.i=i;return bDraw()}
+ const al=B.a.filter(x=>x.hp>0);B.f.forEach(e=>{if(e.hp<=0||e.skip)return;const r=Math.random(),low=al.slice().sort((x,y)=>x.hp-y.hp)[0];let k='atk',t=pick(al);
+  const pr=e.qi>=2?pairOf(e,B.f):null;if(pr&&pr.m.qi>=2&&r<.5){pr.m.skip=1;B.acts.push({u:e,k:'cmb',p:pr,t:low});return}
+  if(e.ai==='莽撞'){k=e.qi>=2?'sk':'atk';t=low}
+  else if(e.ai==='龜縮'){k=e.hp<e.mx*.5&&r<.7?'def':e.qi>=3?'sk':'atk'}
+  else if(e.ai==='補師'){const hurt=B.f.some(x=>x.hp>0&&x.hp<x.mx*.5);k=hurt&&r<.75?'hl':e.qi>=2&&r<.4?'sk':'atk'}
+  else{t=al.find(x=>wxm(e.sp,x.sp)>1)||low;k=e.qi>=2&&wxm(e.sp,t.sp)>=1?'sk':'atk'}
+  B.acts.push({u:e,k,t})});B.f.forEach(e=>e.skip=0);
  B.acts.forEach(a=>{if(a.k==='def'){a.u.def=true;if(USE3D&&bOn)b3Act('def',a.u);else sfx2('guard');a.u.qi=Math.min(5,a.u.qi+1)}});
  B.acts=B.acts.filter(a=>a.k!=='def').sort((x,y)=>y.u.t[2]+rnd(0,4)-x.u.t[2]-rnd(0,4));B.phase='run';B.msg='……';bDraw();setTimeout(bStep,350)}
-function bHit(u,t,mult,useInt){if(Math.random()<Math.min(.3,Math.max(.02,(t.t[2]-u.t[2])/200+.06)))return {miss:1,d:0};
- let d=(useInt?u.t[1]*2.4+u.t[0]*.4:u.t[0]*2+u.t[1]*.8)*mult+rnd(0,6)-t.t[3]*.5;const crit=Math.random()<.05+u.t[4]/400;if(crit)d*=1.8;if(t.def)d*=.5;d=Math.max(3,Math.round(d));t.hp-=d;return {d,crit}}
+function bHit(u,t,mult,useInt){const fog=B.wx&&B.wx[0]==='霧'?.1:0;if(Math.random()<Math.min(.4,Math.max(.02,(t.t[2]-u.t[2])/200+.06+fog)))return {miss:1,d:0};const ew=wxm(u.sp,t.sp);mult*=ew*indM(u.sp)*weaM(u.sp);
+ let d=(useInt?u.t[1]*2.4+u.t[0]*.4:u.t[0]*2+u.t[1]*.8)*mult+rnd(0,6)-t.t[3]*.5;const crit=Math.random()<.05+u.t[4]/400+(B.wx&&B.wx[0]==='雷'&&WX[u.sp]==='金'?.15:0);if(crit)d*=1.8;if(t.def)d*=.5;d=Math.max(3,Math.round(d));t.hp-=d;return {d,crit,ew}}
 function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
- if(!a){B.a.concat(B.f).forEach(x=>{x.def=false;if(x.hp>0)x.qi=Math.min(5,x.qi+1)});
+ if(!a){B.a.concat(B.f).forEach(x=>{x.def=false;x.skipc=0;if(x.hp>0)x.qi=Math.min(5,x.qi+1)});
   const win=B.f.every(x=>x.hp<=0),lose=B.a.every(x=>x.hp<=0);
   if(win||lose){B.phase='end';let z=0,ups=[];if(win){z=B.f.reduce((s,x)=>s+2000+x.lv*300,0);S.zeny+=z}
    B.a.forEach(x=>{const e=win?30+x.lv*8:10+x.lv*2;if(gain(x.c,e))ups.push(x.c.name);x.c.mood=Math.max(0,Math.min(100,x.c.mood+(win?6:-6)))});
@@ -576,8 +604,14 @@ function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
   B.round++;B.phase='cmd';B.i=B.a.findIndex(x=>x.hp>0);return bDraw()}
  const u=a.u;if(u.hp<=0)return bStep();const foes=(u.side==='a'?B.f:B.a).filter(x=>x.hp>0);if(!foes.length)return bStep();
  let t=a.t&&a.t.hp>0?a.t:pick(foes),fx=[],m='';const nm=esc(u.name);
- const say=(r,x)=>{fx.push([x,r.miss?'MISS':r.d]);return r.miss?`${esc(x.name)} 閃開了`:`${esc(x.name)} 受到 ${r.d} 傷害${r.crit?'（爆擊）':''}`};
- if(a.k==='atk')m=`${nm} 的攻擊！`+say(bHit(u,t,1),t);
+ const say=(r,x)=>{fx.push([x,r.miss?'MISS':r.d]);return r.miss?`${esc(x.name)} 閃開了`:`${r.ew>1?'效果絕佳！':r.ew<1?'效果不太好…':''}${esc(x.name)} 受到 ${r.d} 傷害${r.crit?'（爆擊）':''}`};
+ if(a.k==='hl'){const al=(u.side==='a'?B.a:B.f).filter(x=>x.hp>0).sort((x,y)=>x.hp/x.mx-y.hp/y.mx)[0];const hl=Math.round(al.mx*.25);al.hp=Math.min(al.mx,al.hp+hl);fx.push([al,'+'+hl]);m=`${nm} 替 ${esc(al.name)} 治療，回復 ${hl}`;t=al}
+ else if(a.k==='cmb'){const p=a.p;u.qi=Math.max(0,u.qi-2);if(p.m.hp>0)p.m.qi=Math.max(0,p.m.qi-2);m=`合體技！${nm} 與 ${esc(p.m.name)} 使出「${p.n}」！`;
+  if(p.k==='heal'){(u.side==='a'?B.a:B.f).filter(x=>x.hp>0).forEach(x=>{const hl=Math.round(x.mx*.4);x.hp=Math.min(x.mx,x.hp+hl);fx.push([x,'+'+hl])});m+='全隊大幅回復';}
+  else if(p.k==='aoe')m+=foes.map(x=>say(bHit(u,x,1.6,true),x)).join('，');
+  else if(p.k==='big')m+=say(bHit(u,t,3.2),t);
+  else{const r=[];for(let i=0;i<4&&t.hp>0;i++)r.push(say(bHit(u,t,.75),t));m+=r.join('，')}}
+ else if(a.k==='atk')m=`${nm} 的攻擊！`+say(bHit(u,t,1),t);
  else{const s=SK[u.sp];u.qi-=2;m=`${nm} 使出「${s[0]}」！`;
   if(s[1]===0)m+=say(bHit(u,t,1.9),t);
   else if(s[1]===1)m+=foes.map(x=>say(bHit(u,x,.9,true),x)).join('，');
@@ -585,7 +619,8 @@ function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
   else if(s[1]===3){const hl=Math.round(u.mx*.35);u.hp=Math.min(u.mx,u.hp+hl);fx.push([u,'+'+hl]);m+=`回復了 ${hl} 體力`}
   else m+=Math.random()<.5?'大成功！'+say(bHit(u,t,3),t):'……撲空了';}
  B.msg=m;bDraw();
- const ty=a.k==='sk'?SK[u.sp][1]:-1,okG=fx.some(([x,v])=>typeof v==='number'&&x!==u),[hd,tot]=USE3D&&bOn?b3Act(a.k,u,t,ty,foes,okG):[0,950];
+ if(a.k==='cmb'){flash('#ffe27a');const pv=BU.get(a.p.m);if(pv)pv.an={k:'chg',t:0,d:.6}}
+ const ty=a.k==='sk'?SK[u.sp][1]:a.k==='cmb'?{heal:3,aoe:1,big:0,multi:2}[a.p.k]:a.k==='hl'?3:-1,okG=fx.some(([x,v])=>typeof v==='number'&&x!==u),[hd,tot]=USE3D&&bOn?b3Act(a.k==='atk'||a.k==='def'?a.k:'sk',a.k==='hl'?t:u,t,ty,foes,true):[0,950];
  setTimeout(()=>{if(!B)return;fx.forEach(([x,v])=>{const el=$('#u_'+x.side+(x.side==='a'?B.a:B.f).indexOf(x));if(USE3D&&bOn)b3Hurt(x,v);else if(typeof v==='number')sfx2('hit');if(!el)return;if(typeof v==='number'||v==='MISS')el.classList.add('hit');el.insertAdjacentHTML('beforeend',`<em class="${String(v)[0]==='+'?'heal':''}">${v}</em>`)});bDraw()},hd);
  setTimeout(bStep,tot+250)}
 /* 音效（WebAudio 合成） */
@@ -693,7 +728,7 @@ function loop3(t){requestAnimationFrame(loop3);const dt=Math.min(.05,(t-last)/10
    const want=Math.atan2(dx,dz);let df=want-o.ry;df=Math.atan2(Math.sin(df),Math.cos(df));o.ry+=df*Math.min(1,dt*6)}
   else{o.wait-=dt;let df=Math.atan2(pcam.position.x-o.x,pcam.position.z-o.z)-o.ry;df=Math.atan2(Math.sin(df),Math.cos(df));o.ry+=df*Math.min(1,dt*1.5);if(o.wait<0){[o.tx,o.tz]=spot3();o.wait=rnd(2,6)}}
   g.position.set(o.x,gY(o.x,o.z)+hop,o.z);g.rotation.set(0,o.ry,tilt);g.scale.set(H,H*sy,H);if(g.userData.star)g.userData.star.rotation.y+=dt*2;
-  o.talk-=dt;if(o.talk<0){o.talk=rnd(6,14);o.say=3.2;const m=o.c.mood;o.b.textContent=pick(m<35?TALK.bad:m>72?(Math.random()<.6?TALK.fl:TALK.fun):(Math.random()<.5?TALK.fun:pick([TALK.fl,TALK.bad])))}
+  o.talk-=dt;if(o.talk<0){o.talk=rnd(6,14);o.say=3.2;const m=o.c.mood;if(Math.random()<.35){o.b.textContent=mktLine(o.c.sp)}else o.b.textContent=pick(m<35?TALK.bad:m>72?(Math.random()<.6?TALK.fl:TALK.fun):(Math.random()<.5?TALK.fun:pick([TALK.fl,TALK.bad])))}
   o.say-=dt;V.set(g.position.x,g.position.y+1.12*H,g.position.z).project(pcam);const vis=V.z<1;
   o.b.style.left=(V.x+1)/2*innerWidth+'px';o.b.style.top=((1-V.y)/2*innerHeight-4)+'px';o.b.classList.toggle('on',o.say>0&&!quiet&&vis);
   V.set(g.position.x,g.position.y,g.position.z).project(pcam);
@@ -725,7 +760,10 @@ function b3Start(){if(!USE3D)return;b3Init();BU.forEach(v=>BS.remove(v.g));BU.cl
  [...B.a,...B.f].forEach(x=>{const i=(x.side==='a'?B.a:B.f).indexOf(x),[wx,wz]=WPOS[x.side][i]||[0,0],p=new THREE.Vector3(wx,AS*DIO.arena.g,wz),s=sp(x.sp),k=1.45*[0,1,1.08,1.18][s.t||1];
   const g=fig3D(x.c,x.sp);g.scale.setScalar(k);g.position.copy(p);const ry=x.side==='a'?.9:-.9;g.rotation.y=ry;BS.add(g);
   const sh=new THREE.Mesh(new THREE.SphereGeometry(.62,24,16),new THREE.MeshBasicMaterial({color:0x7fd0ff,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));sh.position.y=.5;sh.visible=false;g.add(sh);const hs=new THREE.Mesh(new THREE.SphereGeometry(.55,20,14),new THREE.MeshBasicMaterial({color:0xff3a2a,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));hs.position.y=.5;hs.visible=false;g.add(hs);
-  BU.set(x,{g,p:p.clone(),k,ry,sh,hs,an:null,hurt:0,ph:Math.random()*6})})}
+  BU.set(x,{g,p:p.clone(),k,ry,sh,hs,an:null,hurt:0,ph:Math.random()*6})});
+ const w=B.wx[0];BS.fog=w==='霧'?new THREE.Fog(0xdfe8ef,7,20):null;if(BS.userData.rain){BS.remove(BS.userData.rain);BS.userData.rain=null}
+ if(w==='雨'||w==='風'){const n=w==='雨'?1500:160,g=new THREE.BufferGeometry(),P=new Float32Array(n*3);for(let i=0;i<n;i++){P[i*3]=rnd(-7,7);P[i*3+1]=rnd(0,9);P[i*3+2]=rnd(-6,6)}
+  g.setAttribute('position',new THREE.BufferAttribute(P,3));const o=new THREE.Points(g,new THREE.PointsMaterial({color:w==='雨'?0xbfd8ff:0x7cc46a,size:w==='雨'?.06:.16,transparent:true,opacity:.8}));o.userData.w=w;BS.add(o);BS.userData.rain=o}}
 function b3Draw(){if(!bOn||!BCV)return;const st=$('#battle .stage');if(!st)return;st.prepend(BCV);st.classList.add('s3');const r=st.getBoundingClientRect();if(r.width&&(BCV._w!==r.width||BCV._h!==r.height)){BCV._w=r.width;BCV._h=r.height;BR.setSize(r.width,r.height,false);b3Cam(r.width,r.height)}b3Pos()}
 const PV=HAS3D?new THREE.Vector3():null;
 function b3Pos(){if(!B)return;const st=$('#battle .stage');if(!st||!BCV._h)return;BU.forEach((v,x)=>{const el=$('#u_'+x.side+(x.side==='a'?B.a:B.f).indexOf(x));if(!el)return;const g=v.g;
@@ -779,6 +817,8 @@ function b3Loop(tm){requestAnimationFrame(b3Loop);const dt=Math.min(.05,(tm-bLas
   if(!n||n.k!=='def'){v.sh.visible=!!x.def&&!dead;v.sh.material.opacity=.14}
   if(v.hurt>0)v.hurt-=dt;v.hs.visible=v.hurt>0;v.hs.material.opacity=Math.max(0,v.hurt/.45)*.55;
   g.position.set(v.p.x+ox,v.p.y+oy,v.p.z+oz);g.rotation.set(dead?-1.45:rx,ry,rz);g.scale.set(v.k*sxz,v.k*sy,v.k*sxz);if(dead)g.position.y+=.08*v.k});
+ const rn=BS.userData.rain;if(rn){const a=rn.geometry.attributes.position.array,isR=rn.userData.w==='雨';for(let i=0;i<a.length;i+=3){a[i+1]-=dt*(isR?11:1.2);a[i]+=dt*(isR?-1:2.5);if(a[i+1]<.9){a[i+1]=9;a[i]=rnd(-7,7)}}rn.geometry.attributes.position.needsUpdate=true}
+ if(B.wx&&B.wx[0]==='雷'&&Math.random()<dt*.15){flash('#e8f0ff');sfx2('crit',.25)}
  FXL=FXL.filter(e=>{e.t+=dt;const f=Math.min(1,e.t/e.life);e.up(f,dt);if(f>=1){BS.remove(e.o);e.o.geometry&&e.o.geometry.dispose();return false}return true});
  const base=BC.position.clone();if(shake>0){shake-=dt;BC.position.x+=(Math.random()-.5)*shake*.5;BC.position.y+=(Math.random()-.5)*shake*.5}
  BR.render(BS,BC);BC.position.copy(base);b3Pos()}
@@ -800,7 +840,7 @@ const A={
  cr(id){curId=+id;const c=cur();if(!c)return;const s=sp(c.sp),t=total(c),mx=Math.max(40,...t);
   sheet('夥伴',`
   <div class="hero">${icon(c.sp,faceOf(c),92,c.eq)}<div style="flex:1;min-width:0"><input id="nm" value="${esc(c.name)}" maxlength="12" aria-label="名字">
-   <div style="margin-top:6px">${s.n}${tierTag(s)}${c.rb?'<span class="tier t1">二轉</span>':''}</div>
+   <div style="margin-top:6px">${s.n}${tierTag(s)}${c.rb?'<span class="tier t1">二轉</span>':''}</div><div class="indl"><i class="wx" style="background:${WXC[WX[c.sp]]}">${WX[c.sp]}</i>剋${KE[WX[c.sp]]}・${IND[c.sp][0]}（${IND[c.sp][1]}）今日 <b class="${indChg(c.sp)>=0?'up':'dn'}">${indChg(c.sp)>=0?'+':''}${indChg(c.sp).toFixed(2)}%</b> → 戰鬥攻擊 ${((indM(c.sp)-1)*100>=0?'+':'')}${Math.round((indM(c.sp)-1)*100)}%</div>
    <div class="stat" style="grid-template-columns:44px 1fr 86px;margin-top:8px"><span>Lv ${c.lv}</span><span class="bar"><i style="width:${c.lv>=100?100:c.exp/need(c.lv)*100}%;background:var(--gold)"></i></span><span>${c.lv>=100?'MAX':fmt(c.exp)+'/'+fmt(need(c.lv))}</span></div></div></div>
   <div class="sec">${[['心情',c.mood,'var(--seal)'],['服從',c.obey,'#7fb2ff'],['體力值',c.sta,'var(--jade)']].map(a=>`<div class="stat"><span>${a[0]}</span><span class="bar"><i style="width:${a[1]}%;background:${a[2]}"></i></span><span>${Math.round(a[1])}/100</span></div>`).join('')}</div>
   <div class="sec"><h3>能力值 · 戰力 ${power(c)}</h3>${t.map((v,i)=>`<div class="stat"><span>${SN[i]}</span><span class="bar"><i style="width:${Math.min(100,v/mx*100)}%"></i></span><span>${Math.round(v)}${Math.round(v-c.st[i])?` <em>+${Math.round(v-c.st[i])}</em>`:''}</span></div>`).join('')}</div>
@@ -853,13 +893,14 @@ const A={
   cs.forEach(c=>c.sta-=20);const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
   const avg=Math.round(cs.reduce((a,c)=>a+c.lv,0)/cs.length),mt=Math.max(...cs.map(c=>sp(c.sp).t));
   B={a:cs.map(c=>U('a',c.name,c.sp,total(c),c.lv,c)),f:cs.map(()=>{const es=pick(SP.filter(s=>s.t<=mt)),lv=Math.max(0,avg+Math.floor(rnd(-2,3)));return U('f',pick(NPCN)+'的'+es.n,es.id,es.b.map(v=>v*(1+lv*.085)+rnd(0,3)),lv,null)}),
-   round:1,phase:'cmd',i:0,pend:null,acts:[],msg:'野生的對手出現了！'};
+   wx:pick(WEA),round:1,phase:'cmd',i:0,pend:null,acts:[],msg:''};B.f.forEach(e=>e.ai=pick(AIK));B.msg=`野生的對手出現了！${B.wx[1]} 天候「${B.wx[0]}」：${B.wx[2]}`;
   A.close();$('#battle').classList.add('on');b3Start();bDraw();music('battle')},
  bact(k){if(!B||B.phase!=='cmd')return;const u=B.a[B.i];if(k==='run'){B.phase='end';B.msg='你們逃走了。';sfx2('miss');return bDraw()}
   if(k==='def'){B.acts.push({u,k});return bNext()}
+  if(k==='cmb'){const p=pairOf(u,B.a);if(!p||u.qi<2||p.m.qi<2)return;B.acts=B.acts.filter(a=>a.u!==p.m);p.m.skipc=1;B.pendP=p;if(p.k==='heal'||p.k==='aoe'){B.acts.push({u,k,p});return bNext()}B.pend=k;return bDraw()}
   const ty=SK[u.sp][1];if(k==='sk'&&(ty===1||ty===3)){B.acts.push({u,k});return bNext()}
   B.pend=k;bDraw()},
- btgt(v){if(!B||B.phase!=='cmd'||!B.pend||v[0]!=='f')return;const t=B.f[+v.slice(1)];if(!t||t.hp<=0)return;B.acts.push({u:B.a[B.i],k:B.pend,t});B.pend=null;bNext()},
+ btgt(v){if(!B||B.phase!=='cmd'||!B.pend||v[0]!=='f')return;const t=B.f[+v.slice(1)];if(!t||t.hp<=0)return;B.acts.push({u:B.a[B.i],k:B.pend,t,p:B.pendP});B.pend=null;bNext()},
  bback(){B.pend=null;bDraw()},
  bexit(){$('#battle').classList.remove('on');bOn=false;B=null;music('bgm');save();hud();A.arena()},
 
@@ -954,13 +995,19 @@ let exp=null,ordMode=0,liveOK=false;const REF={},HIST={},LIVE={},KLOAD={};
 const sname=k=>S.nm[k]||(STK.find(s=>s[0]===k)||[])[1]||k;
 function open(){const d=new Date(Date.now()+8*3600e3),m=d.getUTCHours()*60+d.getUTCMinutes(),w=d.getUTCDay();return w>=1&&w<=5&&m>=540&&m<810}
 const canTrade=()=>open()||S.prac;
-async function tick(){
+function mktLine(spid){const [n]=IND[spid]||['大盤'],c=indChg(spid),p=(c>=0?'+':'')+c.toFixed(1)+'%';
+ return c>3?pick([`${n}噴啦 ${p}！今天我最強`,`${n} ${p}，老闆要加碼嗎？`]):c>0?pick([`${n}小漲 ${p}，心情不錯`,`${n}紅盤 ${p}，晚餐加菜`]):c<-3?pick([`${n}跌 ${p}…套牢了啦`,`${n} ${p}，我要去拜土地公`]):pick([`${n} ${p}，盤整好無聊`,`${n}今天綠綠的 ${p}`])}
+function dailyBonus(){const d=dayKey();if(S.day===d)return;const w=S.zeny+pv()[0];if(S.day&&S.lastW){const g=w-S.lastW;
+  if(g>0){const e=Math.min(800,Math.max(20,Math.round(g/500)));S.cr.forEach(c=>{gain(c,e);c.mood=Math.min(100,c.mood+10)});setTimeout(()=>toast(`昨天財產 +${fmt(Math.round(g))} Z，全員獲得 ${e} 經驗！`),1500)}
+  else if(g<0){S.cr.forEach(c=>c.mood=Math.max(0,c.mood-5));setTimeout(()=>toast(`昨天財產 ${fmt(Math.round(g))} Z，夥伴有點沮喪…`),1500)}}
+ S.day=d;S.lastW=w;save()}
+async function tick(){loadInd();dailyBonus();
  if(QUOTE_API){try{const j=await (await fetch(QUOTE_API+'?ids='+S.watch.join(','))).json();let n=0;
    for(const k in j){const q=j[k];if(q&&q.y){S.px[k]=+(q.z||q.y);REF[k]=+q.y;LIVE[k]=q;if(q.n)S.nm[k]=q.n;n++}}liveOK=n>0}catch(e){liveOK=false}}
  if(!liveOK&&canTrade())S.watch.forEach(k=>{if(!REF[k])REF[k]=S.px[k];let p=S.px[k]*(1+(Math.random()-.5)*.005);S.px[k]=+Math.max(REF[k]*.9,Math.min(REF[k]*1.1,p)).toFixed(2)});
  S.watch.forEach(k=>{HIST[k]=HIST[k]||[];if(!liveOK||open()){HIST[k].push(S.px[k]);if(HIST[k].length>400)HIST[k].shift()}});
  if($('#phone').classList.contains('on'))upd()}
-async function loadK(k){return;if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
+async function loadK(k){if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
  try{const j=await (await fetch(QUOTE_API+'/k?id='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
 function pv(){let v=0,c=0;for(const k in S.port){v+=S.port[k].q*S.px[k];c+=S.port[k].cost}return [v,v-c]}
 function head(){const o=open(),m=$('#mkt');m.textContent=o?'盤中':'休市';m.classList.toggle('open',o);
