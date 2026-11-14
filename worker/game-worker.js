@@ -1,3 +1,4 @@
+// 由 Cloudflare Workers Builds 自動部署（推送 main 即上線）
 // 封印物語 線上伺服器（Cloudflare Worker + D1）
 // 綁定：D1 資料庫 → 變數名 DB；加密變數 FUGLE_KEY（富果行情金鑰）；排程 */10 * * * *（更新財產榜）
 // 報價：GET /?ids=2330,2603　GET /k?id=2330
