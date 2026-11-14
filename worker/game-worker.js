@@ -61,11 +61,18 @@ async function ensure(db) {
     db.prepare('CREATE TABLE IF NOT EXISTS recov(hash TEXT PRIMARY KEY, pid INTEGER)'),
     db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)')
   ]);
+  try { await db.prepare('ALTER TABLE players ADD COLUMN seen INTEGER DEFAULT 0').run(); } catch (e) {}
   READY = true;
 }
 const RC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 async function sha(t) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('seal:' + t)))].map(x => x.toString(16).padStart(2, '0')).join(''); }
+// 在線人數：3 分鐘內有回報的玩家
+async function stats(db) {
+  const now = Date.now(), day = Date.parse(today() + 'T00:00:00+08:00');
+  const r = await db.prepare('SELECT SUM(seen>?) online, SUM(seen>?) today, SUM(created>?) newToday, COUNT(*) total FROM players').bind(now - 180000, day, day).first();
+  return { online: r.online || 0, today: r.today || 0, newToday: r.newToday || 0, total: r.total || 0, t: now };
+}
 async function body(req) { try { return await req.json(); } catch (e) { return {}; } }
 
 async function api(req, env, path) {
@@ -96,8 +103,10 @@ async function api(req, env, path) {
     }
     return J({ token: tok, ...(await wallet(env, await db.prepare('SELECT * FROM players WHERE id=?').bind(id).first())) });
   }
+  if (path === '/api/stats') return J(await stats(db));
   const p = await auth(req, env);
   if (!p) return J({ error: '未登入' }, 401);
+  if (Date.now() - (p.seen || 0) > 30000) await db.prepare('UPDATE players SET seen=? WHERE id=?').bind(Date.now(), p.id).run();
   if (path === '/api/me') return J(await wallet(env, p));
   if (path === '/api/save' && req.method === 'POST') {
     const b = await body(req), d = typeof b.data === 'string' ? b.data : '';
@@ -195,6 +204,8 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { headers: H });
     try {
       if (u.pathname.startsWith('/api/')) return await api(req, env, u.pathname);
+      if (u.pathname === '/stats') { await ensure(env.DB); const s = await stats(env.DB);
+        return new Response(`<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width"><meta http-equiv=refresh content=30><title>封印物語 即時人數</title><body style="font:16px system-ui;background:#1b1730;color:#fff;display:grid;place-items:center;min-height:90vh;margin:0"><div style="text-align:center"><div style="font-size:15px;opacity:.7">封印物語 · 同時在線</div><div style="font:900 88px system-ui;color:#7CFC9A">${s.online}</div><div style="display:flex;gap:28px;justify-content:center;margin-top:8px"><div>今日活躍<br><b style="font-size:26px">${s.today}</b></div><div>今日新玩家<br><b style="font-size:26px">${s.newToday}</b></div><div>總玩家<br><b style="font-size:26px">${s.total}</b></div></div><div style="opacity:.5;font-size:12px;margin-top:14px">每 30 秒自動更新 · ${new Date(s.t + 8 * 3600e3).toISOString().slice(11, 19)}</div></div>`, { headers: { 'content-type': 'text/html; charset=utf-8' } }); }
       if (u.pathname === '/k') {
         const id = (u.searchParams.get('id') || '').toUpperCase();
         if (!okCode(id)) return J({});

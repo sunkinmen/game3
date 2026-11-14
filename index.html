@@ -514,7 +514,7 @@ function topCr(){return S.cr.slice().sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv))[0]}
 async function netInit(){try{if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);net('/api/load').then(()=>{$('#acct').style.display='block';cloudSave()}).catch(()=>{});setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
  else{applyW(await net('/api/me'));try{const l=await net('/api/load');$('#acct').style.display='block';if(l.save&&l.ts>(S.ts||0)+5000&&adopt(l.save,S.tok)){toast('已從雲端載入較新的存檔');setTimeout(()=>location.reload(),900);return}if(!l.save||l.ts<(S.ts||0))cloudLater()}catch(e){}}netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
 async function netSync(){if(!S.tok)return;const t=topCr();if(!t)return;try{await net('/api/sync',{lv:t.lv,rb:t.rb,sp:t.sp})}catch(e){}}
-setInterval(()=>{if(S.tok)net('/api/me').then(applyW).catch(()=>{ONLINE=false})},60000);setInterval(netSync,120000);
+setInterval(()=>{if(S.tok&&!document.hidden)net('/api/me').then(applyW).catch(()=>{ONLINE=false})},60000);setInterval(netSync,120000);
 
 
 const $=s=>document.querySelector(s);
