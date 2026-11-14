@@ -414,7 +414,7 @@ body{background:var(--ink)}
 <script>
 "use strict";
 /* ====== 設定：報價代理（Google Apps Script 網頁應用程式的 /exec 網址），留空則用模擬報價 ====== */
-const QUOTE_API='';
+const QUOTE_API='https://script.google.com/macros/s/AKfycbw9FsTuoYoHuPhIXF0qU2zCQcLfs9gVeZ3EY-p77yoYHAJi5N07Qwg_kvxV6kLJMY-V/exec';let QT=0;
 
 const $=s=>document.querySelector(s);
 const fmt=n=>Math.round(n).toLocaleString('en-US');
@@ -1002,13 +1002,13 @@ function dailyBonus(){const d=dayKey();if(S.day===d)return;const w=S.zeny+pv()[0
   else if(g<0){S.cr.forEach(c=>c.mood=Math.max(0,c.mood-5));setTimeout(()=>toast(`昨天財產 ${fmt(Math.round(g))} Z，夥伴有點沮喪…`),1500)}}
  S.day=d;S.lastW=w;save()}
 async function tick(){loadInd();dailyBonus();
- if(QUOTE_API){try{const j=await (await fetch(QUOTE_API+'?ids='+S.watch.join(','))).json();let n=0;
+ if(QUOTE_API&&Date.now()-QT>15000){QT=Date.now();try{const j=await (await fetch(QUOTE_API+'?ids='+S.watch.join(','))).json();let n=0;
    for(const k in j){const q=j[k];if(q&&q.y){S.px[k]=+(q.z||q.y);REF[k]=+q.y;LIVE[k]=q;if(q.n)S.nm[k]=q.n;n++}}liveOK=n>0}catch(e){liveOK=false}}
  if(!liveOK&&canTrade())S.watch.forEach(k=>{if(!REF[k])REF[k]=S.px[k];let p=S.px[k]*(1+(Math.random()-.5)*.005);S.px[k]=+Math.max(REF[k]*.9,Math.min(REF[k]*1.1,p)).toFixed(2)});
  S.watch.forEach(k=>{HIST[k]=HIST[k]||[];if(!liveOK||open()){HIST[k].push(S.px[k]);if(HIST[k].length>400)HIST[k].shift()}});
  if($('#phone').classList.contains('on'))upd()}
 async function loadK(k){if(!QUOTE_API||KLOAD[k]>Date.now()-60000)return;KLOAD[k]=Date.now();
- try{const j=await (await fetch(QUOTE_API+'/k?id='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
+ try{const j=await (await fetch(QUOTE_API+'?k='+k)).json();if(j.c&&j.c.length>1){HIST[k]=j.c.filter(x=>x!=null);if(exp===k)upd()}}catch(e){}}
 function pv(){let v=0,c=0;for(const k in S.port){v+=S.port[k].q*S.px[k];c+=S.port[k].cost}return [v,v-c]}
 function head(){const o=open(),m=$('#mkt');m.textContent=o?'盤中':'休市';m.classList.toggle('open',o);
  const sp2=$('#srcp');sp2.textContent=liveOK?'即時行情':'模擬報價';sp2.classList.toggle('open',liveOK);
