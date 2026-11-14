@@ -352,6 +352,47 @@ body{background:var(--ink)}
 #battle .wea{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;background:#0b0e1d66;color:#fff;font-size:13px;font-weight:800;padding:3px 12px;border-radius:14px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #bcmd button.cmb{background:linear-gradient(#ffe58a,#f0a52a)!important;color:#4a2400!important}
 .indl{margin-top:6px;font-size:12px;color:var(--muted)}.indl .up{color:#e5463a}.indl .dn{color:#27a35a}
+
+/* v32 選單外框、快捷環形選單、簡潔泡泡、紙娃娃 */
+#sheet{border:34px solid transparent!important;border-bottom-width:26px!important;border-image:url(art/frame.webp) 92 fill/34px round!important;background:none!important;border-radius:0!important;box-shadow:0 -10px 30px #0007!important;max-height:88%}
+#sheet[data-k=rank]{border-image-source:url(art/frame_rank.webp)!important}
+#sheet[data-k=shop]{border-image-source:url(art/frame_shop.webp)!important}
+#sheet[data-k=arena]{border-image-source:url(art/frame_arena.webp)!important}
+#sheet header{margin:-6px -4px 0;border-radius:12px!important;border:0!important;padding:8px 12px!important;box-shadow:0 3px 0 #0002}
+#sheet[data-k=rank] header{background:linear-gradient(#f7d774,#c8921f)!important}
+#sheet[data-k=rank] h2{color:#fffbe8;text-shadow:0 2px 0 #7a4a06,0 0 10px #fff5}
+#sheet[data-k=shop] header{background:repeating-linear-gradient(90deg,#d8433a 0 18px,#f3e2c0 18px 36px)!important}
+#sheet[data-k=shop] h2{color:#fff;text-shadow:0 2px 0 #7a1d16,2px 0 0 #7a1d16,-2px 0 0 #7a1d16,0 -2px 0 #7a1d16}
+#sheet[data-k=arena] header{background:linear-gradient(#7b8aa3,#46536a)!important}
+#sheet #sbody{padding:12px 6px 18px}
+#sheet[data-k=rank] .rank{background:linear-gradient(90deg,#fff8de,#fbe9b4);border:1px solid #e3c06a}
+#sheet[data-k=rank] .rank:nth-child(1) .n{background:linear-gradient(#ffe27a,#d29a17);color:#5a3500}
+#sheet[data-k=rank] .rank:nth-child(2) .n{background:linear-gradient(#f2f4f8,#a7afbd);color:#33384a}
+#sheet[data-k=rank] .rank:nth-child(3) .n{background:linear-gradient(#f2b98a,#b3683a);color:#4a2208}
+.bub{background:#fffffff2!important;border-radius:14px!important;padding:4px 11px 5px!important;min-width:0!important;max-width:150px!important;font-size:12px!important;font-weight:700!important;color:#3a2a55!important;box-shadow:0 2px 6px #0003!important;filter:none!important;line-height:1.35}
+.bub::after{content:'';position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#fffffff2;border-bottom:0}
+.bub.on{opacity:1!important}
+#qm{position:fixed;z-index:30;width:0;height:0;pointer-events:none}
+#qm .qn{position:absolute;transform:translate(-50%,-50%);top:40px;white-space:nowrap;background:#1b1730c0;color:#fff;font-size:12px;padding:3px 10px;border-radius:99px;opacity:0;transition:opacity .2s}
+#qm button{position:absolute;left:0;top:0;width:58px;margin:-29px 0 0 -29px;background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;transform:translate(0,0) scale(.2);opacity:0;transition:transform .28s cubic-bezier(.2,1.5,.4,1) var(--d),opacity .2s var(--d);pointer-events:none}
+#qm button img{width:52px;height:52px;filter:drop-shadow(0 3px 3px #0006)}
+#qm button span{margin-top:-6px;font-size:11px;font-weight:900;color:#fff;text-shadow:0 0 3px #000,0 1px 2px #000}
+#qm.on button{transform:translate(var(--x),var(--y)) scale(1);opacity:1;pointer-events:auto}
+#qm.on .qn{opacity:1}
+#qm button:active img{transform:scale(.88)}
+#qp{position:fixed;z-index:31;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);width:min(92vw,380px);max-height:46vh;transform:translate(-50%,20px) scale(.96);opacity:0;pointer-events:none;transition:.22s;display:flex;flex-direction:column;
+ border:28px solid transparent;border-image:url(art/frame.webp) 92 fill/28px round;--paper:#4a2f18;--muted:#86684a;--panel:#f6e9c9;--panel2:#fffaf0;--line:#dcc394;color:#4a2f18}
+#qp.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+#qp header{display:flex;align-items:center;gap:6px;margin:-12px -10px 6px}
+#qp h4{flex:1;margin:0;text-align:center;font-size:15px}
+#qp .qb{width:30px;height:30px;border-radius:50%;border:0;background:#a8743d;color:#fff6df;font-size:18px;font-weight:900;line-height:1}
+#qp .in{overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin:0 -8px -8px}
+#qp .in h3{font-size:12px;margin:0 0 2px;color:#86684a}
+#qp .row{padding:6px 8px}
+.ico .pm{position:absolute;inset:0;-webkit-mask:var(--m) var(--mp)/500% 300% no-repeat;mask:var(--m) var(--mp)/500% 300% no-repeat;pointer-events:none}
+.ico .pm .pd.a{left:22%;top:50%;width:56%;filter:none;opacity:.96}
+.ico .pd.w{left:60%!important;top:44%!important;width:42%!important;rotate:0deg!important}
+.ico .pd.c{left:20%!important;top:66%!important;width:22%!important}
 </style>
 </head>
 <body>
@@ -408,6 +449,7 @@ body{background:var(--ink)}
 <section id="cut"></section>
 <section id="comic"></section>
 <div id="toast"></div>
+<div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -499,7 +541,8 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
 const HOLE=[[0.5,0.445,0.14,0.135],[0.5,0.445,0.14,0.135],[0.49,0.47,0.14,0.135],[0.49,0.45,0.14,0.13],[0.49,0.41,0.14,0.13],[0.505,0.39,0.145,0.12],[0.49,0.38,0.145,0.12],[0.49,0.385,0.14,0.12],[0.495,0.385,0.145,0.12],[0.49,0.39,0.145,0.125],[0.495,0.405,0.17,0.135],[0.5,0.38,0.16,0.11],[0.495,0.4,0.155,0.14],[0.5,0.385,0.15,0.12],[0.49,0.35,0.16,0.11]];
 const SHEET=new Image();SHEET.onload=()=>{if(scene)build3D()};SHEET.src='art/species.webp';
 const EQS=new Image();EQS.onload=()=>{if(scene)build3D()};EQS.src='art/equip.webp';
-function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const pd=eq?['a','w','c'].map(k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`}).join(''):'';
+function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const P=k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`};
+ const pd=eq?(eq.a?`<span class="pm" style="--m:url(art/species.webp);--mp:${i%5*25}% ${Math.floor(i/5)*50}%">${P('a')}</span>`:'')+P('w')+P('c'):'';
  return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
 // 把臉以 cover 填滿圓洞，邊緣羽化並加內陰影，與頭套無縫融合
 function fitFace(img,W,H){const c=document.createElement('canvas');c.width=Math.max(2,Math.round(W));c.height=Math.max(2,Math.round(H));const g=c.getContext('2d');g.imageSmoothingQuality='high';
@@ -512,7 +555,9 @@ function fitFace(img,W,H){const c=document.createElement('canvas');c.width=Math.
 function spriteTex(c){const i=SP.findIndex(s=>s.id===c.sp),h=HOLE[i],cw=SHEET.naturalWidth/5,ch=SHEET.naturalHeight/3,cv=document.createElement('canvas');cv.width=Math.round(cw*2);cv.height=Math.round(ch*2);const g=cv.getContext('2d');
  g.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,cv.width,cv.height);const tx=new THREE.CanvasTexture(cv),f=new Image();
  const doll=()=>{if(!EQS.complete||!EQS.naturalWidth)return;const z=EQS.naturalWidth/6,W=cv.width,H2=cv.height;
-  [['a',.5,.72,.42,0],['w',.84,.56,.52,.32],['c',.16,.66,.3,0]].forEach(([k,x,y,s,rot])=>{const j=EQO.indexOf(c.eq[k]);if(j<0)return;g.save();g.translate(x*W,y*H2);g.rotate(rot);g.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,-s*W/2,-s*W/2,s*W,s*W);g.restore()})};
+  [['a',.5,.75,.56,0],['w',.83,.62,.42,0],['c',.31,.77,.22,0]].forEach(([k,x,y,s,rot])=>{const j=EQO.indexOf(c.eq[k]);if(j<0)return;
+   if(k==='a'){const t=document.createElement('canvas');t.width=W;t.height=H2;const q=t.getContext('2d');q.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,x*W-s*W/2,y*H2-s*W/2,s*W,s*W);q.globalCompositeOperation='destination-in';q.drawImage(SHEET,(i%5)*cw,Math.floor(i/5)*ch,cw,ch,0,0,W,H2);g.drawImage(t,0,0);return}
+   g.save();g.translate(x*W,y*H2);g.rotate(rot);g.drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,-s*W/2,-s*W/2,s*W,s*W);g.restore()})};
  f.onload=()=>{const x=h[0]*cv.width,y=h[1]*cv.height,rx=h[2]*cv.width,ry=h[3]*cv.height;g.drawImage(fitFace(f,rx*2.3,ry*2.3),x-rx*1.15,y-ry*1.15);doll();tx.needsUpdate=true};f.src=faceOf(c);return tx}
 let DEF;function defFace(){if(DEF)return DEF;const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');
  g.fillStyle='#f6d7b8';g.fillRect(0,0,128,128);g.fillStyle='#2a2030';g.beginPath();g.arc(44,56,7,0,7);g.arc(84,56,7,0,7);g.fill();
@@ -542,7 +587,7 @@ function init3D(){if(!HAS3D)return;
  const up=e=>{PT.delete(e.pointerId);if(PT.size<2)pin=0;};
  cv.addEventListener('pointercancel',e=>{up(e);dn=null});
  cv.addEventListener('pointerup',e=>{up(e);if(dn&&dn.m<10){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),cam);
-   const hh=rc.intersectObjects(objs.map(o=>o.g),true)[0];if(hh){let o=hh.object;while(o&&!o.userData.cid)o=o.parent;if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');A.cr(o.userData.cid)}}}dn=null});
+   const hh=rc.intersectObjects(objs.map(o=>o.g),true)[0];if(hh){let o=hh.object;while(o&&!o.userData.cid)o=o.parent;if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');quick(o.userData.cid,e.clientX,e.clientY)}}}dn=null});
  build3D();requestAnimationFrame(loop);}
 function resize(){R.setSize(innerWidth,innerHeight,false);const a=innerWidth/innerHeight;cam.left=-WH/2*a;cam.right=WH/2*a;cam.top=WH/2;cam.bottom=-WH/2;clampCam()}
 function clampCam(){if(!cam)return;const a=innerWidth/innerHeight;zoom=Math.min(3,Math.max(Math.max(1,a*WH/WW),zoom));cam.zoom=zoom;const hw=WH/2*a/zoom,hh=WH/2/zoom;
@@ -687,13 +732,28 @@ function faceGeo(sp,base){if(FG[sp])return FG[sp];const f=F3[sp]||[0,.64,.14,.12
  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,e=c+1;idx.push(a,b,e,a,e,c)}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return FG[sp]=g}
 function eqTex(id){const j=EQO.indexOf(id);if(j<0||!EQS.naturalWidth)return null;const z=EQS.naturalWidth/6,c=document.createElement('canvas');c.width=c.height=128;c.getContext('2d').drawImage(EQS,j%6*z,Math.floor(j/6)*z,z,z,0,0,128,128);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
+// 紙娃娃：找出手的位置，並把裝備投影貼合在身體表面
+const RIG={},DG={};
+function rig(sp,base){if(RIG[sp])return RIG[sp];const v=new THREE.Vector3();let best=null,top=0;
+ base.traverse(o=>{if(!o.isMesh)return;const P=o.geometry.attributes.position;for(let k=0;k<P.count;k+=2){v.fromBufferAttribute(P,k).applyMatrix4(o.matrixWorld);if(v.y>top)top=v.y}});
+ base.traverse(o=>{if(!o.isMesh)return;const P=o.geometry.attributes.position;for(let k=0;k<P.count;k+=2){v.fromBufferAttribute(P,k).applyMatrix4(o.matrixWorld);if(v.y>top*.16&&v.y<top*.52&&(!best||v.x>best.x))best=v.clone()}});
+ if(!best)best=new THREE.Vector3(.3,.35,.1);best.x-=.035;return RIG[sp]={hand:best,top}}
+function decalGeo(key,base,cx,cy,hw,hh){if(DG[key])return DG[key];const N=14,rc=new THREE.Raycaster(),o=new THREE.Vector3(),d=new THREE.Vector3(0,0,-1),pos=[],uv=[],idx=[],ok=[];
+ for(let j=0;j<=N;j++)for(let i=0;i<=N;i++){const u=i/N,w=j/N,x=cx+(u*2-1)*hw,y=cy+(w*2-1)*hh;o.set(x,y,3);rc.set(o,d);const h=rc.intersectObject(base,true)[0];pos.push(x,y,h?h.point.z+.01:0);uv.push(u,w);ok.push(!!h)}
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,e=c+1;if(ok[a]&&ok[b]&&ok[c]&&ok[e])idx.push(a,b,e,a,e,c)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return DG[key]=g}
+function dressUp(m,c,sp0,base){if(!c||!c.eq)return;const f=F3[sp0]||[0,.64,.14,.12],fb=f[1]-f[3];
+ const dm=t=>{const mt=new THREE.MeshStandardMaterial({map:t,transparent:true,alphaTest:.06,roughness:.7,polygonOffset:true,polygonOffsetFactor:-3,depthWrite:false});return mt};
+ let t=eqTex(c.eq.a);if(t){const hw=Math.max(.17,f[2]*1.3),hh=Math.max(.15,Math.min(.2,fb*.42)),me=new THREE.Mesh(decalGeo(sp0+'a',base,f[0],fb-hh*.92,hw,hh),dm(t));me.renderOrder=2;m.add(me)}
+ t=eqTex(c.eq.c);if(t){const me=new THREE.Mesh(decalGeo(sp0+'c',base,f[0]-f[2]*.75,fb*.42,.075,.075),dm(t));me.renderOrder=3;m.add(me)}
+ t=eqTex(c.eq.w);if(t){const r=rig(sp0,base),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,alphaTest:.05,depthWrite:false}));s.center.set(.24,.22);s.scale.set(.42,.42,1);s.position.copy(r.hand);s.position.z+=.04;s.renderOrder=3;m.add(s);m.userData.wpn=s}}
 // 建立一位夥伴的 3D 身體（模型＋臉＋紙娃娃裝備）
 function fig3D(c,sid){const g=new THREE.Group(),sp0=c?c.sp:sid;g.userData.cid=c?c.id:0;
  gm(sp0).then(base=>{const m=base.clone();g.add(m);g.userData.body=m;const f=F3[sp0]||[0,.64,.14,.12],img=new Image();
   img.onload=()=>{const W=256,H=Math.round(256*f[3]/f[2]),tx=new THREE.CanvasTexture(fitFace(img,W,H));tx.encoding=THREE.sRGBEncoding;
    const fm=new THREE.Mesh(faceGeo(sp0,base),new THREE.MeshStandardMaterial({map:tx,transparent:true,roughness:.62,metalness:0,polygonOffset:true,polygonOffsetFactor:-2,depthWrite:false}));fm.renderOrder=2;m.add(fm)};
   img.src=c?faceOf(c):defFace();
-  if(c&&c.eq)[['w',.36,.42,.17,.34],['c',-.34,.5,.14,.22],['a',0,.3,.33,.22]].forEach(([k,x,y,z,s])=>{const t=eqTex(c.eq[k]);if(!t)return;const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false}));sp.scale.set(s,s,1);sp.position.set(x,y,z);sp.renderOrder=3;m.add(sp)});
+  dressUp(m,c,sp0,base);
  }).catch(e=>{console.warn('model',sp0,e);if(!SHEET.naturalWidth)return;const s2=new THREE.Sprite(new THREE.SpriteMaterial({map:spriteTex(c||{sp:sp0,eq:{},face:null}),transparent:true,alphaTest:.03}));s2.scale.set(1.07,1,1);s2.center.set(.5,.03);g.add(s2)});return g}
 function skyImg(){const t=new THREE.TextureLoader().load('art/sky3d.jpg');t.encoding=THREE.sRGBEncoding;t.wrapS=THREE.MirroredRepeatWrapping;t.minFilter=THREE.LinearFilter;return t}
 // 讓天空背景以 cover 方式填滿畫面，水平隨視角轉動
@@ -720,7 +780,7 @@ function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=s
  const up=e=>{PT.delete(e.pointerId);if(PT.size<2)pin=0};
  cv.addEventListener('pointercancel',e=>{up(e);dn=null});
  cv.addEventListener('pointerup',e=>{up(e);if(dn&&dn.m<10){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),pcam);
-   const hh=rc.intersectObjects(objs.map(o=>o.g),true)[0];if(hh){let o=hh.object;while(o&&!o.userData.cid)o=o.parent;if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');A.cr(o.userData.cid)}}}dn=null});
+   const hh=rc.intersectObjects(objs.map(o=>o.g),true)[0];if(hh){let o=hh.object;while(o&&!o.userData.cid)o=o.parent;if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');quick(o.userData.cid,e.clientX,e.clientY)}}}dn=null});
  buildHome3D();requestAnimationFrame(loop3)}
 function resize3(){R.setSize(innerWidth,innerHeight,false);pcam.aspect=innerWidth/innerHeight;pcam.updateProjectionMatrix()}
 function buildHome3D(){if(!scene)return;const old={};objs.forEach(o=>{old[o.c.id]=o;scene.remove(o.g);o.b.remove();o.tg.remove()});objs=[];
@@ -839,11 +899,21 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* ====== 介面共用 ====== */
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1900)}
 function hud(){$('#zeny').textContent=fmt(S.zeny);save()}
-function sheet(title,html){$('#stitle').textContent=title;$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
+function sheet(title,html,k){qClose();$('#sheet').dataset.k=k||'';$('#stitle').textContent=title;$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
 function pay(n){if(S.zeny<n){toast('zeny 不夠，去股市賺一點');return false}S.zeny-=n;hud();if(S.tok)net('/api/spend',{n}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>net('/api/me').then(applyW).catch(()=>{}));return true}
 const tierTag=s=>`<span class="tier t${s.t}">${TN[s.t]}</span>`;
 const bon=b=>b.map((v,i)=>v?SN[i]+'+'+v:'').filter(Boolean).join(' ');
-const cur=()=>S.cr.find(c=>c.id===curId);let curId=0,shopTab='food';
+const cur=()=>S.cr.find(c=>c.id===curId);
+// 夥伴快捷環形選單：點夥伴跳出小按鈕，點按鈕再出現第二層
+let QK=0;const SUB=()=>QK?$('#qp .in'):$('#sub');
+function reCr(id,then,v){if(QK){hud();A[then](v)}else{A.cr(id);then&&A[then](v)}}
+function qClose(){$('#qm').classList.remove('on');$('#qp').classList.remove('on');QK=0}
+const QA=[['feed','餵食'],['trainMenu','訓練','train'],['praise','摸頭'],['punish','罰站'],['qEq','裝備','equip'],['cr','詳情','info']];
+function quick(id,x,y){curId=+id;const c=cur();if(!c)return;QK=0;$('#qp').classList.remove('on');const m=$('#qm'),W=innerWidth,H=innerHeight;
+ x=Math.min(W-122,Math.max(122,x));y=Math.min(H-170,Math.max(170,y));m.style.left=x+'px';m.style.top=y+'px';
+ m.innerHTML=`<b class="qn">${esc(c.name)} · Lv ${c.lv}</b>`+QA.map((a,i)=>{const t=(-172+i*32.8)*Math.PI/180;return `<button data-a="qGo" data-v="${a[0]}" style="--x:${(Math.cos(t)*104).toFixed(0)}px;--y:${(Math.sin(t)*96-24).toFixed(0)}px;--d:${i*25}ms"><img src="art/act_${a[2]||a[0]}.webp" alt=""><span>${a[1]}</span></button>`}).join('');
+ m.classList.remove('on');void m.offsetWidth;m.classList.add('on')}
+let curId=0,shopTab='food';
 
 const A={
  close(){$('#sheet').classList.remove('on')},
@@ -862,39 +932,39 @@ const A={
   <button class="btn g2" data-a="relAsk" style="color:var(--muted);align-self:flex-start">放生…</button>`);
   $('#nm').onchange=e=>{c.name=e.target.value.trim()||s.n;save()};},
  feed(){const own=FOOD.filter(f=>S.food[f.id]>0);
-  $('#sub').innerHTML='<h3>選擇食物</h3>'+(own.map(f=>`<div class="row"><span class="g"><b>${f.n} ×${S.food[f.id]}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 體力 +15</small></span><button class="btn" data-a="eat" data-v="${f.id}">餵</button></div>`).join('')||'<p class="note">沒有食物了。</p>')+'<button class="btn g2" data-a="shop">去商店買</button>';$('#sub').scrollIntoView({block:'nearest'})},
+  SUB().innerHTML='<h3>選擇食物</h3>'+(own.map(f=>`<div class="row"><span class="g"><b>${f.n} ×${S.food[f.id]}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 體力 +15</small></span><button class="btn" data-a="eat" data-v="${f.id}">餵</button></div>`).join('')||'<p class="note">沒有食物了。</p>')+'<button class="btn g2" data-a="shop">去商店買</button>';SUB().scrollIntoView({block:'nearest'})},
  eat(id){const c=cur(),f=FOOD.find(x=>x.id===id);if(!(S.food[id]>0))return;S.food[id]--;const up=gain(c,f.exp);c.mood=Math.min(100,c.mood+f.mood);c.sta=Math.min(100,c.sta+15);
-  toast(up?`${c.name} 升到 Lv ${c.lv}！`:`${c.name}：${f.n}好吃！`);voice('eat',0);save();A.cr(c.id);A.feed()},
- trainMenu(){const c=cur(),cost=200+c.lv*50;$('#sub').innerHTML=`<h3>訓練項目 · 每次 ${fmt(cost)} zeny、體力值 −25（服從越高效果越好）</h3><div class="grid5">${SN.map((n,i)=>`<button class="btn g2" style="padding:10px 0" data-a="train" data-v="${i}">${n}</button>`).join('')}</div>`;$('#sub').scrollIntoView({block:'nearest'})},
+  toast(up?`${c.name} 升到 Lv ${c.lv}！`:`${c.name}：${f.n}好吃！`);voice('eat',0);save();reCr(c.id,'feed')},
+ trainMenu(){const c=cur(),cost=200+c.lv*50;SUB().innerHTML=`<h3>訓練項目 · 每次 ${fmt(cost)} zeny、體力值 −25（服從越高效果越好）</h3><div class="grid5">${SN.map((n,i)=>`<button class="btn g2" style="padding:10px 0" data-a="train" data-v="${i}">${n}</button>`).join('')}</div>`;SUB().scrollIntoView({block:'nearest'})},
  train(i){const c=cur(),s=sp(c.sp);if(c.sta<25)return toast('太累了，先餵點東西');if(!pay(200+c.lv*50))return;
   c.sta-=25;const g=+((.6+c.obey/100)*(1+s.t*.3)*(c.rb?1.5:1)).toFixed(1);c.st[i]=+(c.st[i]+g).toFixed(1);c.mood=Math.max(0,c.mood-4);const up=gain(c,15+c.lv*3);
-  toast(`${SN[i]} +${g}${up?`，升到 Lv ${c.lv}`:''}`);save();A.cr(c.id);A.trainMenu()},
- praise(){const c=cur();c.mood=Math.min(100,c.mood+12);c.obey=Math.max(0,c.obey-2);save();comic(c,true,()=>{A.close();react(c,true)})},
- punish(){const c=cur();c.mood=Math.max(0,c.mood-15);c.obey=Math.min(100,c.obey+8);save();comic(c,false,()=>{A.close();react(c,false)})},
+  toast(`${SN[i]} +${g}${up?`，升到 Lv ${c.lv}`:''}`);save();reCr(c.id,'trainMenu')},
+ praise(){qClose();const c=cur();c.mood=Math.min(100,c.mood+12);c.obey=Math.max(0,c.obey-2);save();comic(c,true,()=>{A.close();react(c,true)})},
+ punish(){qClose();const c=cur();c.mood=Math.max(0,c.mood-15);c.obey=Math.min(100,c.obey+8);save();comic(c,false,()=>{A.close();react(c,false)})},
  relAsk(){const c=cur();$('#sub').innerHTML=`<h3>放生 ${esc(c.name)}：無法復原，身上裝備會回到背包</h3><label class="lock"><input type="checkbox" id="relOn">第一道保險：打開開關</label><div class="slide"><input type="range" id="relSl" min="0" max="100" value="0" disabled aria-label="滑到最右確認放生"><em>第二道保險：把圓鈕滑到最右邊</em></div>`;
   const on=$('#relOn'),sl=$('#relSl');on.onchange=()=>{sl.disabled=!on.checked;sl.value=0};
   sl.onchange=()=>{if(on.checked&&+sl.value>=97){for(const k in c.eq)S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;S.cr=S.cr.filter(x=>x.id!==c.id);save();build3D();A.close();toast(`${c.name} 已放生`)}else sl.value=0};$('#sub').scrollIntoView({block:'nearest'})},
  snd(){S.mute=!S.mute;save();$('#snd').classList.toggle('off',!!S.mute);music()},
  rebirth(){const c=cur(),s=sp(c.sp);c.rb=1;c.lv=1;c.exp=0;c.st=c.st.map((v,i)=>+(s.b[i]+v*.3).toFixed(1));toast(`${c.name} 完成二轉！`);save();build3D();A.cr(c.id)},
- eq(k){const c=cur(),list=Object.values(ITEMS).filter(it=>it.slot===k&&(!it.sp||it.sp===c.sp)&&S.eq[it.id]>0);
-  $('#sub').innerHTML=`<h3>${SLOT[k]} · ${sp(c.sp).n}可用</h3>`+(c.eq[k]?`<button class="btn g2" data-a="uneq" data-v="${k}">卸下 ${ITEMS[c.eq[k]].n}</button>`:'')+(list.map(it=>`<div class="row">${eqi(it.id,44)}<span class="g"><b>${it.n} ×${S.eq[it.id]}</b><small>${bon(it.bon)}</small></span><button class="btn" data-a="wear" data-v="${it.id}">裝備</button></div>`).join('')||'<p class="note">背包裡沒有可用的。專屬裝備在商店的「裝備」分頁。</p>');$('#sub').scrollIntoView({block:'nearest'})},
- uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();build3D();A.cr(c.id)},
- wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();build3D();A.cr(c.id)},
+ eq(k){if(QK)QK='eq';const c=cur(),list=Object.values(ITEMS).filter(it=>it.slot===k&&(!it.sp||it.sp===c.sp)&&S.eq[it.id]>0);
+  SUB().innerHTML=`<h3>${SLOT[k]} · ${sp(c.sp).n}可用</h3>`+(c.eq[k]?`<button class="btn g2" data-a="uneq" data-v="${k}">卸下 ${ITEMS[c.eq[k]].n}</button>`:'')+(list.map(it=>`<div class="row">${eqi(it.id,44)}<span class="g"><b>${it.n} ×${S.eq[it.id]}</b><small>${bon(it.bon)}</small></span><button class="btn" data-a="wear" data-v="${it.id}">裝備</button></div>`).join('')||'<p class="note">背包裡沒有可用的。專屬裝備在商店的「裝備」分頁。</p>');SUB().scrollIntoView({block:'nearest'})},
+ uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();build3D();reCr(c.id,'eq',k)},
+ wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();build3D();reCr(c.id,'eq',it.slot)},
  shop(t){if(t)shopTab=t;let h=`<div class="tabs">${[['food','食物'],['gear','專屬裝備'],['acc','飾品']].map(a=>`<button class="${shopTab===a[0]?'on':''}" data-a="shop" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
   if(shopTab==='food')h+=FOOD.map(f=>`<div class="row"><span class="g"><b>${f.n}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 持有 ${S.food[f.id]||0}</small></span><button class="btn" data-a="buyF" data-v="${f.id}">${fmt(f.price)}</button></div>`).join('');
   else h+=Object.values(ITEMS).filter(it=>shopTab==='acc'?!it.sp:it.sp).map(it=>`<div class="row">${eqi(it.id,48)}<span class="g"><b>${it.n}</b><small>${it.sp?sp(it.sp).n+'專屬'+SLOT[it.slot]:'全物種飾品'} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn" data-a="buyE" data-v="${it.id}">${fmt(it.price)}</button></div>`).join('');
-  sheet('商店',h)},
+  sheet('商店',h,'shop')},
  buyF(id){const f=FOOD.find(x=>x.id===id);if(pay(f.price)){S.food[id]=(S.food[id]||0)+1;toast(`買了 ${f.n}`);save();A.shop()}},
  buyE(id){const it=ITEMS[id];if(pay(it.price)){S.eq[id]=(S.eq[id]||0)+1;toast(`買了 ${it.n}`);save();A.shop()}},
  rank(t){if(t)rankTab=t;const tabs=`<div class="tabs">${[['lv','等級榜'],['w','財產榜']].map(a=>`<button class="${rankTab===a[0]?'on':''}" data-a="rank" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
-  const nick=`<div class="row"><span class="g"><b>我的暱稱</b><small>顯示在排行榜上，人臉不會上傳</small></span><input id="nick" maxlength="12" value="${esc(S.nick||'')}" style="width:120px"><button class="btn g2" data-a="nick">儲存</button></div>`;
-  if(!S.tok||!ONLINE){netInit();return sheet('排行榜',tabs+'<p class="note">正在連線伺服器…稍後再打開一次。</p>')}
-  sheet('排行榜',tabs+nick+'<p class="note">讀取中…</p>');
+  const nick=`<div class="row"><span class="g"><b>我的暱稱</b></span><input id="nick" maxlength="12" value="${esc(S.nick||'')}" style="width:120px"><button class="btn g2" data-a="nick">儲存</button></div>`;
+  if(!S.tok||!ONLINE){netInit();return sheet('排行榜',tabs+'<p class="note">正在連線伺服器…稍後再打開一次。</p>','rank')}
+  sheet('排行榜',tabs+nick+'<p class="note">讀取中…</p>','rank');
   net('/api/rank?type='+rankTab).then(r=>{const w=rankTab==='w';
-   $('#sbody').innerHTML=tabs+nick+`<p class="note">${w?'財產 = zeny 現金 + 持股市值（伺服器依真實股價計算）':'以玩家最強夥伴的等級排名'}。共 ${r.total} 位玩家，你是第 ${r.mine} 名。人臉只留在各自手機。</p><div>`+
-   r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b><br><small style="color:var(--muted)">${sp(a.sp||'shiba').n}${a.rb?' · 二轉':''}</small></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
+   $('#sbody').innerHTML=tabs+nick+`<div>`+
+   r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
  nick(){const n=($('#nick').value||'').trim().slice(0,12);if(!n)return toast('請輸入暱稱');S.nick=n;save();net('/api/name',{name:n}).then(()=>{toast('暱稱已更新');A.rank()}).catch(e=>toast(e.message))},
- arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`)},
+ arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`,'arena')},
  pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
  battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
   cs.forEach(c=>c.sta-=20);const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
@@ -951,6 +1021,12 @@ const A={
   else{const s=STK.find(x=>x[0]===k);if(!s)return toast('模擬盤只能加入清單內的股票');REF[k]=REF[k]||S.px[k]}
   HIST[k]=HIST[k]||[];S.watch.push(k);save();drawPhone()}
 };
+A.qGo=v=>{const c=cur();if(!c)return;if(v==='cr'||v==='praise'||v==='punish'){qClose();return A[v](v==='cr'?c.id:undefined)}
+ QK=v;$('#qm').classList.remove('on');$('#qp').classList.add('on');$('#qp h4').textContent=c.name+' · '+QA.find(a=>a[0]===v)[1];A[v]()};
+A.qEq=()=>{const c=cur();SUB().innerHTML=`<div class="grid3">${['w','a','c'].map(k=>{const it=ITEMS[c.eq[k]];return `<button class="slot" data-a="eq" data-v="${k}"><small>${SLOT[k]}</small>${it?`${eqi(it.id,40)}<b>${it.n}</b>`:'<b style="color:var(--muted)">未裝備</b>'}</button>`}).join('')}</div>`};
+A.qBack=()=>{if(QK==='eq'){QK='qEq';A.qEq()}else{const c=cur();qClose();if(c){const o=objs.find(x=>x.c.id===c.id);quick(c.id,innerWidth/2,innerHeight*.55)}}};
+A.qX=qClose;
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#qm,#qp'))qClose()},true);
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){if(!/^(snd|btgt|bact)$/.test(el.dataset.a))sfx2('click',.55);else if(el.dataset.a!=='snd')sfx2('click',.55);A[el.dataset.a](el.dataset.v)}});
 
 /* ====== 收服細節 ====== */
