@@ -437,6 +437,10 @@ body{background:var(--ink)}
 .tip .tx{position:absolute;right:6px;top:4px;width:22px;height:22px;border:0;background:none;color:#86684a;font-size:16px;font-weight:900}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes tipIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:none}}
+
+#acct{display:none;position:fixed;z-index:6;right:12px;top:calc(env(safe-area-inset-top) + 64px);width:34px;height:34px;border-radius:50%;border:0;background:#ffffff38;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;font-size:19px;line-height:1;text-shadow:0 1px 2px #0008;box-shadow:inset 0 0 0 1.5px #ffffff70}
+.rc{display:flex;align-items:center;gap:8px;justify-content:center;background:#fff;border-radius:12px;padding:10px;margin-bottom:8px;box-shadow:inset 0 0 0 2px #e3b54a}
+.rc b{font:900 22px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em;color:#5a2e08}
 </style>
 </head>
 <body>
@@ -445,7 +449,7 @@ body{background:var(--ink)}
 
 <div id="hud">
   <div class="logo"><img src="art/logo.webp" alt="封印物語"><small id="cnt"></small></div>
-  <span style="display:flex;gap:8px;align-items:center"><button id="snd" data-a="snd" aria-label="音樂與語音開關"><img src="art/ui_music.webp" alt=""></button><button id="coin" data-a="phone" aria-label="開啟手機台股"><img class="c" src="art/ui_coin.webp" alt=""><span><span id="zeny">0</span><small>點我看盤</small></span></button></span>
+  <span style="display:flex;gap:8px;align-items:center"><button id="acct" data-a="acct" aria-label="帳號與存檔">⚙</button><button id="snd" data-a="snd" aria-label="音樂與語音開關"><img src="art/ui_music.webp" alt=""></button><button id="coin" data-a="phone" aria-label="開啟手機台股"><img class="c" src="art/ui_coin.webp" alt=""><span><span id="zeny">0</span><small>點我看盤</small></span></button></span>
 </div>
 <div id="hint">拖曳移動視角 · 雙指縮放 · 點夥伴互動</div>
 
@@ -507,8 +511,8 @@ async function net(path,body){const o={headers:{'content-type':'application/json
  const r=await fetch(GAME_API+path,o);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('連線失敗 '+r.status));return j}
 function applyW(w){if(!w||w.zeny==null)return;S.zeny=w.zeny;S.port={};for(const k in w.port||{}){S.port[k]={q:w.port[k].q,cost:w.port[k].cost};if(w.port[k].n)S.nm[k]=w.port[k].n;if(!S.watch.includes(k))S.watch.push(k)}if(w.name)S.nick=w.name;ONLINE=true;hud()}
 function topCr(){return S.cr.slice().sort((a,b)=>(b.rb-a.rb)||(b.lv-a.lv))[0]}
-async function netInit(){try{if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
- else applyW(await net('/api/me'));netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
+async function netInit(){try{if(!S.tok){const t=topCr();const w=await net('/api/reg',{name:S.nick||'玩家'+Math.floor(1000+Math.random()*9000),zeny:S.zeny,port:S.port,sp:t?t.sp:'shiba'});S.tok=w.token;save();applyW(w);net('/api/load').then(()=>{$('#acct').style.display='block';cloudSave()}).catch(()=>{});setTimeout(()=>toast('已連上線上伺服器，錢包改由伺服器保管'),800)}
+ else{applyW(await net('/api/me'));try{const l=await net('/api/load');$('#acct').style.display='block';if(l.save&&l.ts>(S.ts||0)+5000&&adopt(l.save,S.tok)){toast('已從雲端載入較新的存檔');setTimeout(()=>location.reload(),900);return}if(!l.save||l.ts<(S.ts||0))cloudLater()}catch(e){}}netSync()}catch(e){ONLINE=false;console.warn('net',e)}}
 async function netSync(){if(!S.tok)return;const t=topCr();if(!t)return;try{await net('/api/sync',{lv:t.lv,rb:t.rb,sp:t.sp})}catch(e){}}
 setInterval(()=>{if(S.tok)net('/api/me').then(applyW).catch(()=>{ONLINE=false})},60000);setInterval(netSync,120000);
 
@@ -577,7 +581,15 @@ function load(){try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   S.cr.push(mk('shiba',.5,null,'阿柴（示範）'),mk('cat',.4,null,'橘子（示範）'));}
  STK.forEach(s=>{if(!S.px[s[0]])S.px[s[0]]=s[2]});
  if(!S.watch)S.watch=['2330'].concat(Object.keys(S.port||{}).filter(k=>k!=='2330'));S.nm=S.nm||{};}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}cloudLater()}
+// 雲端存檔：夥伴、物品、裝備同步到伺服器（臉照需勾選才備份）
+let CT=0,CLS=0;function cloudLater(){if(!S.tok)return;clearTimeout(CT);CT=setTimeout(cloudSave,12000)}
+function cloudData(){const o=JSON.parse(JSON.stringify(S));delete o.tok;if(!S.faceBk)o.cr.forEach(c=>{if(c.face&&String(c.face).startsWith('data:'))c.face=null});return JSON.stringify(o)}
+async function cloudSave(force){if(!S.tok)return;clearTimeout(CT);try{const r=await net('/api/save',{data:cloudData(),ts:S.ts||Date.now()});if(r.ok){CLS=Date.now();if(force)toast('已備份到雲端')}else if(force)toast(r.error||'備份失敗')}catch(e){if(force)toast('備份失敗：'+(e.message||''))}}
+addEventListener('visibilitychange',()=>{if(document.hidden&&S.tok&&CT)cloudSave()});
+function adopt(data,keepTok){let o;try{o=JSON.parse(data)}catch(e){return false}if(!o||!o.cr)return false;
+ const faces={};(S.cr||[]).forEach(c=>{if(c.face)faces[c.id+'|'+c.sp]=c.face});o.cr.forEach(c=>{if(!c.face&&faces[c.id+'|'+c.sp])c.face=faces[c.id+'|'+c.sp]});
+ o.tok=keepTok;S=o;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}return true}
 function mk(sid,iv,face,name){const s=sp(sid);
  return {id:S.nid++,sp:sid,name:name||s.n,lv:0,exp:0,iv,st:s.b.map(v=>+(v*(1+iv*.25)+rnd(0,2)).toFixed(1)),mood:70,obey:50,sta:100,eq:{},face,rb:0};}
 const need=l=>40+l*l*6;
@@ -1080,6 +1092,26 @@ A.qEq=()=>{const c=cur();SUB().innerHTML=`<div class="grid3">${['w','a','c'].map
 A.qBack=()=>{if(QK==='eq'){QK='qEq';A.qEq()}else{const c=cur();qClose();if(c){const o=objs.find(x=>x.c.id===c.id);quick(c.id,innerWidth/2,innerHeight*.55)}}};
 A.qX=qClose;
 
+
+// 帳號與存檔：雲端備份、引繼碼、找回帳號
+A.acct=()=>{const t=CLS?new Date(CLS).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'—';
+ sheet('帳號與存檔',`<div class="sec"><h3>雲端存檔</h3><p class="note">夥伴、等級、物品、裝備會自動同步到伺服器；zeny 和持股本來就存在伺服器。${S.tok?'':'<b>目前尚未連線，連上後會自動備份。</b>'}</p>
+ <div class="row"><span class="g"><b>上次備份</b><small>${t}</small></span><button class="btn" data-a="bkNow" ${S.tok?'':'disabled'}>立即備份</button></div>
+ <label class="row"><span class="g"><b>一併備份夥伴臉照</b><small>預設臉照只留在這支手機；勾選後換機也能找回臉</small></span><input type="checkbox" id="fbk" ${S.faceBk?'checked':''}></label></div>
+ <div class="sec"><h3>引繼碼（換機／重裝時找回帳號）</h3><p class="note">產生後請截圖或抄下來保存，不要給別人。重新產生後，舊的引繼碼會失效。</p>
+ <div id="rcBox"></div><button class="btn gd" data-a="rcode" ${S.tok?'':'disabled'}>產生引繼碼</button></div>
+ <div class="sec"><h3>用引繼碼找回帳號</h3><p class="note">會用找回的帳號取代這支手機目前的進度。</p>
+ <div class="row"><input id="rcIn" placeholder="XXXX-XXXX-XXXX" maxlength="14" autocapitalize="characters" style="flex:1;letter-spacing:.1em"><button class="btn" data-a="recover">找回</button></div></div>`);
+ $('#fbk').onchange=e=>{S.faceBk=e.target.checked;save();if(S.faceBk)cloudSave(true)}};
+A.bkNow=()=>cloudSave(true);
+A.rcode=async()=>{try{const r=await net('/api/rcode',{});if(!r.code)return toast(r.error||'產生失敗');await cloudSave();$('#rcBox').innerHTML=`<div class="rc"><b>${r.code}</b><button class="btn g2" data-a="rcCopy" data-v="${r.code}">複製</button></div>`}catch(e){toast(e.message||'連線失敗')}};
+A.rcCopy=v=>{navigator.clipboard&&navigator.clipboard.writeText(v).then(()=>toast('已複製引繼碼'),()=>toast('請長按手動複製'))};
+A.recover=async()=>{const c=$('#rcIn').value.trim();if(c.replace(/[^0-9a-z]/ig,'').length!==12)return toast('引繼碼是 12 碼');
+ if(S.cr.length&&!confirmBox)return(confirmBox=1,toast('再按一次「找回」確認：會取代這支手機目前的進度'));confirmBox=0;
+ try{const r=await net('/api/recover',{code:c});if(!r.token)return toast(r.error||'找不到這組引繼碼');
+  if(!(r.save&&adopt(r.save,r.token))){S.tok=r.token;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+  toast('帳號已找回，重新載入中…');setTimeout(()=>location.reload(),900)}catch(e){toast(e.message||'連線失敗')}};
+let confirmBox=0;
 // 右下角提示：加入主畫面、用 LINE 邀請好友
 let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e});
 const SHARE_URL='https://sunkinmen.github.io/game3/',SHARE_TXT='我在玩《封印物語》！用相機把自己和朋友收服成可愛夥伴，還能用台股真實行情賺 zeny、上排行榜。一起來玩👉 '+SHARE_URL;

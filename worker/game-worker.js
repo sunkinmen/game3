@@ -1,6 +1,7 @@
 // 封印物語 線上伺服器（Cloudflare Worker + D1）
 // 綁定：D1 資料庫 → 變數名 DB；加密變數 FUGLE_KEY（富果行情金鑰）；排程 */10 * * * *（更新財產榜）
 // 報價：GET /?ids=2330,2603　GET /k?id=2330
+// 存檔：POST /api/save　GET /api/load　POST /api/rcode（產生引繼碼）　POST /api/recover（用引繼碼找回）
 // 帳號：POST /api/reg　GET /api/me　POST /api/trade　POST /api/spend　POST /api/earn　POST /api/sync　GET /api/rank?type=lv|w　POST /api/name
 const FAPI = 'https://api.fugle.tw/marketdata/v1.0/stock';
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type,authorization', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'content-type': 'application/json; charset=utf-8' };
@@ -52,10 +53,32 @@ async function wallet(env, p) {
   await env.DB.prepare('UPDATE players SET wealth=?,wts=? WHERE id=?').bind(w, Date.now(), p.id).run();
   return { id: p.id, name: p.name, zeny: Math.round(p.zeny), port, wealth: w, open: marketOpen() };
 }
+let READY = false;
+async function ensure(db) {
+  if (READY) return;
+  await db.batch([
+    db.prepare('CREATE TABLE IF NOT EXISTS saves(pid INTEGER PRIMARY KEY, data TEXT, ts INTEGER)'),
+    db.prepare('CREATE TABLE IF NOT EXISTS recov(hash TEXT PRIMARY KEY, pid INTEGER)'),
+    db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)')
+  ]);
+  READY = true;
+}
+const RC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+async function sha(t) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('seal:' + t)))].map(x => x.toString(16).padStart(2, '0')).join(''); }
 async function body(req) { try { return await req.json(); } catch (e) { return {}; } }
 
 async function api(req, env, path) {
-  const db = env.DB;
+  const db = env.DB; await ensure(db);
+  if (path === '/api/recover' && req.method === 'POST') {
+    const b = await body(req), c = normCode(b.code);
+    if (c.length !== 12) return J({ error: '引繼碼格式錯誤' }, 400);
+    const r = await db.prepare('SELECT pid FROM recov WHERE hash=?').bind(await sha(c)).first();
+    if (!r) { await new Promise(ok => setTimeout(ok, 800)); return J({ error: '找不到這組引繼碼' }, 404); }
+    const pl = await db.prepare('SELECT * FROM players WHERE id=?').bind(r.pid).first();
+    const sv = await db.prepare('SELECT data,ts FROM saves WHERE pid=?').bind(r.pid).first();
+    return J({ token: pl.token, save: sv ? sv.data : null, ts: sv ? sv.ts : 0, ...(await wallet(env, pl)) });
+  }
   if (path === '/api/reg' && req.method === 'POST') {
     const b = await body(req), tok = [...crypto.getRandomValues(new Uint8Array(24))].map(x => x.toString(16).padStart(2, '0')).join('');
     const name = String(b.name || '').slice(0, 12) || '玩家';
@@ -76,6 +99,22 @@ async function api(req, env, path) {
   const p = await auth(req, env);
   if (!p) return J({ error: '未登入' }, 401);
   if (path === '/api/me') return J(await wallet(env, p));
+  if (path === '/api/save' && req.method === 'POST') {
+    const b = await body(req), d = typeof b.data === 'string' ? b.data : '';
+    if (!d || d.length > 1800000) return J({ error: '存檔太大或空白' }, 400);
+    const ts = Math.min(Date.now(), +b.ts || Date.now());
+    await db.prepare('INSERT INTO saves(pid,data,ts) VALUES(?,?,?) ON CONFLICT(pid) DO UPDATE SET data=excluded.data,ts=excluded.ts').bind(p.id, d, ts).run();
+    return J({ ok: true, ts });
+  }
+  if (path === '/api/load') {
+    const sv = await db.prepare('SELECT data,ts FROM saves WHERE pid=?').bind(p.id).first();
+    return J({ save: sv ? sv.data : null, ts: sv ? sv.ts : 0 });
+  }
+  if (path === '/api/rcode' && req.method === 'POST') {
+    const c = [...crypto.getRandomValues(new Uint8Array(12))].map(x => RC[x % RC.length]).join('');
+    await db.batch([db.prepare('DELETE FROM recov WHERE pid=?').bind(p.id), db.prepare('INSERT INTO recov(hash,pid) VALUES(?,?)').bind(await sha(c), p.id)]);
+    return J({ code: c.replace(/(.{4})(?=.)/g, '$1-') });
+  }
   if (path === '/api/name' && req.method === 'POST') {
     const b = await body(req), n = String(b.name || '').trim().slice(0, 12);
     if (n) await db.prepare('UPDATE players SET name=? WHERE id=?').bind(n, p.id).run();
