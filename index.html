@@ -521,6 +521,11 @@ body.intown #chatb{bottom:calc(env(safe-area-inset-bottom) + 176px)}
 #hurtv{position:fixed;inset:0;z-index:6;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(ellipse at center,#0000 55%,#ff1a1a55 100%)}#hurtv.on{opacity:1;transition:none}
 .ptag.mob{background:linear-gradient(90deg,#9a3ad0 var(--hp,100%),#3a1a50cc var(--hp,100%));color:#fff}
 .bub.mob{background:#2a1040ee!important;color:#ffd0ff!important}.bub.mob::after{border-top-color:#2a1040ee!important}
+.ico.hasbk{background:none!important}.ico .bd{position:absolute;inset:0;background:url(art/species.webp) 0 0/500% 300% no-repeat;pointer-events:none}
+.ico .pd.bk{filter:drop-shadow(0 1px 2px #0006)}.ico .pd.bk.cape{left:14%!important;top:30%!important;width:72%!important}.ico .pd.bk.shawl{left:18%!important;top:34%!important;width:64%!important}.ico .pd.bk.back{left:58%!important;top:28%!important;width:30%!important;rotate:20deg!important}
+.ico .pm .pd.a.shawl{top:46%;width:50%;left:25%}.ico .pm .pd.a.scarf{top:47%;left:28%;width:44%;height:auto}
+.ico .pd.c.neck{left:38%!important;top:52%!important;width:24%!important}.ico .pd.c.chest{left:37%!important;top:58%!important;width:26%!important}.ico .pd.c.belly{left:36%!important;top:70%!important;width:28%!important}
+#batk.auto{animation:apulse .8s infinite alternate;box-shadow:inset 0 0 0 3px #fff,0 0 0 4px #ffd75a,0 0 22px #ff8a2a}@keyframes apulse{to{transform:scale(1.07)}}
 </style>
 </head>
 <body>
@@ -650,6 +655,9 @@ const PREM=[['pw1','霓虹夜市光劍','w',[10,0,6,0,0],.99],['pw2','媽祖庇�
 PREM.forEach(a=>ITEMS[a[0]]={id:a[0],n:a[1],slot:a[2],sp:null,bon:a[3],usd:a[4],prem:1});
 // 付款連結：在金流後台（例如 Stripe Payment Links）建立後填入，付款完成導回 ?paid=<id>
 const IAP_LINK={};
+// 紙娃娃穿戴部位：full=全身(前後) cape=披風(背) shawl=披肩(背+肩前) scarf=領巾(頸前後)；配件 neck/chest/belly/hip/back
+const WEAR={rabbit_a:'cape',wolf_a:'shawl',shiba_a:'scarf',nezha_a:'shawl',c1:'hip',c2:'chest',c3:'neck',c4:'back',c5:'back',c6:'belly'};
+const wearOf=id=>WEAR[id]||(ITEMS[id]&&ITEMS[id].slot==='c'?'hip':'full');
 const FOOD=[['f1','茶葉蛋',300,20,3],['f2','珍珠奶茶',650,40,10],['f3','雞排',900,70,6],['f4','滷肉飯',1200,110,5],['f5','佛跳牆',30000,4000,20]]
  .map(a=>({id:a[0],n:a[1],price:a[2],exp:a[3],mood:a[4]}));
 const SLOT={w:'武器',a:'防具',c:'飾品'};
@@ -706,9 +714,11 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
 const HOLE=[[0.5,0.445,0.14,0.135],[0.5,0.445,0.14,0.135],[0.49,0.47,0.14,0.135],[0.49,0.45,0.14,0.13],[0.49,0.41,0.14,0.13],[0.505,0.39,0.145,0.12],[0.49,0.38,0.145,0.12],[0.49,0.385,0.14,0.12],[0.495,0.385,0.145,0.12],[0.49,0.39,0.145,0.125],[0.495,0.405,0.17,0.135],[0.5,0.38,0.16,0.11],[0.495,0.4,0.155,0.14],[0.5,0.385,0.15,0.12],[0.49,0.35,0.16,0.11]];
 const SHEET=new Image();SHEET.onload=()=>{if(scene)build3D()};SHEET.src='art/species.webp';
 const EQS=new Image();EQS.onload=()=>{if(scene)build3D()};EQS.src='art/equip.webp';
-function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const P=k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${(Math.floor(j/6)*100/7).toFixed(3)}%"></i>`};
- const pd=eq?(eq.a?`<span class="pm" style="--m:url(art/species.webp);--mp:${i%5*25}% ${Math.floor(i/5)*50}%">${P('a')}</span>`:'')+P('w')+P('c'):'';
- return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
+function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i],bp=`${i%5*25}% ${Math.floor(i/5)*50}%`;const P=(k,cl)=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k} ${cl||''}" style="background-position:${j%6*20}% ${(Math.floor(j/6)*100/7).toFixed(3)}%"></i>`};
+ const wa=eq&&eq.a?wearOf(eq.a):'',wc=eq&&eq.c?wearOf(eq.c):'',bk=(wa==='cape'||wa==='shawl'?P('a','bk '+wa):'')+(wc==='back'?P('c','bk back'):'');
+ const front=eq?(eq.a&&wa!=='cape'?`<span class="pm" style="--m:url(art/species.webp);--mp:${bp}">${P('a',wa)}</span>`:'')+P('w')+(wc==='back'?'':P('c',wc)):'';
+ const pd=bk?bk+`<b class="bd" style="background-position:${bp}"></b>`+front:front;
+ return `<span class="ico${bk?' hasbk':''}" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${bp}">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
 // 把臉以 cover 填滿圓洞，邊緣羽化並加內陰影，與頭套無縫融合
 function fitFace(img,W,H){const c=document.createElement('canvas');c.width=Math.max(2,Math.round(W));c.height=Math.max(2,Math.round(H));const g=c.getContext('2d');g.imageSmoothingQuality='high';
  const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.max(c.width/iw,c.height/ih);g.drawImage(img,(c.width-iw*s)/2,(c.height-ih*s)/2,iw*s,ih*s);
@@ -913,14 +923,20 @@ function rig(sp,base){if(RIG[sp])return RIG[sp];const v=new THREE.Vector3();let 
  base.traverse(o=>{if(!o.isMesh)return;const P=o.geometry.attributes.position;for(let k=0;k<P.count;k+=2){v.fromBufferAttribute(P,k).applyMatrix4(o.matrixWorld);if(v.y>top)top=v.y}});
  base.traverse(o=>{if(!o.isMesh)return;const P=o.geometry.attributes.position;for(let k=0;k<P.count;k+=2){v.fromBufferAttribute(P,k).applyMatrix4(o.matrixWorld);if(v.y>top*.16&&v.y<top*.52&&(!best||v.x>best.x))best=v.clone()}});
  if(!best)best=new THREE.Vector3(.3,.35,.1);best.x-=.035;return RIG[sp]={hand:best,top}}
-function decalGeo(key,base,cx,cy,hw,hh){if(DG[key])return DG[key];const N=14,rc=new THREE.Raycaster(),o=new THREE.Vector3(),d=new THREE.Vector3(0,0,-1),pos=[],uv=[],idx=[],ok=[];
- for(let j=0;j<=N;j++)for(let i=0;i<=N;i++){const u=i/N,w=j/N,x=cx+(u*2-1)*hw,y=cy+(w*2-1)*hh;o.set(x,y,3);rc.set(o,d);const h=rc.intersectObject(base,true)[0];pos.push(x,y,h?h.point.z+.01:0);uv.push(u,w);ok.push(!!h)}
- for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,e=c+1;if(ok[a]&&ok[b]&&ok[c]&&ok[e])idx.push(a,b,e,a,e,c)}
+function decalGeo(key,base,cx,cy,hw,hh,back){key+=back?'|b':'';if(DG[key])return DG[key];const N=14,rc=new THREE.Raycaster(),o=new THREE.Vector3(),d=new THREE.Vector3(0,0,back?1:-1),pos=[],uv=[],idx=[],ok=[];
+ for(let j=0;j<=N;j++)for(let i=0;i<=N;i++){const u=i/N,w=j/N,x=cx+(u*2-1)*hw,y=cy+(w*2-1)*hh;o.set(x,y,back?-3:3);rc.set(o,d);const h=rc.intersectObject(base,true)[0];pos.push(x,y,h?h.point.z+(back?-.01:.01):0);uv.push(back?1-u:u,w);ok.push(!!h)}
+ for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,e=c+1;if(ok[a]&&ok[b]&&ok[c]&&ok[e])idx.push(...(back?[a,e,b,a,c,e]:[a,b,e,a,e,c]))}
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();return DG[key]=g}
 function dressUp(m,c,sp0,base){if(!c||!c.eq)return;const f=F3[sp0]||[0,.64,.14,.12],fb=f[1]-f[3];
  const dm=t=>{const mt=new THREE.MeshStandardMaterial({map:t,transparent:true,alphaTest:.06,roughness:.7,polygonOffset:true,polygonOffsetFactor:-3,depthWrite:false});return mt};
- let t=eqTex(c.eq.a);if(t){const hw=Math.max(.17,f[2]*1.3),hh=Math.max(.15,Math.min(.2,fb*.42)),me=new THREE.Mesh(decalGeo(sp0+'a',base,f[0],fb-hh*.92,hw,hh),dm(t));me.renderOrder=2;m.add(me)}
- t=eqTex(c.eq.c);if(t){const me=new THREE.Mesh(decalGeo(sp0+'c',base,f[0]-f[2]*.75,fb*.42,.075,.075),dm(t));me.renderOrder=3;m.add(me)}
+ const add=(t,k,cx,cy,hw,hh,back,ro)=>{const me=new THREE.Mesh(decalGeo(sp0+k,base,cx,cy,hw,hh,back),dm(t));me.renderOrder=ro||2;m.add(me)};
+ let t=eqTex(c.eq.a);if(t){const wk=wearOf(c.eq.a),hw=Math.max(.17,f[2]*1.3),hh=Math.max(.15,Math.min(.2,fb*.42)),cy=fb-hh*.92;
+  if(wk==='full'){add(t,'a',f[0],cy,hw,hh,0);add(t,'a',f[0],cy,hw,hh,1)}
+  else if(wk==='cape'){const top=fb+.03,bot=.04,ch=(top-bot)/2;add(t,'cape',f[0],bot+ch,Math.max(.2,f[2]*1.55),ch,1)}
+  else if(wk==='shawl'){add(t,'shl',f[0],fb-.1,Math.max(.2,f[2]*1.5),.13,1);add(t,'shf',f[0],fb-.05,Math.max(.16,f[2]*1.25),.06,0)}
+  else if(wk==='scarf'){add(t,'scf',f[0],fb-.035,Math.max(.15,f[2]*1.15),.055,0);add(t,'scf',f[0],fb-.035,Math.max(.15,f[2]*1.15),.055,1)}}
+ t=eqTex(c.eq.c);if(t){const pl=wearOf(c.eq.c),S2={neck:[f[0],fb-.04,.07,.06,0],chest:[f[0],fb-.11,.075,.075,0],belly:[f[0],fb*.45,.08,.08,0],hip:[f[0]-f[2]*.75,fb*.42,.075,.075,0],back:[f[0],fb-.12,.1,.1,1]}[pl]||[f[0]-f[2]*.75,fb*.42,.075,.075,0];
+  add(t,'c'+pl,S2[0],S2[1],S2[2],S2[3],S2[4],3)}
  t=eqTex(c.eq.w);if(t){const r=rig(sp0,base),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,alphaTest:.05,depthWrite:false}));s.center.set(.24,.22);s.scale.set(.42,.42,1);s.position.copy(r.hand);s.position.z+=.04;s.renderOrder=3;m.add(s);m.userData.wpn=s}}
 // 建立一位夥伴的 3D 身體（模型＋臉＋紙娃娃裝備）
 function fig3D(c,sid){const g=new THREE.Group(),sp0=c?c.sp:sid;g.userData.cid=c?c.id:0;
@@ -1063,8 +1079,8 @@ function kTaipei101(){const g=new THREE.Group(),glass=km('#ffffff',{map:ctex(256
  g.userData.tower=1;g.traverse(o=>{o.userData.tower=1});return g}
 
 function kFarmGate(){const g=new THREE.Group(),r=km('#e04a33',{roughness:.35,clearcoat:.8}),k=km('#2a2224');[-.5,.5].forEach(x=>{g.add(msh(kg('fgp',()=>new THREE.CylinderGeometry(.05,.065,1.2,16)),r,x,.6,0));g.add(rb(.16,.1,.16,.03,k,x,.05,0))});
- g.add(rb(1.4,.09,.15,.04,k,0,1.26,0));g.add(rb(1.2,.07,.1,.03,r,0,1.06,0));const sg=new THREE.Sprite(new THREE.SpriteMaterial({map:ctex(512,180,(c,w,h)=>{c.fillStyle='#2a2224';c.fillRect(0,0,w,h);c.fillStyle='#ffd75a';c.fillRect(8,8,w-16,h-16);c.fillStyle='#2a2224';c.fillRect(16,16,w-32,h-32);c.fillStyle='#ffd75a';c.font='900 84px "Noto Sans TC",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('往八卦城 ➜',w/2,h/2+4)})}));
- sg.scale.set(1.2,.42,1);sg.position.set(0,1.55,0);g.add(sg);const pt=new THREE.Mesh(new THREE.CircleGeometry(.5,32),new THREE.MeshBasicMaterial({color:0x9a6aff,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));pt.rotation.x=-Math.PI/2;pt.position.y=.02;g.add(pt);
+ g.add(rb(1.4,.09,.15,.04,k,0,1.26,0));g.add(rb(1.2,.07,.1,.03,r,0,1.06,0));const sg=new THREE.Sprite(new THREE.SpriteMaterial({map:plateTex('往八卦城 ➜',0),transparent:true,alphaTest:.3}));
+ sg.scale.set(1.5,.5625,1);sg.position.set(0,1.62,0);g.add(sg);const pt=new THREE.Mesh(new THREE.CircleGeometry(.5,32),new THREE.MeshBasicMaterial({color:0x9a6aff,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));pt.rotation.x=-Math.PI/2;pt.position.y=.02;g.add(pt);
  g.userData.tower=1;g.traverse(o=>o.userData.tower=1);return g}
 function buildVillage(){const g=new THREE.Group(),Y=DIO.plaza.g*HS;g.add(kIsland(4.75,Y,DIO.plaza.r*HS+.25,'#c48a4c'));
  const top=DIO.plaza.cy*HS,cr=DIO.plaza.c*HS;g.add(msh(new THREE.CylinderGeometry(cr+.05,cr+.12,top-Y,96),km('#bdb6a6',{roughness:.6,clearcoat:.2}),0,Y+(top-Y)/2,0));
@@ -1096,7 +1112,7 @@ function buildArenaScene(){const g=new THREE.Group(),Y=DIO.arena.g*AS,R=DIO.aren
  return g}
 
 /* ═════════ 八卦城鎮（3D 開放城鎮：一拖三夥伴、搖桿、跳躍、攻擊、魔物） ═════════ */
-const TR=34;let TOWNSC=null,TCAM=null,inTown=false,TLIGHT=null,TCOL=[],TSPOT=[],TFX=[],MOBS=[],PARTY=[],TP=null,YH=[],tCamD=9,tElE=.62,tAz=0,tEl=.62,tDist=9,JOY={x:0,y:0,on:false},TKEY={},tAtkCD=0,tHP=100,tHPM=100,tEarn=0,tEarnT=0,tNear=null,TRAIL=[];
+const TR=34;let TOWNSC=null,TCAM=null,inTown=false,TLIGHT=null,TCOL=[],TSPOT=[],TFX=[],MOBS=[],PARTY=[],TP=null,tAuto=false,tAutoIdle=0,YH=[],tCamD=9,tElE=.62,tAz=0,tEl=.62,tDist=9,JOY={x:0,y:0,on:false},TKEY={},tAtkCD=0,tHP=100,tHPM=100,tEarn=0,tEarnT=0,tNear=null,TRAIL=[];
 const MELEE=new Set(['shiba','cat','bear','tiger','wolf','guan','lion','leopard','otter']);
 const ELSFX={火:'fire',金:'slash',水:'charge',木:'cast',土:'crit'};
 const MOB_LINE=['你這種戰力也敢來城鎮？','回家吃自己啦！','我阿嬤都比你強','欸你夥伴是租來的喔','嘿嘿，雞排交出來','這條街是我罩的','打不到啦～','你的股票都綠的吧','菜就多練','先存夠 zeny 再說'];
@@ -1113,6 +1129,10 @@ function bake(root){root.updateMatrixWorld(true);const by=new Map(),keep=[];
 // 招牌圖集：全部招牌共用一張貼圖
 const SIGNS=[];const PLATE=[['#a8743c','#fff4d6','#4a2810',0],['#c8302a','#ffd75a','#5a0e08',14],['#7cc8b4','#ffffff','#1a5a44',0],['#1e3a7a','#ffffff','#0a1838',0],['#f2b8cc','#ffffff','#b0306a',0],['#f08a1a','#ffffff','#7a3a06',0],['#2e4a44','#f4f8f0','#16241f',0],['#6a2a8a','#ffe6ff','#d040ff',0]];
 function plateOf(bg){const c=new THREE.Color(bg);let b=0,bd=9;PLATE.forEach((p,i)=>{const q=new THREE.Color(p[0]),d=(c.r-q.r)**2+(c.g-q.g)**2+(c.b-q.b)**2;if(d<bd){bd=d;b=i}});return b}
+function plateTex(txt,pi){const c=document.createElement('canvas');c.width=512;c.height=192;const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;const P=PLATE[pi];
+ const draw=im=>{const g=c.getContext('2d');g.clearRect(0,0,512,192);if(im)g.drawImage(im,(pi%2)*512,Math.floor(pi/2)*192,512,192,0,0,512,192);else{g.fillStyle=P[0];g.fillRect(6,6,500,180)}
+  const fs=txt.length>5?70:84;g.font=`900 ${fs}px "Noto Sans TC","PingFang TC",sans-serif`;g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';g.lineWidth=fs*.22;g.strokeStyle=P[2];g.strokeText(txt,256,100+P[3],440);g.fillStyle=P[1];g.fillText(txt,256,100+P[3],440);t.needsUpdate=true};
+ draw(null);loadPlates().then(im=>im&&draw(im));return t}
 let PLIMG=null;function loadPlates(){return PLIMG||(PLIMG=new Promise(r=>{const im=new Image();im.onload=()=>r(im);im.onerror=()=>r(null);im.src='art/signs.webp'}))}
 function signAtlas(){const n=SIGNS.length,cols=4,rows=Math.max(1,Math.ceil(n/cols)),W=2048,H=rows*192;const c=document.createElement('canvas');c.width=W;c.height=H;const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=4;
  const draw=(im)=>{const g=c.getContext('2d');g.clearRect(0,0,W,H);SIGNS.forEach((s,i)=>{const x=(i%cols)*512,y=Math.floor(i/cols)*192,pi=plateOf(s.bg),P=PLATE[pi];
@@ -1224,7 +1244,7 @@ function buildTown(){fxTex();RBN=1;BLD=1;SIGNS.length=0;const sc=new THREE.Scene
 function enterTown(){if(!HAS3D)return toast('此裝置不支援 3D 城鎮');if(!S.cr.length)return toast('先收服至少一位夥伴才能進城');qClose&&qClose();A.close&&A.close();
  const lo=$('#tload');lo.classList.add('on');setTimeout(()=>{if(!TOWNSC)buildTown();inTown=true;document.body.classList.add('intown');partyBuild();TP={x:0,z:TR-12,y:0,vy:0,ry:Math.PI};tAz=0;TRAIL=[];
   PEERS.forEach(p=>peerMesh(p));if(BOSSD&&!TBOSS3)bossMesh();lo.classList.remove('on');toast('歡迎來到八卦城！左下搖桿移動，右下跳躍與攻擊');sfx2('ok');twSend({t:'pos',x:TP.x,z:TP.z})},60)}
-function leaveTown(){inTown=false;document.body.classList.remove('intown');PARTY.forEach(p=>TOWNSC.remove(p.g));PARTY=[];MOBS.forEach(m=>{TOWNSC.remove(m.g);m.b.remove();m.tg.remove()});MOBS=[];flushEarn(true);build3D&&buildHome3D();toast('回到農場')}
+function leaveTown(){autoAtk(false);inTown=false;document.body.classList.remove('intown');PARTY.forEach(p=>TOWNSC.remove(p.g));PARTY=[];MOBS.forEach(m=>{TOWNSC.remove(m.g);m.b.remove();m.tg.remove()});MOBS=[];flushEarn(true);build3D&&buildHome3D();toast('回到農場')}
 function partyBuild(){PARTY.forEach(p=>TOWNSC.remove(p.g));const cs=S.cr.slice().sort((a,b)=>(b.lv-a.lv)||(b.rb-a.rb)).slice(0,3);PARTY=cs.map((c,i)=>{const s=sp(c.sp),g=fig3D(c),H=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(H);g.userData.h=H;TOWNSC.add(g);return {c,g,H,x:0,z:TR-12-i,y:0,ry:Math.PI,atk:0}});
  tHPM=Math.round(120+cs.reduce((a,c)=>a+total(c)[3]*6,0));tHP=tHPM;thpUI()}
 function thpUI(){const e=$('#thp');if(!e)return;e.querySelector('i').style.width=Math.max(0,tHP/tHPM*100)+'%';e.querySelector('small').textContent=`${Math.max(0,Math.round(tHP))} / ${tHPM}`}
@@ -1266,6 +1286,11 @@ let TBOSSPOS={x:0,z:3.2};
 function townLoop(t,dt){const quiet=!!document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on,#sheet.on,#nickm.on');
  if(!quiet&&PARTY.length){let mx=JOY.x,mz=JOY.y;if(TKEY.w||TKEY.arrowup)mz=-1;if(TKEY.s||TKEY.arrowdown)mz=1;if(TKEY.a||TKEY.arrowleft)mx=-1;if(TKEY.d||TKEY.arrowright)mx=1;
   const m=Math.min(1,Math.hypot(mx,mz)),L=PARTY[0];if(m>.08){const ang=Math.atan2(mx,mz)+tAz,sp2=5.2*m;TP.x+=Math.sin(ang)*sp2*dt;TP.z+=Math.cos(ang)*sp2*dt;let df=ang-TP.ry;df=Math.atan2(Math.sin(df),Math.cos(df));TP.ry+=df*Math.min(1,dt*10)}
+  if(tAuto){let tg=null,bd=1e9;MOBS.forEach(q=>{const d=Math.hypot(q.x-TP.x,q.z-TP.z);if(d<bd){bd=d;tg=q}});
+   if(tg&&bd<11){tAutoIdle=0;const dx=tg.x-TP.x,dz=tg.z-TP.z,want=Math.atan2(dx,dz);let df=want-TP.ry;df=Math.atan2(Math.sin(df),Math.cos(df));TP.ry+=df*Math.min(1,dt*14);L.ry=TP.ry;
+    const melee=MELEE.has(L.c.sp),rng=melee?1.7:8.5;if(m<=.08&&bd>rng-.2){TP.x+=dx/bd*5*dt;TP.z+=dz/bd*5*dt}
+    if(bd<=rng&&Math.abs(df)<.35&&tAtkCD<=0)tAttack()}
+   else if((tAutoIdle+=dt)>4)autoAtk(false)}
   tCollide(TP,.35);TP.vy-=22*dt;TP.y+=TP.vy*dt;if(TP.y<0){TP.y=0;TP.vy=0}
   const last=TRAIL[TRAIL.length-1];YH.push([t,TP.y]);while(YH.length&&YH[0][0]<t-800)YH.shift();if(!last||Math.hypot(last.x-TP.x,last.z-TP.z)>.12){TRAIL.push({x:TP.x,z:TP.z});if(TRAIL.length>60)TRAIL.shift()}
   PARTY.forEach((p,i)=>{if(i===0){p.x=TP.x;p.z=TP.z;p.y=TP.y;p.ry=TP.ry}else{const tg=TRAIL[Math.max(0,TRAIL.length-1-i*9)]||TP,dx=tg.x-p.x,dz=tg.z-p.z,d=Math.hypot(dx,dz);if(d>.05){const s2=Math.min(d,7*dt);p.x+=dx/d*s2;p.z+=dz/d*s2;p.ry=Math.atan2(dx,dz)}tCollide(p,.3);const tt=t-i*170;let yy=0;for(let q=YH.length-1;q>=0;q--)if(YH[q][0]<=tt){yy=YH[q][1];break}p.y=yy}
@@ -1282,7 +1307,7 @@ function townLoop(t,dt){const quiet=!!document.querySelector('#cap.on,#phone.on,
   if(f.k==='sp'){const P=f.o.geometry.attributes.position;for(let j=0;j<P.count;j++){f.v[j][1]-=9*dt;P.setXYZ(j,P.getX(j)+f.v[j][0]*dt,P.getY(j)+f.v[j][1]*dt,P.getZ(j)+f.v[j][2]*dt)}P.needsUpdate=true;f.o.material.opacity=1-k}
   else if(f.k==='fl'){f.o.material.opacity=1-k;f.o.scale.multiplyScalar(1+dt*3)}else if(f.k==='arc'){f.o.material.opacity=.85*(1-k);f.o.scale.setScalar(1+k*.4)}
   else if(f.k==='fx'){const e=k<.2?k/.2:1;f.o.material.opacity=k<.6?1:1-(k-.6)/.4;f.o.scale.setScalar(f.s0*(.7+.3*e+f.g*k))}
-  else if(f.k==='pr'){f.o.position.x+=f.v[0]*dt;f.o.position.z+=f.v[2]*dt;{V.copy(f.o.position).project(TCAM);const ax=V.x,ay=V.y;V.set(f.o.position.x+f.v[0]*.05,f.o.position.y,f.o.position.z+f.v[2]*.05).project(TCAM);f.o.material.rotation=Math.atan2((V.y-ay)*innerHeight,(V.x-ax)*innerWidth)+Math.PI*.75}const hit=MOBS.find(m=>Math.hypot(m.x-f.o.position.x,m.z-f.o.position.z)<.8);if(hit){mobHit(hit,f.dmg,f.col,f.el);f.t=f.d}
+  else if(f.k==='pr'){const ox=f.o.position.x,oz=f.o.position.z;f.o.position.x+=f.v[0]*dt;f.o.position.z+=f.v[2]*dt;{V.copy(f.o.position).project(TCAM);const ax=V.x,ay=V.y;V.set(f.o.position.x+f.v[0]*.05,f.o.position.y,f.o.position.z+f.v[2]*.05).project(TCAM);f.o.material.rotation=Math.atan2((V.y-ay)*innerHeight,(V.x-ax)*innerWidth)+Math.PI*.75}const sx=f.o.position.x-ox,sz=f.o.position.z-oz,sl=sx*sx+sz*sz||1,hit=MOBS.find(m=>{const u=Math.max(0,Math.min(1,((m.x-ox)*sx+(m.z-oz)*sz)/sl));return Math.hypot(m.x-ox-sx*u,m.z-oz-sz*u)<.8});if(hit){mobHit(hit,f.dmg,f.col,f.el);f.t=f.d}
    if(TCOL.some(c=>Math.hypot(f.o.position.x-c.x,f.o.position.z-c.z)<c.r)){fxSpr(FXI.imp[f.el],f.o.position.x,f.o.position.y,f.o.position.z,1.3,.3);f.t=f.d}}
   if(f.t>=f.d){TOWNSC.remove(f.o);TFX.splice(i,1)}}
  // 魔物
@@ -1753,7 +1778,8 @@ function startBattle(cs,foes,o){const U=(side,name,spid,t,lv,c)=>({side,name,sp:
 
 function townTap(e){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),TCAM);const cand=[...PEERS.values()].filter(p=>p.g).map(p=>p.g).concat(TBOSS3?[TBOSS3]:[]);const h=rc.intersectObjects(cand,true)[0];if(!h)return;let o=h.object;
  while(o&&!o.userData.peer&&!o.userData.boss)o=o.parent;if(!o)return;if(o.userData.boss)A.bossClick(e.clientX,e.clientY);else peerMenu(o.userData.peer,e.clientX,e.clientY)}
-A.tAct=()=>{if(tNear)tNear.a()};A.tJump=()=>{if(inTown&&TP&&TP.y===0){TP.vy=8;sfx2('dash')}};A.tAtk=()=>tAttack();A.goTown=()=>enterTown();A.goFarm=()=>leaveTown();
+A.tAct=()=>{if(tNear)tNear.a()};A.tJump=()=>{if(inTown&&TP&&TP.y===0){TP.vy=8;sfx2('dash')}};A.tAtk=()=>{if(tAuto)return autoAtk(false);autoAtk(true);if(!MOBS.some(q=>Math.hypot(q.x-TP.x,q.z-TP.z)<11))tAttack()};
+function autoAtk(on){tAuto=on;tAutoIdle=0;const b=$('#batk');if(b){b.classList.toggle('auto',on);b.querySelector('small').textContent=on?'自動中':'攻擊'}if(on)toast('⚔ 自動攻擊：鎖定最近魔物（再按一次停止）')}A.goTown=()=>enterTown();A.goFarm=()=>leaveTown();
 setTimeout(joyInit,0);
 // 右下角提示：加入主畫面、用 LINE 邀請好友
 let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e});
