@@ -1,0 +1,21 @@
+# 封印物語 線上伺服器（由 Cloudflare Workers Builds 自動部署）
+name = "seal-game"
+main = "game-worker.js"
+compatibility_date = "2025-01-01"
+keep_vars = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "seal-game"
+database_id = "a3081c45-20db-4e46-8849-07aa6cc495b0"
+
+[[durable_objects.bindings]]
+name = "TOWN"
+class_name = "Town"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Town"]
+
+[triggers]
+crons = ["*/10 * * * *"]
