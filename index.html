@@ -533,6 +533,8 @@ body.intown #chatb{bottom:calc(env(safe-area-inset-bottom) + 176px)}
 .btn.sm{padding:6px 12px;font-size:13px;width:auto;flex:none}.row.me{box-shadow:0 0 0 2px var(--gold)}.row em{font-style:normal;font-size:12px;color:var(--muted);flex:none}
 body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
 #sheet h2:not(.tt){font:900 28px var(--display)!important;letter-spacing:.06em;background:linear-gradient(#fff6c0 8%,#ffcf45 45%,#f0861a 92%);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 2.5px 0 #5a2e08) drop-shadow(1.5px 0 0 #5a2e08) drop-shadow(-1.5px 0 0 #5a2e08) drop-shadow(0 -1.5px 0 #5a2e08) drop-shadow(0 3px 3px #0004);margin:0 auto;text-align:center}
+#tut{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 118px);transform:translateX(-50%);z-index:9;width:min(88vw,360px);display:none;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-radius:14px;background:#fff8e8f2;color:#5a2e08;font:800 13px/1.4 system-ui;box-shadow:0 0 0 2.5px #c8923f,0 6px 16px #0005}#tut.on{display:flex}#tut span{flex:1}#tut button{flex:none;border:0;border-radius:99px;padding:4px 10px;font:800 11px system-ui;background:#e8d5a8;color:#7a5a30}
+#storym{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:#120c24cc;padding:24px}#storym.on{display:flex}#storym>div{max-width:340px;background:#f6e9c9;border:4px solid #a8743d;border-radius:20px;padding:20px;color:#4a2f18;box-shadow:0 12px 40px #000a}#storym h3{margin:0 0 12px;font:900 20px var(--display);color:#a14d0f;text-align:center}#storym p{font:500 15px/1.75 system-ui;margin:0 0 16px}
 </style>
 </head>
 <body>
@@ -596,7 +598,7 @@ body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
  <button class="nkt" data-a="nkRc"><span class="a">已經有帳號？用引繼碼找回</span><span class="b">← 我是新玩家，取暱稱</span></button></div></div>
 <div id="tips"></div>
 <div id="tctl"><div id="joy"><i></i></div><button id="bjump" data-a="tJump" aria-label="跳躍">⤒<small>跳躍</small></button><button id="batk" data-a="tAtk" aria-label="攻擊">⚔<small>攻擊</small></button><button class="skb" id="sk0" data-a="tSk" data-v="0">🌀<small></small><i></i></button><button class="skb" id="sk1" data-a="tSk" data-v="1">💨<small></small><i></i></button><button class="skb" id="sk2" data-a="tSk" data-v="2">💥<small></small><i></i></button>
-<div id="thp"><b>隊伍</b><span><i></i></span><small></small></div><button id="tfarm" data-a="goFarm">🏠 回農場</button><button id="tact" data-a="tAct"></button></div><div id="hurtv"></div><div id="tload"><b>前往八卦城…</b></div><div id="online" data-a="chat"></div><button id="chatb" data-a="chat" aria-label="聊天">💬</button><button id="hubb" data-a="hub" aria-label="任務">📜</button>
+<div id="thp"><b>隊伍</b><span><i></i></span><small></small></div><button id="tfarm" data-a="goFarm">🏠 回農場</button><button id="tact" data-a="tAct"></button></div><div id="hurtv"></div><div id="tut"><span></span><button data-a="tutSkip">跳過</button></div><div id="storym"><div><h3></h3><p></p><button class="btn gd" data-a="storyX">繼續冒險</button></div></div><div id="tload"><b>前往八卦城…</b></div><div id="online" data-a="chat"></div><button id="chatb" data-a="chat" aria-label="聊天">💬</button><button id="hubb" data-a="hub" aria-label="任務">📜</button>
 <div id="chat"><header><button data-a="chatAll" class="ca">大廳</button><span id="chatX" data-a="chatAll">✕ 私訊中</span><button data-a="chat" class="cx">×</button></header><div id="chatl"></div><form onsubmit="A.chatSend();return false"><input id="chatIn" maxlength="60" autocomplete="off"><button class="btn">送出</button></form></div>
 <div id="pmenu"></div><div id="invd"></div><div id="bossbar"><b></b><span><i></i></span><small></small></div><button id="autob" data-a="auto"></button><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
@@ -1116,6 +1118,7 @@ function kTaipei101(){const g=new THREE.Group(),glass=km('#ffffff',{map:ctex(256
 function kFarmGate(){const g=new THREE.Group(),r=km('#e04a33',{roughness:.35,clearcoat:.8}),k=km('#2a2224');[-.5,.5].forEach(x=>{g.add(msh(kg('fgp',()=>new THREE.CylinderGeometry(.05,.065,1.2,16)),r,x,.6,0));g.add(rb(.16,.1,.16,.03,k,x,.05,0))});
  g.add(rb(1.4,.09,.15,.04,k,0,1.26,0));g.add(rb(1.2,.07,.1,.03,r,0,1.06,0));const sg=new THREE.Sprite(new THREE.SpriteMaterial({map:plateTex('往八卦城 ➜',0),transparent:true,alphaTest:.3}));
  sg.scale.set(1.5,.5625,1);sg.position.set(0,1.62,0);g.add(sg);const pt=new THREE.Mesh(new THREE.CircleGeometry(.5,32),new THREE.MeshBasicMaterial({color:0x9a6aff,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false}));pt.rotation.x=-Math.PI/2;pt.position.y=.02;g.add(pt);
+ {const hb=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.9,.5),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hb.position.y=.95;g.add(hb)}
  g.userData.tower=1;g.traverse(o=>o.userData.tower=1);return g}
 function buildVillage(){const g=new THREE.Group(),Y=DIO.plaza.g*HS;g.add(kIsland(4.75,Y,DIO.plaza.r*HS+.25,'#c48a4c'));
  const top=DIO.plaza.cy*HS,cr=DIO.plaza.c*HS;g.add(msh(new THREE.CylinderGeometry(cr+.05,cr+.12,top-Y,96),km('#bdb6a6',{roughness:.6,clearcoat:.2}),0,Y+(top-Y)/2,0));
@@ -1312,7 +1315,7 @@ function tele(k,x,z,sz,d,ry,fn){const mt=new THREE.MeshBasicMaterial({color:0xff
 const SKN={火:['烈焰旋風','火龍突進','天火燎原'],金:['金光連斬','破甲突刺','萬劍歸宗'],水:['水龍捲','怒濤衝擊','滄海橫流'],木:['落葉迴旋','疾風突襲','萬木逢春'],土:['裂地震擊','岩崩衝撞','泰山壓頂']},SKC=[5,8,22];
 function skUI(){for(let i=0;i<3;i++){const b=$('#sk'+i);if(!b)return;const c=SKCD[i];b.classList.toggle('cd',c>0);const n=c>0?Math.ceil(c):'';if(b._n!==n){b._n=n;b.querySelector('i').textContent=n}}}
 function skName(){const L=PARTY[0];if(!L)return;const el=WX[L.c.sp]||'土';for(let i=0;i<3;i++){const b=$('#sk'+i);b.querySelector('small').textContent=SKN[el][i];b.style.setProperty('--c',WXC[el])}}
-function tSkill(i){if(!inTown||!PARTY.length||SKCD[i]>0||tHP<=0)return;const L=PARTY[0],el=WX[L.c.sp]||'土',col=new THREE.Color(WXC[el]),pw=total(L.c),base=Math.round(8+Math.max(pw[0],pw[1])*1.4+L.c.lv*2),fx=Math.sin(L.ry),fz=Math.cos(L.ry);SKCD[i]=SKC[i];toast('✦ '+SKN[el][i]);twSend({t:'act',k:'sk',i,ry:L.ry});sfx2(ELSFX[el]||'hit');
+function tSkill(i){if(!inTown||!PARTY.length||SKCD[i]>0||tHP<=0)return;S.tutSk=1;const L=PARTY[0],el=WX[L.c.sp]||'土',col=new THREE.Color(WXC[el]),pw=total(L.c),base=Math.round(8+Math.max(pw[0],pw[1])*1.4+L.c.lv*2),fx=Math.sin(L.ry),fz=Math.cos(L.ry);SKCD[i]=SKC[i];toast('✦ '+SKN[el][i]);twSend({t:'act',k:'sk',i,ry:L.ry});sfx2(ELSFX[el]||'hit');
  if(i===0){L.atk=.4;for(let k=0;k<6;k++){const a=k/6*Math.PI*2;fxSpr(FXI.slash[el],L.x+Math.cos(a)*1.6,L.y+.8,L.z+Math.sin(a)*1.6,2.6,.4,{rot:a})}tShake=.5;MOBS.slice().forEach(m=>{if(Math.hypot(m.x-L.x,m.z-L.z)<3.4)mobHit(m,Math.round(base*1.5),col,el)})}
  else if(i===1){L.atk=.4;const hit=new Set();for(let k=0;k<12;k++){TP.x+=fx*.5;TP.z+=fz*.5;tCollide(TP,.35);if(k%3===0)fxSpr(FXI.orb[el],TP.x,.8,TP.z,1.6,.35,{g:.2});MOBS.slice().forEach(m=>{if(!hit.has(m)&&Math.hypot(m.x-TP.x,m.z-TP.z)<1.5){hit.add(m);mobHit(m,Math.round(base*2.1),col,el)}})}fxSpr(FXI.slash[el],TP.x+fx,.9,TP.z+fz,3.4,.4);tShake=.6}
  else{PARTY.forEach(p=>p.cast=.7);const cx=L.x,cz=L.z;tele('ring',cx,cz,7,.45,0,()=>{for(let k=0;k<10;k++){const a=rr(0,6.3),r=rr(0,6);fxSpr(FXI.imp[el],cx+Math.cos(a)*r,rr(.6,1.6),cz+Math.sin(a)*r,rr(2.4,4),.55,{rot:rr(0,6)})}fxSpr(14,cx,1.4,cz,5,.6);sfx2('crit');tShake=1;tStop=.12;
@@ -1333,7 +1336,7 @@ function mobSpawn(){const L=PARTY[0];if(!L)return;let x,z,ok=false;for(let k=0;k
  const H=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(H);const aura=new THREE.Mesh(new THREE.RingGeometry(.25,.7,32),new THREE.MeshBasicMaterial({color:0x8a30e0,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));aura.rotation.x=-Math.PI/2;aura.position.y=.02;g.add(aura);TOWNSC.add(g);
  const b=document.createElement('div');b.className='bub mob';const tg=document.createElement('div');tg.className='ptag mob';tg.textContent=`魔物・失控${s.n} Lv${lv}`;$('#bubbles').append(tg,b);
  MOBS.push({g,b,tg,ty:Math.random()<.45?0:Math.random()<.5?1:2,sp:s.id,lv,x,z,y:0,ry:rr(0,6),hp:40+lv*14,mx:40+lv*14,st:'wander',tx:x,tz:z,cd:rr(.5,2),say:0,hurt:0,talk:rr(3,8),H})}
-function mobDie(m){fxSpr(15,m.x,m.y+.7,m.z,2.4,.6,{g:.5});fxSpr(14,m.x,m.y+.9,m.z,1.8,.4);tSpark(m.x,m.y+.6,m.z,0xffd75a,18,true);sfx2('ko');const z=50+m.lv*25;tPop(m,`+${z} zeny`,'#ffd75a');PARTY.forEach(p=>{if(gain(p.c,8+m.lv*2))toast(`${p.c.name} 升級了！`)});
+function mobDie(m){S.kills=(S.kills||0)+1;fxSpr(15,m.x,m.y+.7,m.z,2.4,.6,{g:.5});fxSpr(14,m.x,m.y+.9,m.z,1.8,.4);tSpark(m.x,m.y+.6,m.z,0xffd75a,18,true);sfx2('ko');const z=50+m.lv*25;tPop(m,`+${z} zeny`,'#ffd75a');PARTY.forEach(p=>{if(gain(p.c,8+m.lv*2))toast(`${p.c.name} 升級了！`)});
  if(S.tok)tKills.push(m.lv);else{tEarn+=z;mobDrop(Math.random()<.03?'eq':Math.random()<.12?'food':'')}
  TOWNSC.remove(m.g);m.b.remove();m.tg.remove();MOBS.splice(MOBS.indexOf(m),1);save()}
 function mobDrop(k){if(k==='food'){const f=pick(FOOD.slice(0,4));S.food[f.id]=(S.food[f.id]||0)+1;toast(`魔物掉落：${f.n}`)}else if(k==='eq'){const it=pick(Object.values(ITEMS).filter(i=>!i.prem));S.eq[it.id]=(S.eq[it.id]||0)+1;toast(`✨ 魔物掉落裝備：${it.n}`)}}
@@ -1416,7 +1419,7 @@ function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=s
  cv.addEventListener('pointercancel',e=>{up(e);dn=null});
  cv.addEventListener('pointerup',e=>{up(e);if(inTown){dn=null;return}if(dn&&dn.m<10){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),pcam);
    const cand=objs.map(o=>o.g).concat(TOWER3?[TOWER3]:[]).filter(Boolean);const hh=rc.intersectObjects(cand,true)[0];
-   if(hh){let o=hh.object;if(o.userData.tower){sfx2('click');enterTown()}else{while(o&&!o.userData.cid&&!o.userData.peer&&!o.userData.boss)o=o.parent;
+   if(hh){let o=hh.object;if(o.userData.tower){sfx2('click');enterTown()}else{S.tutTap=1;while(o&&!o.userData.cid&&!o.userData.peer&&!o.userData.boss)o=o.parent;
     if(o&&o.userData.boss)A.bossClick(e.clientX,e.clientY);else if(o&&o.userData.peer)peerMenu(o.userData.peer,e.clientX,e.clientY);
     else if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');quick(o.userData.cid,e.clientX,e.clientY)}}}}dn=null});
  buildHome3D();requestAnimationFrame(loop3)}
@@ -1853,11 +1856,29 @@ function startBattle(cs,foes,o){const U=(side,name,spid,t,lv,c)=>({side,name,sp:
 
 function townTap(e){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),TCAM);const cand=[...PEERS.values()].filter(p=>p.g).map(p=>p.g).concat(TBOSS3?[TBOSS3]:[]);const h=rc.intersectObjects(cand,true)[0];if(!h)return;let o=h.object;
  while(o&&!o.userData.peer&&!o.userData.boss)o=o.parent;if(!o)return;if(o.userData.boss)A.bossClick(e.clientX,e.clientY);else peerMenu(o.userData.peer,e.clientX,e.clientY)}
-A.tAct=()=>{if(tNear)tNear.a()};// ── 每日任務 / 賽季榜 / 公會 ──
-let hubTab='q';
-A.hub=async(v)=>{if(!S.tok)return toast('連線後才能使用任務與公會');if(v)hubTab=v;const tabs=`<div class="tabs">${[['q','每日任務'],['s','賽季榜'],['g','公會']].map(([k,n])=>`<button class="${hubTab===k?'on':''}" data-a="hub" data-v="${k}">${n}</button>`).join('')}</div>`;
+A.tAct=()=>{if(tNear)tNear.a()};// ── 新手教學（頂端提示條，依實際進度自動前進）──
+const TUT=[['按下方中間的「封」，用相機收服你的第一位夥伴',()=>S.cr.length>0],['點一下農場上的夥伴，試試餵食、訓練或摸頭',()=>S.tutTap],['點農場邊的紅色鳥居「往八卦城」進城',()=>inTown||S.kills>0],['用左下搖桿移動，按 ⚔ 自動攻擊，打倒 1 隻魔物（紅圈可用跳躍閃避）',()=>(S.kills||0)>0],['試試 ⚔ 旁邊的三顆技能鈕',()=>S.tutSk],['打開左側 📜 冒險手冊，看看每日任務與主線',()=>S.tutHub]];
+function tutTick(){const e=$('#tut');if(!e)return;if(S.tut==null)S.tut=0;if(S.tut>=TUT.length||document.querySelector('#nickm.on,#cap.on,#battle.on,#cut.on')){e.classList.remove('on');return}
+ while(S.tut<TUT.length&&TUT[S.tut][1]()){S.tut++;if(S.tut>=TUT.length){S.food.f2=(S.food.f2||0)+3;save();toast('🎓 新手教學完成！獲得 珍珠奶茶 ×3');sfx2('ok');e.classList.remove('on');return}save()}
+ const tx=`新手 ${S.tut+1}/${TUT.length}｜${TUT[S.tut][0]}`;if(e._t!==tx){e._t=tx;e.querySelector('span').textContent=tx}e.classList.add('on')}
+A.tutSkip=()=>{S.tut=TUT.length;save();$('#tut').classList.remove('on')};setInterval(tutTick,800);
+// ── 主線劇情 ──
+const STORY=[['第一章　封印初醒','收服第一位夥伴',()=>S.cr.length,1,['很久以前，五行之力守護著這座島。','某天封印鬆動，「失控」的氣息開始四處蔓延。','你撿到一枚古老的封印木牌——它選中了你。','用結印收服夥伴，他們會成為你最可靠的力量。'],'f1',5],
+ ['第二章　八卦城的騷動','在八卦城擊倒 10 隻魔物',()=>S.kills||0,10,['八卦城依太極八卦而建，本是鎮壓邪氣的陣眼。','如今街上出現了被邪氣侵蝕的「失控」魔物。','土地公託夢：「先把街坊清一清，老夫才好辦事。」','夜市的攤販們都在看著你呢。'],'f3',5],
+ ['第三章　五行試煉','封印之塔通關 10 樓',()=>S.tower||0,10,['城中央的封印之塔，一百零一層，層層鎮著一股邪氣。','金木水火土，相生也相剋——選對夥伴事半功倍。','十樓的守關者是玉山黑熊王，牠只認可真正的勇者。'],'f4',5],
+ ['第四章　群山的怒吼','封印之塔通關 30 樓',()=>S.tower||0,30,['太魯閣的雲豹、天空的大冠鷲，接連在塔中現身。','牠們並非邪惡，只是被封印的裂縫奪走了理智。','每擊敗一位，塔頂的黑雲就散去一分。'],'f4',10],
+ ['第五章　眾神的考驗','封印之塔通關 60 樓',()=>S.tower||0,60,['風獅爺鎮風、土地公守土、月老牽線。','神明們不再出手相助，而是親自下場試你的斤兩。','「想上塔頂？先過我們這關。」'],'f5',1],
+ ['終章　101 之巔','封印之塔通關 101 樓',()=>S.tower||0,101,['哪吒踩著風火輪，關聖帝君橫刀立馬。','在他們身後，是整座島嶼封印的核心。','重新結下封印的那一刻，雲開見日。','島上的大家，都記住了你的名字。'],'f5',3]];
+function storyHtml(){S.story=S.story||0;return STORY.map((c,i)=>{const have=Math.min(c[3],c[2]()),done=i<S.story,open=i===S.story,f=[0,FOOD.find(x=>x.id===c[5]).n];return `<div class="row" style="${i>S.story?'opacity:.5':''}"><span class="g"><b>${c[0]}</b><small>${i>S.story?'完成前一章後開放':`${c[1]}（${have}/${c[3]}）　獎勵 ${f[1]} ×${c[6]}`}</small></span>${done?'<em>已完成</em>':open&&have>=c[3]?`<button class="btn sm" data-a="story" data-v="${i}">閱讀並領取</button>`:open?`<button class="btn sm g2" data-a="story" data-v="r${i}">劇情</button>`:''}</div>`}).join('')}
+A.story=v=>{const read=String(v)[0]==='r',i=+String(v).replace('r',''),c=STORY[i];if(!c)return;const m=$('#storym');m.querySelector('h3').textContent=c[0];m.querySelector('p').innerHTML=c[4].map(esc).join('<br><br>');m.classList.add('on');
+ if(!read&&i===(S.story||0)&&c[2]()>=c[3]){S.story=i+1;S.food[c[5]]=(S.food[c[5]]||0)+c[6];save();sfx2('ok');toast(`主線完成！獲得 ${FOOD.find(x=>x.id===c[5]).n} ×${c[6]}`);if($('#sheet').dataset.k==='hub')A.hub()}};
+A.storyX=()=>$('#storym').classList.remove('on');
+// ── 每日任務 / 賽季榜 / 公會 ──
+let hubTab='m';
+A.hub=async(v)=>{S.tutHub=1;if(v)hubTab=v;if(!S.tok&&hubTab!=='m')hubTab='m';const tabs=`<div class="tabs">${[['m','主線'],['q','每日任務'],['s','賽季榜'],['g','公會']].map(([k,n])=>`<button class="${hubTab===k?'on':''}" data-a="hub" data-v="${k}">${n}</button>`).join('')}</div>`;
  sheet('冒險手冊',tabs+'<p class="note">讀取中…</p>','hub');try{let h='';
- if(hubTab==='q'){const r=await net('/api/quest');h=r.list.map(q=>`<div class="row"><span class="g"><b>${q.n}</b><small>進度 ${fmt(q.have)} / ${fmt(q.need)}　獎勵 ${fmt(q.z)} zeny</small></span>${q.got?'<em>已領取</em>':q.have>=q.need?`<button class="btn sm" data-a="qClaim" data-v="${q.id}">領取</button>`:'<em>進行中</em>'}</div>`).join('')+'<p class="note">每日 00:00 重置。擊倒數與獎金由伺服器計算。</p>'}
+ if(hubTab==='m')h=storyHtml();
+ else if(hubTab==='q'){const r=await net('/api/quest');h=r.list.map(q=>`<div class="row"><span class="g"><b>${q.n}</b><small>進度 ${fmt(q.have)} / ${fmt(q.need)}　獎勵 ${fmt(q.z)} zeny</small></span>${q.got?'<em>已領取</em>':q.have>=q.need?`<button class="btn sm" data-a="qClaim" data-v="${q.id}">領取</button>`:'<em>進行中</em>'}</div>`).join('')+'<p class="note">每日 00:00 重置。擊倒數與獎金由伺服器計算。</p>'}
  else if(hubTab==='s'){const r=await net('/api/season');h=`<p class="note">本週（${r.since} 起）城鎮擊倒數排行，我的擊倒數：<b>${fmt(r.mine)}</b></p>`+(r.list.length?r.list.map((x,i)=>`<div class="row${x.me?' me':''}"><b style="width:28px">${i+1}</b>${icon(x.sp,null,34)}<span class="g"><b>${esc(x.name)}</b><small>${x.gn?'〈'+esc(x.gn)+'〉':''}</small></span><em>${fmt(x.k)} 隻</em></div>`).join(''):'<p class="note">本週還沒有人上榜，快去八卦城打怪！</p>')+(r.guilds.length?'<h3>公會排行</h3>'+r.guilds.map((g,i)=>`<div class="row"><b style="width:28px">${i+1}</b><span class="g"><b>〈${esc(g.name)}〉</b><small>${g.m} 人參與</small></span><em>${fmt(g.k)} 隻</em></div>`).join(''):'')}
  else{const r=await net('/api/guild');h=guildHtml(r)}
  if($('#sheet').dataset.k==='hub')$('#sbody').innerHTML=tabs+h}catch(e){$('#sbody').innerHTML=tabs+`<p class="note">${esc(e.message||'讀取失敗')}</p>`}};
