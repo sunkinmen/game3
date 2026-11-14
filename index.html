@@ -807,12 +807,19 @@ function sfxSynth(k){if(S.mute)return;try{AC=AC||new (window.AudioContext||windo
 }catch(e){}}
 /* 音樂與語音 */
 let BGM=null;const VC={};
-function voice(cat,i,g){if(S.mute)return;g=g||'m';if(i==null)i=vpick(g,cat);try{const k=g+'_'+cat+i,a=VC[k]||(VC[k]=new Audio('audio/v/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+// 有錄音檔的台詞播錄音（ElevenLabs），其餘用裝置內建中文語音（女聲較高、男聲較低）
+const VREC=new Set(['m_fl0','m_fl1','m_fl2','m_bad0','m_bad1','m_bad2','m_fun0','m_fun1','m_fun2','m_cap0','m_eat0']);
+function ttsVoice(g){const v=speechSynthesis.getVoices().filter(x=>/^zh/i.test(x.lang)),tw=v.filter(x=>/TW|Hant|臺灣|台灣/i.test(x.lang+x.name));const L=tw.length?tw:v;
+ const fem=/Meijia|美佳|Tingting|婷婷|Sinji|善怡|HsiaoChen|HsiaoYu|Yaoyao|Female|女/i,mal=/Zhiwei|志偉|Yunjhe|Kangkang|Male|男|Li-mu/i;return (g==='m'?L.find(x=>mal.test(x.name)):L.find(x=>fem.test(x.name)))||L[0]}
+function tts(t,g){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t),v=ttsVoice(g);if(v)u.voice=v;u.lang=v?v.lang:'zh-TW';
+ const male=g==='m'&&!(v&&/Zhiwei|志偉|Yunjhe|Kangkang|Male|男/i.test(v.name));u.pitch=g==='f'?1.3:male?.7:.95;u.rate=1.08;u.volume=1;speechSynthesis.speak(u)}catch(e){}}
+function voice(cat,i,g){if(S.mute)return;g=g||'m';if(i==null)i=vpick(g,cat);const k=g+'_'+cat+i;
+ if(!VREC.has(k))return tts(VOX[g][cat][i],g);try{const a=VC[k]||(VC[k]=new Audio('audio/v/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>tts(VOX[g][cat][i],g))}catch(e){}}
 let BGK='';const SFXK=['click','cast','tick','ok','fail','dash','hit','crit','miss','guard','heal','fire','slash','roar','charge','win','lose','ko','coin'],SB={};let sfxL=false;
 function acx(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
 function loadSfx(){if(sfxL)return;sfxL=true;const c=acx();SFXK.forEach(k=>fetch('audio/sfx/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(k)).then(b=>new Promise((ok,no)=>c.decodeAudioData(b,ok,no))).then(d=>SB[k]=d).catch(()=>{}))}
 function sfx2(k,vol){if(S.mute)return;try{const c=acx();if(SB[k]){const s=c.createBufferSource(),g=c.createGain();g.gain.value=vol||.85;s.buffer=SB[k];s.connect(g);g.connect(c.destination);s.start()}else sfxSynth(k)}catch(e){}}
-function music(k){if(k)BGK=k;BGK=BGK||'bgm';if(S.mute){if(BGM)BGM.pause();return}if(!BGM||BGM._k!==BGK){if(BGM)BGM.pause();BGM=new Audio('audio/'+BGK+'.mp3');BGM._k=BGK;BGM.loop=true;BGM.volume=BGK==='battle'?.32:.38}BGM.play().catch(()=>{})}
+function music(k){if(k)BGK=k;BGK=BGK||'bgm2';if(S.mute){if(BGM)BGM.pause();return}if(!BGM||BGM._k!==BGK){if(BGM)BGM.pause();BGM=new Audio('audio/'+BGK+'.mp3');BGM._k=BGK;BGM.loop=true;BGM.volume=BGK==='battle'?.32:.38}BGM.play().catch(()=>{})}
 ['pointerup','touchend','click','keydown'].forEach(ev=>addEventListener(ev,()=>{try{acx();loadSfx();music()}catch(e){}},{once:true,capture:true}));
 function comic(c,good,after){const el=$('#comic'),k=good?Math.floor(Math.random()*2):2+Math.floor(Math.random()*2);
  el.innerHTML=`<div class="pan" style="background-position:${k%2*100}% ${k>1?100:0}%"></div><div class="who">${icon(c.sp,faceOf(c),240,c.eq)}</div><div class="sfx cal">${pick(good?['爽啦！！','讚啦～','揪感心！','賺爛了！']:['嗚哇啊啊！','不要啊！！','夭壽喔！','我錯了啦！'])}</div>`;
@@ -1095,7 +1102,7 @@ const A={
   B.pend=k;bDraw()},
  btgt(v){if(!B||B.phase!=='cmd'||!B.pend||v[0]!=='f')return;const t=B.f[+v.slice(1)];if(!t||t.hp<=0)return;B.acts.push({u:B.a[B.i],k:B.pend,t,p:B.pendP});B.pend=null;bNext()},
  bback(){B.pend=null;bDraw()},
- bexit(){$('#battle').classList.remove('on');bOn=false;B=null;music('bgm');save();hud();A.arena()},
+ bexit(){$('#battle').classList.remove('on');bOn=false;B=null;music('bgm2');save();hud();A.arena()},
 
  /* ---- 收服 ---- */
  async cap(){A.close();$('#btyOn').checked=S.beauty!==false;capTier=capTier||1;demoMode=false;$('#cap').classList.add('on');$('#cap').classList.remove('demo');$('#capMsg').textContent='';drawSeals();loadFD();
