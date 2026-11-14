@@ -1145,14 +1145,15 @@ const MELEE=new Set(['shiba','cat','bear','tiger','wolf','guan','lion','leopard'
 const ELSFX={火:'fire',金:'slash',水:'charge',木:'cast',土:'crit'};
 const MOB_LINE=['你這種戰力也敢來城鎮？','回家吃自己啦！','我阿嬤都比你強','欸你夥伴是租來的喔','嘿嘿，雞排交出來','這條街是我罩的','打不到啦～','你的股票都綠的吧','菜就多練','先存夠 zeny 再說'];
 // 合併靜態幾何：同材質合成一個網格，大幅減少繪製次數
-function bake(root){root.updateMatrixWorld(true);const by=new Map(),keep=[];
+function bake(root,cell){root.updateMatrixWorld(true);const by=new Map(),keep=[],mats=new Map();
  root.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||o.userData.keep)return;let g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrixWorld);
   const m=o.material;if(!g.attributes.uv)g.setAttribute('uv',new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count*2),2));
   ['uv2','tangent'].forEach(a=>g.deleteAttribute&&g.deleteAttribute(a));if(!m.vertexColors&&g.attributes.color)g.deleteAttribute('color');
   if(m.vertexColors&&!g.attributes.color){const c=new Float32Array(g.attributes.position.count*3).fill(1);g.setAttribute('color',new THREE.BufferAttribute(c,3))}
-  if(!by.has(m))by.set(m,[]);by.get(m).push(g)});
+  let key=m.uuid;if(cell){g.computeBoundingBox();const b=g.boundingBox,w=b.max.x-b.min.x,d=b.max.z-b.min.z;if(w<cell*1.5&&d<cell*1.5)key+='|'+Math.floor((b.min.x+w/2)/cell)+','+Math.floor((b.min.z+d/2)/cell)}mats.set(key,m);
+  if(!by.has(key))by.set(key,[]);by.get(key).push(g)});
  root.traverse(o=>{if(o.isInstancedMesh||o.userData.keep||o.isSprite||o.isPoints)keep.push(o)});
- const out=new THREE.Group();by.forEach((gs,m)=>{const mg=THREE.BufferGeometryUtils.mergeBufferGeometries(gs,false);if(!mg)return;const me=new THREE.Mesh(mg,m);me.castShadow=true;me.receiveShadow=true;out.add(me)});
+ const out=new THREE.Group();by.forEach((gs,key)=>{const m=mats.get(key),mg=THREE.BufferGeometryUtils.mergeBufferGeometries(gs,false);if(!mg)return;mg.computeBoundingSphere();const me=new THREE.Mesh(mg,m);me.castShadow=true;me.receiveShadow=true;out.add(me)});
  keep.forEach(o=>{o.updateMatrixWorld(true);const p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();o.matrixWorld.decompose(p,q,s);o.parent.remove(o);o.position.copy(p);o.quaternion.copy(q);o.scale.copy(s);out.add(o)});return out}
 // 招牌圖集：全部招牌共用一張貼圖
 const SIGNS=[];const PLATE=[['#a8743c','#fff4d6','#4a2810',0],['#c8302a','#ffd75a','#5a0e08',14],['#7cc8b4','#ffffff','#1a5a44',0],['#1e3a7a','#ffffff','#0a1838',0],['#f2b8cc','#ffffff','#b0306a',0],['#f08a1a','#ffffff','#7a3a06',0],['#2e4a44','#f4f8f0','#16241f',0],['#6a2a8a','#ffe6ff','#d040ff',0]];
@@ -1222,9 +1223,16 @@ function taijiTex(){return ctex(1024,1024,(g,w)=>{const c=w/2;g.fillStyle='#d8cd
  const R=230;g.fillStyle='#f5efe2';g.beginPath();g.arc(c,c,R,0,7);g.fill();g.fillStyle='#2a2428';g.beginPath();g.arc(c,c,R,-Math.PI/2,Math.PI/2);g.arc(c,c+R/2,R/2,Math.PI/2,-Math.PI/2,true);g.arc(c,c-R/2,R/2,Math.PI/2,-Math.PI/2);g.fill();
  g.fillStyle='#2a2428';g.beginPath();g.arc(c,c-R/2,R/7,0,7);g.fill();g.fillStyle='#f5efe2';g.beginPath();g.arc(c,c+R/2,R/7,0,7);g.fill();g.strokeStyle='#b8902f';g.lineWidth=14;g.beginPath();g.arc(c,c,R+8,0,7);g.stroke()})}
 function roadTex(){return TX.road||(TX.road=ctex(512,512,(g,w,h)=>{g.fillStyle='#b8b0a2';g.fillRect(0,0,w,h);const s=64;for(let y=0;y<h;y+=s/2)for(let x=-(y/(s/2))%2*s/2;x<w;x+=s){g.fillStyle='#'+new THREE.Color('#bdb5a6').offsetHSL(0,0,rr(-.06,.06)).getHexString();g.fillRect(x+2,y+2,s-4,s/2-4)}},[1,1]))}
+// ── 日夜與天氣（全服同步：16 分鐘一輪，四輪一雨） ──
+function dayK(){const T=Date.now()/960000,p=T%1,n=p<.55?0:p<.65?(p-.55)/.1:p<.9?1:1-(p-.9)/.1,c=Math.floor(T);return {n:n*n*(3-2*n),rain:(c*2654435761>>>0)%4===0}}
+let TGLOW=null,THEMI=null,TRAIN=null,LAMPS=[];const C_D=new THREE.Color(0xffe2b8),C_N=new THREE.Color(0x7f9cff),F_D=new THREE.Color(0xcfe0f0),F_N=new THREE.Color(0x141c3c),F_R=new THREE.Color(0x9aa8b8);
+function glowTex(){return TX.glow||(TX.glow=ctex(64,64,(g)=>{const r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,240,200,1)');r.addColorStop(.25,'rgba(255,200,110,.55)');r.addColorStop(1,'rgba(255,170,60,0)');g.fillStyle=r;g.fillRect(0,0,64,64)}))}
+function skyFx(sc,n,rain,cam,dt,town){const ex=(1-.66*n)*(rain?.82:1);R.toneMappingExposure=ex;km('#9fd6ff',{emissive:'#ffcf7a',emissiveIntensity:.5,roughness:.1,clearcoat:1}).emissiveIntensity=(.5+3*n)/ex;km('#fff3d0',{emissive:'#ffd27a',emissiveIntensity:1.4,roughness:.2,clearcoat:1}).emissiveIntensity=(1.4+3*n)/ex;
+ if(!town)return;TLIGHT.color.copy(C_D).lerp(C_N,n);TLIGHT.intensity=(1.3-.75*n)*(rain?.7:1);THEMI.intensity=.5;THEMI.color.setHex(0xfff3e0).lerp(C_N,n*.8);sc.fog.color.copy(rain?F_R:F_D).lerp(F_N,n);sc.fog.near=rain?16:30;sc.fog.far=rain?52:70;TGLOW.material.opacity=n;TGLOW.visible=n>.02;
+ TRAIN.visible=rain;if(rain){const a=TRAIN.geometry.attributes.position.array;for(let i=0;i<a.length;i+=3){a[i+1]-=dt*16;a[i]-=dt*1.5;if(a[i+1]<0){a[i+1]=rr(8,14);a[i]=cam.x+rr(-14,14);a[i+2]=cam.z+rr(-14,14)}}TRAIN.geometry.attributes.position.needsUpdate=true}}
 // ── 城鎮生成 ──
 function buildTown(){fxTex();RBN=1;BLD=1;SIGNS.length=0;const sc=new THREE.Scene();sc.background=skyImg();sc.fog=new THREE.Fog(0xcfe0f0,30,70);sc.environment=envOf(R);
- sc.add(new THREE.HemisphereLight(0xfff3e0,0x5b5470,.5));const d=new THREE.DirectionalLight(0xffe2b8,1.3);d.castShadow=true;d.shadow.mapSize.set(2048,2048);const s=d.shadow.camera;s.left=s.bottom=-16;s.right=s.top=16;s.near=1;s.far=60;d.shadow.bias=-.0012;d.shadow.normalBias=.03;sc.add(d);sc.add(d.target);TLIGHT=d;
+ THEMI=new THREE.HemisphereLight(0xfff3e0,0x5b5470,.5);sc.add(THEMI);LAMPS=[];const d=new THREE.DirectionalLight(0xffe2b8,1.3);d.castShadow=true;d.shadow.mapSize.set(2048,2048);const s=d.shadow.camera;s.left=s.bottom=-16;s.right=s.top=16;s.near=1;s.far=60;d.shadow.bias=-.0012;d.shadow.normalBias=.03;sc.add(d);sc.add(d.target);TLIGHT=d;
  const st=new THREE.Group();TCOL=[];TSPOT=[];
  // 地面：草地大圓盤＋懸崖
  const isl=kIsland(TR+3,0,0.01,'#c48a4c');{const rmv=[];isl.traverse(o=>{if(o.isInstancedMesh)rmv.push(o)});rmv.forEach(o=>o.parent.remove(o));isl.children.forEach(o=>{if(o.position.y<-.7)o.position.y=-1.75})}st.add(isl);
@@ -1259,19 +1267,21 @@ function buildTown(){fxTex();RBN=1;BLD=1;SIGNS.length=0;const sc=new THREE.Scene
  // 夜市一條街（南方大道兩側）
  for(let i=0;i<7;i++){[-1,1].forEach(sd=>{const z=19+i*1.6,s2=kStall(['#e04a33','#f0a12c','#3f6fd8','#22a38f'][(i+sd+4)%4]);s2.position.set(sd*1.9,0,z);s2.rotation.y=sd>0?-Math.PI/2:Math.PI/2;st.add(s2);TCOL.push({x:sd*1.9,z,r:.55})})}
  // 路燈、樹、公園
- for(let k=0;k<8;k++){const a=k/8*Math.PI*2;for(let r=10;r<TR-2;r+=4.5){[-1,1].forEach(sd=>{const l=kLamp();const p=dir(a,r),n={x:-Math.sin(a),z:Math.cos(a)};l.position.set(p.x+n.x*1.6*sd,0,p.z+n.z*1.6*sd);l.rotation.y=-a+(sd>0?Math.PI:0);l.scale.setScalar(1.6);st.add(l)})}}
+ for(let k=0;k<8;k++){const a=k/8*Math.PI*2;for(let r=10;r<TR-2;r+=4.5){[-1,1].forEach(sd=>{const l=kLamp();const p=dir(a,r),n={x:-Math.sin(a),z:Math.cos(a)};l.position.set(p.x+n.x*1.6*sd,0,p.z+n.z*1.6*sd);l.rotation.y=-a+(sd>0?Math.PI:0);l.scale.setScalar(1.6);st.add(l);LAMPS.push(l.position.x+Math.cos(l.rotation.y)*.27,.8,l.position.z-Math.sin(l.rotation.y)*.27)})}}
  [[Math.PI/2+Math.PI/8,21.5],[-Math.PI/2+Math.PI/8,21.5]].forEach(([a,r])=>{const p=kPond();const q=dir(a,r);p.position.set(q.x,0,q.z);st.add(p);TCOL.push({x:q.x,z:q.z,r:1.9})});
  const TP2=[['#2f7a28','#8cc43e'],['#3a8a2c','#a2cf48']],PP=[['#1f6b3f','#5cb066'],['#236e45','#6abb72']];
  for(let i=0;i<60;i++){const a=rr(0,7),r=rr(TR-1.5,TR+2.5),o=i%2?kPine(rr(1.4,2),PP[i%2]):kTree(rr(1.5,2.1),TP2[i%2]);o.position.set(Math.cos(a)*r,0,Math.sin(a)*r);st.add(o)}
  for(let k=0;k<8;k++){const a=k/8*Math.PI*2+Math.PI/8;for(let j=0;j<3;j++){const r=8+(j+.5)*(TR-10)/3+rr(-1,1);if(r%9<1.5)continue;}}
  // 南門：回農場
  const gate=kGate('回農場');gate.position.set(0,0,TR-1);st.add(gate);TSPOT.push({x:0,z:TR-2.2,n:'回農場',a:()=>leaveTown()});
- const at=signAtlas();fixSignUV(st,at);const baked=bake(st);sc.add(baked);RBN=4;BLD=9;
- TCAM=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.3,160);TOWNSC=sc;return sc}
+ const at=signAtlas();fixSignUV(st,at);const baked=bake(st,17);sc.add(baked);RBN=4;BLD=9;
+ {const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(LAMPS,3));TGLOW=new THREE.Points(g,new THREE.PointsMaterial({map:glowTex(),size:3.2,color:0xffc870,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,fog:false}));TGLOW.frustumCulled=false;sc.add(TGLOW);
+  const rp=new Float32Array(900*3);for(let i=0;i<rp.length;i+=3){rp[i]=rr(-14,14);rp[i+1]=rr(0,14);rp[i+2]=TR-12+rr(-14,14)}const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.BufferAttribute(rp,3));TRAIN=new THREE.Points(rg,new THREE.PointsMaterial({color:0xcfe4ff,size:.09,transparent:true,opacity:.7,depthWrite:false}));TRAIN.frustumCulled=false;TRAIN.visible=false;sc.add(TRAIN)}
+ TCAM=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,.3,110);TOWNSC=sc;return sc}
 // ── 進出城鎮 ──
 function enterTown(){if(!HAS3D)return toast('此裝置不支援 3D 城鎮');if(!S.cr.length)return toast('先收服至少一位夥伴才能進城');qClose&&qClose();A.close&&A.close();
  const lo=$('#tload');lo.classList.add('on');setTimeout(()=>{if(!TOWNSC)buildTown();inTown=true;document.body.classList.add('intown');partyBuild();TP={x:0,z:TR-12,y:0,vy:0,ry:Math.PI};tAz=0;TRAIL=[];
-  PEERS.forEach(p=>peerMesh(p));if(BOSSD&&!TBOSS3)bossMesh();lo.classList.remove('on');toast('歡迎來到八卦城！左下搖桿移動，右下跳躍與攻擊');sfx2('ok');twSend({t:'pos',x:TP.x,z:TP.z})},60)}
+  PEERS.forEach(p=>peerMesh(p));if(BOSSD&&!TBOSS3)bossMesh();TLIGHT.castShadow=qi<QL.length-1;lo.classList.remove('on');toast('歡迎來到八卦城！左下搖桿移動，右下跳躍與攻擊');sfx2('ok');twSend({t:'pos',x:TP.x,z:TP.z})},60)}
 function leaveTown(){autoAtk(false);inTown=false;document.body.classList.remove('intown');PARTY.forEach(p=>TOWNSC.remove(p.g));PARTY=[];MOBS.forEach(m=>{TOWNSC.remove(m.g);m.b.remove();m.tg.remove()});MOBS=[];flushEarn(true);build3D&&buildHome3D();toast('回到農場')}
 function partyBuild(){PARTY.forEach(p=>TOWNSC.remove(p.g));const cs=S.cr.slice().sort((a,b)=>(b.lv-a.lv)||(b.rb-a.rb)).slice(0,3);PARTY=cs.map((c,i)=>{const s=sp(c.sp),g=fig3D(c),H=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(H);g.userData.h=H;TOWNSC.add(g);return {c,g,H,x:0,z:TR-12-i,y:0,ry:Math.PI,atk:0}});
  tHPM=Math.round(120+cs.reduce((a,c)=>a+total(c)[3]*6,0));tHP=tHPM;thpUI()}
@@ -1329,7 +1339,7 @@ function townLoop(t,dt){const quiet=!!document.querySelector('#cap.on,#phone.on,
  for(const c of TCOL){if(c.r<.8)continue;const fx=L.x-c.x,fz=L.z-c.z,b2=2*(fx*hx+fz*hz),c2=fx*fx+fz*fz-c.r*c.r,D=b2*b2-4*c2;if(D<0)continue;const s0=(-b2-Math.sqrt(D))/2,hd=tDist*Math.cos(tEl);
   if(s0>0&&s0<hd){const e=Math.atan2((c.h||2.5)+.4-ty,Math.max(.5,s0));if(e>need)need=e}}}
  tElE+=(Math.min(1.35,need)-tElE)*Math.min(1,dt*(need>tElE?8:2.5));const ux=Math.sin(tAz)*Math.cos(tElE),uz=Math.cos(tAz)*Math.cos(tElE),uy=Math.sin(tElE);TCAM.position.set(L.x+ux*tDist,ty+uy*tDist,L.z+uz*tDist);TCAM.lookAt(L.x,ty,L.z);
- TLIGHT.position.set(L.x+8,22,L.z+10);TLIGHT.target.position.set(L.x,0,L.z);skyFit(TOWNSC.background,innerWidth,innerHeight,tAz);
+ TLIGHT.position.set(L.x+8,22,L.z+10);TLIGHT.target.position.set(L.x,0,L.z);skyFit(TOWNSC.background,innerWidth,innerHeight,tAz);{const k=dayK();skyFx(TOWNSC,k.n,k.rain,L,dt,true)}
  // 特效
  for(let i=TFX.length-1;i>=0;i--){const f=TFX[i];f.t+=dt;const k=f.t/f.d;
   if(f.k==='sp'){const P=f.o.geometry.attributes.position;for(let j=0;j<P.count;j++){f.v[j][1]-=9*dt;P.setXYZ(j,P.getX(j)+f.v[j][0]*dt,P.getY(j)+f.v[j][1]*dt,P.getZ(j)+f.v[j][2]*dt)}P.needsUpdate=true;f.o.material.opacity=1-k}
@@ -1367,7 +1377,7 @@ function spot3(){const a=rnd(0,Math.PI*2),r=Math.sqrt(rnd(.08,1))*DIO.plaza.r*HS
 function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=skyImg();
  pcam=new THREE.PerspectiveCamera(38,1,1,200);hTgt=new THREE.Vector3(0,DIO.plaza.g*HS+.5,0);cam=pcam;lights(scene,true);
  scene.environment=envOf(R);scene.add(buildVillage());plazaOK=true;
- if(innerWidth<innerHeight){hDist=17;hEl=.78}else hDist=12;resize3();addEventListener('resize',resize3);
+ if(innerWidth<innerHeight){hDist=17;hEl=.78}else hDist=12;resize3();if(qi)qSet(qi);addEventListener('resize',resize3);
  const cv=$('#gl'),PT=new Map();let pin=0,d0=15;
  cv.addEventListener('wheel',e=>{e.preventDefault();if(!inTown)hDist=Math.min(34,Math.max(5,hDist*(1+e.deltaY*.0012)))},{passive:false});
  cv.addEventListener('pointerdown',e=>{if(e.isPrimary)PT.clear();PT.set(e.pointerId,{x:e.clientX,y:e.clientY});if(PT.size>=2){const [p,q]=[...PT.values()];pin=Math.hypot(p.x-q.x,p.y-q.y)||1;d0=inTown?tDist:hDist;dn=null;window.__pinch=1}else dn={x:e.clientX,y:e.clientY,az:hAz,el:hEl,m:0}});
@@ -1390,9 +1400,14 @@ function buildHome3D(){if(!scene)return;const old={};objs.forEach(o=>{old[o.c.id
   scene.add(g);const o0=old[c.id],[x,z]=o0?[o0.x,o0.z]:spot3();
   const b=document.createElement('div');b.className='bub';const tg=document.createElement('div');tg.className='tag';$('#bubbles').append(tg,b);
   const o={c,g,b,tg,x,z,tx:x,tz:z,ry:rnd(-1,1),wait:rnd(0,2),talk:rnd(1,6),say:0};g.position.set(x,gY(x,z),z);objs.push(o)})}
+// 自動畫質：依實際幀率升降解析度，最低檔關陰影
+const QL=[2,1.5,1.25,1,.85];let qi=+(localStorage.sealQ||0),qT=0,qN=0,qUp=0;
+function qSet(i){qi=Math.max(0,Math.min(QL.length-1,i));localStorage.sealQ=qi;const pr=Math.min(devicePixelRatio||1,QL[qi]);R.setPixelRatio(pr);R.setSize(innerWidth,innerHeight,false);const sh=qi<QL.length-1;if(TLIGHT)TLIGHT.castShadow=sh}
+function qAuto(dt){if(document.hidden){qT=qN=0;return}qT+=dt;qN++;if(qT<2.5)return;const fps=qN/qT;qT=qN=0;if(fps<40&&qi<QL.length-1){qSet(qi+1);qUp=0}else if(fps>57&&qi>0){if(++qUp>=4){qSet(qi-1);qUp=0}}else qUp=0}
 function loop3(t){requestAnimationFrame(loop3);const dt=Math.min(.05,(t-last)/1000);last=t;
  const quiet=document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on');if(document.querySelector('#battle.on'))return;
- if(inTown){townLoop(t,dt);return}
+ qAuto(dt);if(inTown){townLoop(t,dt);return}
+ skyFx(scene,dayK().n,false,null,dt,false);
  skyFit(scene.background,innerWidth,innerHeight,hAz);pcam.position.set(hTgt.x+Math.sin(hAz)*Math.cos(hEl)*hDist,hTgt.y+Math.sin(hEl)*hDist,hTgt.z+Math.cos(hAz)*Math.cos(hEl)*hDist);pcam.lookAt(hTgt);
  objs.forEach(o=>{const g=o.g,dx=o.tx-o.x,dz=o.tz-o.z,d=Math.hypot(dx,dz),H=g.userData.h||1;let hop=0,tilt=0,sy=1;
   if(o.act){const a=o.act;a.t+=dt;if(a.k==='joy'){hop=Math.abs(Math.sin(a.t*8))*.45;o.ry+=dt*9}else{tilt=Math.sin(a.t*40)*.06;sy=.82+.04*Math.sin(a.t*6)}if(a.t>2.6)o.act=null}
