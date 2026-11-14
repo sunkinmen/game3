@@ -393,6 +393,33 @@ body{background:var(--ink)}
 .ico .pm .pd.a{left:22%;top:50%;width:56%;filter:none;opacity:.96}
 .ico .pd.w{left:60%!important;top:44%!important;width:42%!important;rotate:0deg!important}
 .ico .pd.c{left:20%!important;top:66%!important;width:22%!important}
+
+/* v33 外框改為整張拉伸（無接縫）、標題字型置中、獎牌、食物圖示 */
+#sheet{border-image:url(art/frame.webp) 184 fill/34px stretch!important}
+#sheet[data-k=rank]{border-image-source:url(art/frame_rank.webp)!important}
+#sheet[data-k=shop]{border-image-source:url(art/frame_shop.webp)!important}
+#sheet[data-k=arena]{border-image-source:url(art/frame_arena.webp)!important}
+#qp{border-image:url(art/frame.webp) 184 fill/28px stretch}
+#sheet header,#sheet[data-k] header{position:relative;display:block!important;background:none!important;box-shadow:none!important;padding:2px 44px 6px!important;margin:-8px 0 0!important;text-align:center}
+#sheet header::after{content:'';display:block;height:2px;margin:6px auto 0;width:60%;background:linear-gradient(90deg,#0000,#b8873a,#0000)}
+#sheet h2,#sheet[data-k] h2{font:900 25px/1.25 var(--display)!important;letter-spacing:.2em;text-indent:.2em;color:#ffe9a6!important;-webkit-text-stroke:0!important;
+ text-shadow:0 1px 0 #fff6d0,2px 0 0 #6b3a0c,-2px 0 0 #6b3a0c,0 2px 0 #6b3a0c,0 -2px 0 #6b3a0c,2px 2px 0 #6b3a0c,-2px 2px 0 #6b3a0c,2px -2px 0 #6b3a0c,-2px -2px 0 #6b3a0c,0 4px 0 #6b3a0c,0 6px 6px #0004!important}
+#sheet[data-k=rank] h2{color:#fff3b0!important}
+#sheet[data-k=arena] h2{color:#eef2f8!important;text-shadow:2px 0 0 #2a3040,-2px 0 0 #2a3040,0 2px 0 #2a3040,0 -2px 0 #2a3040,2px 2px 0 #2a3040,-2px 2px 0 #2a3040,2px -2px 0 #2a3040,-2px -2px 0 #2a3040,0 4px 0 #2a3040,0 6px 6px #0004!important}
+#sheet[data-k=arena] header::after{background:linear-gradient(90deg,#0000,#7d8aa0,#0000)}
+#sheet .x{position:absolute;right:0;top:-2px;width:32px;height:32px;background:radial-gradient(circle at 35% 30%,#fff8e6,#e9cf9c)!important;color:#5a2e08!important;box-shadow:0 0 0 2px #8a5a24,0 2px 0 #5a2e08!important;font-weight:900}
+#sheet[data-k=rank] .rank{background:linear-gradient(90deg,#fffaf0,#fbf1d6)!important;border:0!important;border-radius:12px;margin-bottom:6px;box-shadow:inset 0 0 0 1px #e8d3a2,0 2px 0 #d9bd85;padding:6px 10px 6px 4px}
+#sheet[data-k=rank] .rank:nth-child(-n+3){background:linear-gradient(90deg,#fff3c4,#fffaf0 70%)!important;box-shadow:inset 0 0 0 1.5px #e3b54a,0 2px 0 #c9982f}
+#sheet[data-k=rank] .rank.me{box-shadow:inset 0 0 0 2px #e0602f,0 2px 0 #b8481f!important}
+#sheet[data-k=rank] .rank .n{font:900 17px var(--display);color:#8a6a3a;background:none!important}
+#sheet[data-k=rank] .rank .lv{font:900 15px var(--display);color:#9a5a0a}
+#sheet .rank{grid-template-columns:46px 40px 1fr auto!important}
+#sheet .rank .n.md{width:46px;height:46px;margin:-6px 0;background:url(art/medals.webp) 0 0/300% 100% no-repeat!important;filter:drop-shadow(0 2px 2px #0004)}
+#sheet .rank .n.m2{background-position:50% 0!important}#sheet .rank .n.m3{background-position:100% 0!important}
+#sheet input:not([type=checkbox]):not([type=range]):not(#nm){background:#fffaf0!important;color:#4a2f18!important;border:1.5px solid #dcc394!important;border-radius:10px;padding:6px 10px}
+.fdi{flex:none;display:inline-block;background:url(art/food.webp) 0 0/500% 100% no-repeat;filter:drop-shadow(0 2px 2px #0003)}
+#sheet .tabs{background:#00000010;border-radius:99px;padding:3px}
+#nav .big{font-size:0!important;padding-bottom:0!important}#nav .big span{width:64px!important;height:64px!important;font-size:40px!important;margin:0 auto var(--bigY,-4px)!important}
 </style>
 </head>
 <body>
@@ -514,6 +541,7 @@ const TALK={
  bad:['蛤？又要訓練喔','好想下班','颱風假咧？','薪水咧？','我要請特休','肚子餓了啦','慣老闆','心好累','可以不要嗎','這裡有勞基法嗎','我想回家']};
 const VOX={fl:['老闆今天也太帥了吧','跟著老闆有肉吃','主人英明，眼光比外資還準'],bad:['蛤？又要訓練喔','我要請特休','慣老闆啦'],fun:['是在哈囉？','傻眼貓咪','珍奶半糖少冰，謝謝'],cap:['結印！收服成功！'],eat:['好吃！再來一碗！']};
 const EQO=SP.flatMap(s=>[s.id+'_w',s.id+'_a']).concat(['c1','c2','c3','c4','c5','c6']);
+const fdi=(id,z)=>`<span class="fdi" style="width:${z}px;height:${z}px;background-position:${(+id.slice(1)-1)*25}% 0"></span>`;
 const eqi=(id,z)=>{const i=EQO.indexOf(id);return `<span class="eqi" style="width:${z}px;height:${z}px;background-position:${i%6*20}% ${Math.floor(i/6)*20}%"></span>`};
 const NPCN=['阿明','小美','志豪','雅婷','阿嬤','里長伯','建宏','怡君','阿伯','店長','學長','房東','同事A','表哥','阿姨','教練','老王','小陳','阿芬','班長'];
 
@@ -926,13 +954,12 @@ const A={
   <div class="sec">${[['心情',c.mood,'var(--seal)'],['服從',c.obey,'#7fb2ff'],['體力值',c.sta,'var(--jade)']].map(a=>`<div class="stat"><span>${a[0]}</span><span class="bar"><i style="width:${a[1]}%;background:${a[2]}"></i></span><span>${Math.round(a[1])}/100</span></div>`).join('')}</div>
   <div class="sec"><h3>能力值 · 戰力 ${power(c)}</h3>${t.map((v,i)=>`<div class="stat"><span>${SN[i]}</span><span class="bar"><i style="width:${Math.min(100,v/mx*100)}%"></i></span><span>${Math.round(v)}${Math.round(v-c.st[i])?` <em>+${Math.round(v-c.st[i])}</em>`:''}</span></div>`).join('')}</div>
   <div class="sec"><h3>裝備</h3><div class="grid3">${['w','a','c'].map(k=>{const it=ITEMS[c.eq[k]];return `<button class="slot" data-a="eq" data-v="${k}"><small>${SLOT[k]}</small>${it?`${eqi(it.id,44)}<b>${it.n}</b><small>${bon(it.bon)}</small>`:'<b style="color:var(--muted)">未裝備</b>'}</button>`}).join('')}</div></div>
-  <div class="sec"><h3>互動</h3><div class="grid2"><button class="btn gd" data-a="feed">餵食</button><button class="btn" data-a="trainMenu">訓練</button><button class="btn g2" data-a="praise">獎勵（摸頭）</button><button class="btn g2" data-a="punish">處罰（罰站）</button></div>
-  ${c.lv>=100&&!c.rb?'<button class="btn gd" data-a="rebirth">二轉：重回 Lv 1，成長率 ×1.5</button>':''}</div>
+  ${c.lv>=100&&!c.rb?'<div class="sec"><button class="btn gd" data-a="rebirth">二轉：重回 Lv 1，成長率 ×1.5</button></div>':''}
   <div id="sub" class="sec"></div>
   <button class="btn g2" data-a="relAsk" style="color:var(--muted);align-self:flex-start">放生…</button>`);
   $('#nm').onchange=e=>{c.name=e.target.value.trim()||s.n;save()};},
  feed(){const own=FOOD.filter(f=>S.food[f.id]>0);
-  SUB().innerHTML='<h3>選擇食物</h3>'+(own.map(f=>`<div class="row"><span class="g"><b>${f.n} ×${S.food[f.id]}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 體力 +15</small></span><button class="btn" data-a="eat" data-v="${f.id}">餵</button></div>`).join('')||'<p class="note">沒有食物了。</p>')+'<button class="btn g2" data-a="shop">去商店買</button>';SUB().scrollIntoView({block:'nearest'})},
+  SUB().innerHTML='<h3>選擇食物</h3>'+(own.map(f=>`<div class="row">${fdi(f.id,40)}<span class="g"><b>${f.n} ×${S.food[f.id]}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 體力 +15</small></span><button class="btn" data-a="eat" data-v="${f.id}">餵</button></div>`).join('')||'<p class="note">沒有食物了。</p>')+'<button class="btn g2" data-a="shop">去商店買</button>';SUB().scrollIntoView({block:'nearest'})},
  eat(id){const c=cur(),f=FOOD.find(x=>x.id===id);if(!(S.food[id]>0))return;S.food[id]--;const up=gain(c,f.exp);c.mood=Math.min(100,c.mood+f.mood);c.sta=Math.min(100,c.sta+15);
   toast(up?`${c.name} 升到 Lv ${c.lv}！`:`${c.name}：${f.n}好吃！`);voice('eat',0);save();reCr(c.id,'feed')},
  trainMenu(){const c=cur(),cost=200+c.lv*50;SUB().innerHTML=`<h3>訓練項目 · 每次 ${fmt(cost)} zeny、體力值 −25（服從越高效果越好）</h3><div class="grid5">${SN.map((n,i)=>`<button class="btn g2" style="padding:10px 0" data-a="train" data-v="${i}">${n}</button>`).join('')}</div>`;SUB().scrollIntoView({block:'nearest'})},
@@ -951,7 +978,7 @@ const A={
  uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();build3D();reCr(c.id,'eq',k)},
  wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();build3D();reCr(c.id,'eq',it.slot)},
  shop(t){if(t)shopTab=t;let h=`<div class="tabs">${[['food','食物'],['gear','專屬裝備'],['acc','飾品']].map(a=>`<button class="${shopTab===a[0]?'on':''}" data-a="shop" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
-  if(shopTab==='food')h+=FOOD.map(f=>`<div class="row"><span class="g"><b>${f.n}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 持有 ${S.food[f.id]||0}</small></span><button class="btn" data-a="buyF" data-v="${f.id}">${fmt(f.price)}</button></div>`).join('');
+  if(shopTab==='food')h+=FOOD.map(f=>`<div class="row">${fdi(f.id,48)}<span class="g"><b>${f.n}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 持有 ${S.food[f.id]||0}</small></span><button class="btn" data-a="buyF" data-v="${f.id}">${fmt(f.price)}</button></div>`).join('');
   else h+=Object.values(ITEMS).filter(it=>shopTab==='acc'?!it.sp:it.sp).map(it=>`<div class="row">${eqi(it.id,48)}<span class="g"><b>${it.n}</b><small>${it.sp?sp(it.sp).n+'專屬'+SLOT[it.slot]:'全物種飾品'} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn" data-a="buyE" data-v="${it.id}">${fmt(it.price)}</button></div>`).join('');
   sheet('商店',h,'shop')},
  buyF(id){const f=FOOD.find(x=>x.id===id);if(pay(f.price)){S.food[id]=(S.food[id]||0)+1;toast(`買了 ${f.n}`);save();A.shop()}},
@@ -962,10 +989,10 @@ const A={
   sheet('排行榜',tabs+nick+'<p class="note">讀取中…</p>','rank');
   net('/api/rank?type='+rankTab).then(r=>{const w=rankTab==='w';
    $('#sbody').innerHTML=tabs+nick+`<div>`+
-   r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n">${i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
+   r.list.map((a,i)=>`<div class="rank${a.me?' me':''}"><span class="n${i<3?' md m'+(i+1):''}">${i<3?'':i+1}</span>${icon(a.sp||'shiba',null,40)}<span><b>${esc(a.name)}</b></span><span class="lv">${w?fmt(a.wealth)+' Z':'Lv '+a.lv}</span></div>`).join('')+'</div>'}).catch(e=>{$('#sbody').innerHTML=tabs+`<p class="note">讀取失敗：${esc(e.message)}</p>`})},
  nick(){const n=($('#nick').value||'').trim().slice(0,12);if(!n)return toast('請輸入暱稱');S.nick=n;save();net('/api/name',{name:n}).then(()=>{toast('暱稱已更新');A.rank()}).catch(e=>toast(e.message))},
  arena(){pickIds=pickIds.filter(i=>S.cr.some(c=>c.id===i));sheet('競技場',`<p class="note">最多選三位夥伴出戰，回合制，每回合替每位夥伴選招式。每位出戰消耗體力值 20。</p>`+S.cr.map(c=>{const on=pickIds.includes(c.id);return `<div class="row">${icon(c.sp,faceOf(c),46,c.eq)}<span class="g"><b>${esc(c.name)}</b><small>Lv ${c.lv} · 戰力 ${power(c)} · 體力值 ${Math.round(c.sta)} · 絕招「${SK[c.sp][0]}」</small></span><button class="btn ${on?'gd':'g2'}" data-a="pick" data-v="${c.id}">${on?'已選':'選擇'}</button></div>`}).join('')+`<button class="btn" data-a="battle" ${pickIds.length?'':'disabled'}>出戰（${pickIds.length}/3）</button>`,'arena')},
- pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}A.arena()},
+ pick(id){id=+id;if(pickIds.includes(id))pickIds=pickIds.filter(x=>x!==id);else{if(pickIds.length>=3)return toast('最多三位');pickIds.push(id)}const y=$('#sbody').scrollTop;A.arena();$('#sbody').scrollTop=y},
  battle(){const cs=pickIds.map(i=>S.cr.find(c=>c.id===i)).filter(Boolean);if(!cs.length)return;const tired=cs.find(c=>c.sta<20);if(tired)return toast(`${tired.name} 體力值不足 20`);
   cs.forEach(c=>c.sta-=20);const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
   const avg=Math.round(cs.reduce((a,c)=>a+c.lv,0)/cs.length),mt=Math.max(...cs.map(c=>sp(c.sp).t));
