@@ -319,7 +319,7 @@ export class Town {
     const pair = new WebSocketPair(), [c, s] = Object.values(pair);
     this.state.acceptWebSocket(s, ['p' + p.id]);
     const sp = SPECIES.includes(u.searchParams.get('sp')) ? u.searchParams.get('sp') : 'shiba';
-    const a = { id: p.id, name: p.name, gm: p.gm ? 1 : 0, sp, pw: 0, x: (Math.random() - .5) * 3, z: (Math.random() - .5) * 3, lc: 0, lh: 0 };
+    const a = { id: p.id, name: p.name, gm: p.gm ? 1 : 0, sp, pw: 0, x: (Math.random() - .5) * 3, z: 30 + Math.random() * 2, lc: 0, lh: 0 };
     s.serializeAttachment(a);
     this.send(s, { t: 'hi', me: a.id, list: this.socks().filter(w => w !== s).map(w => this.pub(this.info(w))).filter(x => x.id), boss: this.bossPub() });
     this.all({ t: 'join', p: this.pub(a) }, s);
@@ -328,7 +328,7 @@ export class Town {
   async webSocketMessage(ws, raw) {
     let m; try { m = JSON.parse(raw); } catch (e) { return; }
     const a = this.info(ws); if (!a.id) return; const now = Date.now();
-    if (m.t === 'pos') { a.x = Math.max(-3.2, Math.min(3.2, +m.x || 0)); a.z = Math.max(-3.2, Math.min(3.2, +m.z || 0)); ws.serializeAttachment(a); this.all({ t: 'pos', id: a.id, x: a.x, z: a.z }, ws); return; }
+    if (m.t === 'pos') { a.x = Math.max(-40, Math.min(40, +m.x || 0)); a.z = Math.max(-40, Math.min(40, +m.z || 0)); ws.serializeAttachment(a); this.all({ t: 'pos', id: a.id, x: a.x, z: a.z }, ws); return; }
     if (m.t === 'me') { if (SPECIES.includes(m.sp)) a.sp = m.sp; a.pw = Math.max(0, Math.min(6000, +m.pw || 0)); ws.serializeAttachment(a); this.all({ t: 'sp', id: a.id, sp: a.sp }, ws); return; }
     if (m.t === 'chat' || m.t === 'pm') {
       if (now - a.lc < 1200) return this.send(ws, { t: 'sys', m: '說話太快了，休息一下' });
