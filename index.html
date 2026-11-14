@@ -10,8 +10,10 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="封印物語">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"><link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js">
+<link rel="preload" as="image" href="art/logo.webp">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{
   /* 佈局：全螢幕 3D 屋頂夜景為底，上方 HUD、下方五鍵導覽，功能以底部抽屜與全螢幕覆蓋層呈現 */
@@ -538,6 +540,7 @@ body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
 </style>
 </head>
 <body>
+<div id="boot" style="position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(circle at 50% 40%,#3a2a6a,#120c24);color:#ffd75a;font:800 15px system-ui"><img src="art/logo.webp" alt="封印物語" style="width:min(70vw,300px)"><span>載入中…</span></div>
 <canvas id="gl"></canvas>
 <div id="bubbles"></div>
 
@@ -2008,6 +2011,7 @@ $('#prac').onchange=e=>{S.prac=e.target.checked;save();drawPhone()};
 load();S.watch.forEach(k=>{REF[k]=S.px[k];HIST[k]=[S.px[k]]});setTimeout(netInit,500);
 hud();$('#snd').classList.toggle('off',!!S.mute);
 try{if(USE3D){build3D=buildHome3D;initHome3D()}else init3D()}catch(e){console.error(e)}
+requestAnimationFrame(()=>requestAnimationFrame(()=>{const b=$('#boot');if(b)b.remove()}));setTimeout(()=>{const b=$('#boot');if(b)b.remove()},6000);
 if(!R)$('#cnt').textContent=`已收服 ${S.cr.length} 位夥伴`;
 if('serviceWorker' in navigator&&/github\.io$|localhost/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});
 setInterval(tick,3000);
