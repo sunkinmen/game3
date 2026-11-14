@@ -19,3 +19,4 @@ new_sqlite_classes = ["Town"]
 
 [triggers]
 crons = ["*/10 * * * *"]
+
