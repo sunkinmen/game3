@@ -156,7 +156,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 .sw input{width:18px;height:18px;accent-color:var(--gold)}
 #snd{width:38px;height:38px;border-radius:50%;background:#161a31e0;border:1px solid var(--line);font-size:17px}
 #snd.off{opacity:.45;text-decoration:line-through}
-.eqi{display:block;flex:none;background:url(art/equip.webp) 0 0/600% 600% no-repeat;border-radius:10px}
+.eqi{display:block;flex:none;background:url(art/equip.webp) 0 0/600% 800% no-repeat;border-radius:10px}
 .slot .eqi{margin:2px auto}
 .lock{display:flex;align-items:center;gap:10px;font-size:13px}
 .lock input{appearance:none;-webkit-appearance:none;width:52px;height:30px;border-radius:15px;background:#0c0f1f;border:1px solid var(--line);position:relative;transition:.2s;flex:none}
@@ -199,7 +199,7 @@ h3{margin:0;font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.1e
 .pn{background:var(--panel);border-radius:12px;padding:10px;margin:6px 0 10px;display:flex;flex-direction:column;gap:8px}
 .kv{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;color:var(--muted)}.kv b{display:block;color:var(--paper);font-size:13px;font-variant-numeric:tabular-nums}
 .addw{display:flex;gap:8px;margin:12px 0}.addw input,.addw select{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--paper);font:inherit;padding:8px 10px}
-.ico .pd{position:absolute;aspect-ratio:1;background:url(art/equip.webp) 0 0/600% 600% no-repeat;pointer-events:none;filter:drop-shadow(0 1px 2px #0008)}
+.ico .pd{position:absolute;aspect-ratio:1;background:url(art/equip.webp) 0 0/600% 800% no-repeat;pointer-events:none;filter:drop-shadow(0 1px 2px #0008)}
 .ico .pd.a{left:30%;top:52%;width:40%}.ico .pd.w{left:60%;top:34%;width:50%;rotate:18deg}.ico .pd.c{left:2%;top:54%;width:28%}
 #battle{position:fixed;inset:0;display:none;flex-direction:column;background:linear-gradient(#0c0f1f99,#0c0f1fe6),url(art/sky.webp) center/cover;padding:56px 10px 10px;gap:8px}
 #battle.on{display:flex}
@@ -420,6 +420,23 @@ body{background:var(--ink)}
 .fdi{flex:none;display:inline-block;background:url(art/food.webp) 0 0/500% 100% no-repeat;filter:drop-shadow(0 2px 2px #0003)}
 #sheet .tabs{background:#00000010;border-radius:99px;padding:3px}
 #nav .big{font-size:0!important;padding-bottom:0!important}#nav .big span{width:64px!important;height:64px!important;font-size:40px!important;margin:0 auto var(--bigY,-4px)!important}
+
+/* v34 標題字圖、精品、右下提示 */
+#sheet h2.tt{height:44px;color:transparent!important;text-shadow:none!important;font-size:0!important;background:var(--tt) center/contain no-repeat;margin:0 auto}
+.row.prem{background:linear-gradient(90deg,#fff3d0,#fffaf0)!important;box-shadow:inset 0 0 0 1.5px #e7b84a}
+.btn.usd{background:linear-gradient(#5fd1ff,#1e88e5)!important;color:#fff!important;box-shadow:0 3px 0 #0d5aa8!important;min-width:84px;font-weight:900}
+#tips{position:fixed;right:10px;bottom:calc(env(safe-area-inset-bottom) + 112px);z-index:25;display:flex;flex-direction:column;gap:12px;align-items:flex-end;pointer-events:none}
+.tip{pointer-events:auto;width:186px;font-size:12px!important;background:#fffaf0f2;border-radius:16px;padding:10px 12px 8px;box-shadow:0 0 0 2px #c8923f,0 4px 0 #8a5a24,0 10px 18px #0005;color:#4a2f18;font-size:12.5px;line-height:1.4;position:relative;
+ animation:tipIn .5s cubic-bezier(.2,1.4,.4,1) both,bob 2.6s ease-in-out .5s infinite}
+.tip:nth-child(2){animation-delay:.15s,1.4s}
+.tip b{display:flex;align-items:center;gap:6px;font-size:14px;margin-bottom:3px}
+.tip b img{width:22px;height:22px;border-radius:6px}
+.tip .go{display:block;width:100%;margin-top:6px;border:0;border-radius:99px;padding:7px 0;font-weight:900;font-size:13px;color:#fff;background:linear-gradient(#ffb347,#e2731e);box-shadow:0 3px 0 #a14d0f}
+.tip.line .go{background:linear-gradient(#3fd56b,#06b23c);box-shadow:0 3px 0 #04802b}
+.tip label{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:11.5px;color:#86684a}
+.tip .tx{position:absolute;right:6px;top:4px;width:22px;height:22px;border:0;background:none;color:#86684a;font-size:16px;font-weight:900}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes tipIn{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -476,7 +493,7 @@ body{background:var(--ink)}
 <section id="cut"></section>
 <section id="comic"></section>
 <div id="toast"></div>
-<div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
+<div id="tips"></div><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -532,6 +549,12 @@ SP.forEach(s=>{const t=s.t,k=t*t,ord=s.b.map((v,i)=>[v,i]).sort((x,y)=>y[0]-x[0]
 [['c1','珍奶吊飾',[0,0,0,0,3],5000],['c2','悠遊卡護符',[0,0,4,0,0],8000],['c3','夜市金項鍊',[4,0,0,0,0],8000],
  ['c4','文昌筆',[0,5,0,0,0],12000],['c5','保溫瓶',[0,0,0,5,0],12000],['c6','發財金',[0,0,0,0,12],150000]]
  .forEach(a=>ITEMS[a[0]]={id:a[0],n:a[1],slot:'c',sp:null,bon:a[2],price:a[3]});
+// 精品（真實金額購買，全物種可用）
+const PREM=[['pw1','霓虹夜市光劍','w',[10,0,6,0,0],.99],['pw2','媽祖庇佑神杖','w',[6,14,0,0,6],1.99],['pw3','擎天101神槍','w',[20,0,10,0,4],2.99],['pw4','金龍斬月刀','w',[28,0,10,0,8],3.99],['pw5','玉山聖光弓','w',[30,8,22,0,10],4.99],
+ ['pa1','鳳梨酥金縷衣','a',[0,0,0,10,6],.99],['pa2','雲豹神獸甲','a',[0,0,6,16,4],1.99],['pa3','星空珍奶戰袍','a',[0,8,0,20,8],2.99],['pa4','八家將神鎧','a',[8,0,0,28,6],3.99],['pa5','玉山晨曦聖鎧','a',[6,6,6,34,10],4.99]];
+PREM.forEach(a=>ITEMS[a[0]]={id:a[0],n:a[1],slot:a[2],sp:null,bon:a[3],usd:a[4],prem:1});
+// 付款連結：在金流後台（例如 Stripe Payment Links）建立後填入，付款完成導回 ?paid=<id>
+const IAP_LINK={};
 const FOOD=[['f1','茶葉蛋',300,20,3],['f2','珍珠奶茶',650,40,10],['f3','雞排',900,70,6],['f4','滷肉飯',1200,110,5],['f5','佛跳牆',30000,4000,20]]
  .map(a=>({id:a[0],n:a[1],price:a[2],exp:a[3],mood:a[4]}));
 const SLOT={w:'武器',a:'防具',c:'飾品'};
@@ -540,9 +563,9 @@ const TALK={
  fl:['老闆今天也太帥了吧','主人英明，眼光比外資還準','跟著老闆有肉吃','老闆說的都對','這波操作我給滿分','能被您收服是我三生有幸','老闆辛苦了，我幫您搥背'],
  bad:['蛤？又要訓練喔','好想下班','颱風假咧？','薪水咧？','我要請特休','肚子餓了啦','慣老闆','心好累','可以不要嗎','這裡有勞基法嗎','我想回家']};
 const VOX={fl:['老闆今天也太帥了吧','跟著老闆有肉吃','主人英明，眼光比外資還準'],bad:['蛤？又要訓練喔','我要請特休','慣老闆啦'],fun:['是在哈囉？','傻眼貓咪','珍奶半糖少冰，謝謝'],cap:['結印！收服成功！'],eat:['好吃！再來一碗！']};
-const EQO=SP.flatMap(s=>[s.id+'_w',s.id+'_a']).concat(['c1','c2','c3','c4','c5','c6']);
+const EQO=SP.flatMap(s=>[s.id+'_w',s.id+'_a']).concat(['c1','c2','c3','c4','c5','c6'],PREM.map(a=>a[0]));
 const fdi=(id,z)=>`<span class="fdi" style="width:${z}px;height:${z}px;background-position:${(+id.slice(1)-1)*25}% 0"></span>`;
-const eqi=(id,z)=>{const i=EQO.indexOf(id);return `<span class="eqi" style="width:${z}px;height:${z}px;background-position:${i%6*20}% ${Math.floor(i/6)*20}%"></span>`};
+const eqi=(id,z)=>{const i=EQO.indexOf(id);return `<span class="eqi" style="width:${z}px;height:${z}px;background-position:${i%6*20}% ${(Math.floor(i/6)*100/7).toFixed(3)}%"></span>`};
 const NPCN=['阿明','小美','志豪','雅婷','阿嬤','里長伯','建宏','怡君','阿伯','店長','學長','房東','同事A','表哥','阿姨','教練','老王','小陳','阿芬','班長'];
 
 /* ====== 存檔（只存在這支手機的瀏覽器，人臉不外傳） ====== */
@@ -569,7 +592,7 @@ function gain(c,n){c.exp+=n;let up=0;const s=sp(c.sp);
 const HOLE=[[0.5,0.445,0.14,0.135],[0.5,0.445,0.14,0.135],[0.49,0.47,0.14,0.135],[0.49,0.45,0.14,0.13],[0.49,0.41,0.14,0.13],[0.505,0.39,0.145,0.12],[0.49,0.38,0.145,0.12],[0.49,0.385,0.14,0.12],[0.495,0.385,0.145,0.12],[0.49,0.39,0.145,0.125],[0.495,0.405,0.17,0.135],[0.5,0.38,0.16,0.11],[0.495,0.4,0.155,0.14],[0.5,0.385,0.15,0.12],[0.49,0.35,0.16,0.11]];
 const SHEET=new Image();SHEET.onload=()=>{if(scene)build3D()};SHEET.src='art/species.webp';
 const EQS=new Image();EQS.onload=()=>{if(scene)build3D()};EQS.src='art/equip.webp';
-function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const P=k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${Math.floor(j/6)*20}%"></i>`};
+function icon(sid,face,size,eq){const i=SP.findIndex(s=>s.id===sid),h=HOLE[i];const P=k=>{const j=EQO.indexOf(eq[k]);return j<0?'':`<i class="pd ${k}" style="background-position:${j%6*20}% ${(Math.floor(j/6)*100/7).toFixed(3)}%"></i>`};
  const pd=eq?(eq.a?`<span class="pm" style="--m:url(art/species.webp);--mp:${i%5*25}% ${Math.floor(i/5)*50}%">${P('a')}</span>`:'')+P('w')+P('c'):'';
  return `<span class="ico" style="width:${size}px;height:${Math.round(size*.931)}px;background-position:${i%5*25}% ${Math.floor(i/5)*50}%">${face?`<img src="${face}" alt="" style="left:${((h[0]-h[2])*100).toFixed(1)}%;top:${((h[1]-h[3])*100).toFixed(1)}%;width:${(h[2]*200).toFixed(1)}%;height:${(h[3]*200).toFixed(1)}%">`:''}${pd}</span>`}
 // 把臉以 cover 填滿圓洞，邊緣羽化並加內陰影，與頭套無縫融合
@@ -927,7 +950,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* ====== 介面共用 ====== */
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1900)}
 function hud(){$('#zeny').textContent=fmt(S.zeny);save()}
-function sheet(title,html,k){qClose();$('#sheet').dataset.k=k||'';$('#stitle').textContent=title;$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
+const TT={'夥伴名冊':'list','夥伴':'cr','商店':'shop','競技場':'arena','排行榜':'rank'};
+function sheet(title,html,k){qClose();$('#sheet').dataset.k=k||'';const st=$('#stitle');st.textContent=title;st.classList.toggle('tt',!!TT[title]);st.style.setProperty('--tt',TT[title]?`url(art/t_${TT[title]}.webp)`:'');$('#sbody').innerHTML=html;$('#sheet').classList.add('on');$('#sbody').scrollTop=0}
 function pay(n){if(S.zeny<n){toast('zeny 不夠，去股市賺一點');return false}S.zeny-=n;hud();if(S.tok)net('/api/spend',{n}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>net('/api/me').then(applyW).catch(()=>{}));return true}
 const tierTag=s=>`<span class="tier t${s.t}">${TN[s.t]}</span>`;
 const bon=b=>b.map((v,i)=>v?SN[i]+'+'+v:'').filter(Boolean).join(' ');
@@ -977,10 +1001,12 @@ const A={
   SUB().innerHTML=`<h3>${SLOT[k]} · ${sp(c.sp).n}可用</h3>`+(c.eq[k]?`<button class="btn g2" data-a="uneq" data-v="${k}">卸下 ${ITEMS[c.eq[k]].n}</button>`:'')+(list.map(it=>`<div class="row">${eqi(it.id,44)}<span class="g"><b>${it.n} ×${S.eq[it.id]}</b><small>${bon(it.bon)}</small></span><button class="btn" data-a="wear" data-v="${it.id}">裝備</button></div>`).join('')||'<p class="note">背包裡沒有可用的。專屬裝備在商店的「裝備」分頁。</p>');SUB().scrollIntoView({block:'nearest'})},
  uneq(k){const c=cur();S.eq[c.eq[k]]=(S.eq[c.eq[k]]||0)+1;delete c.eq[k];save();build3D();reCr(c.id,'eq',k)},
  wear(id){const c=cur(),it=ITEMS[id];if(c.eq[it.slot])S.eq[c.eq[it.slot]]=(S.eq[c.eq[it.slot]]||0)+1;S.eq[id]--;c.eq[it.slot]=id;toast(`裝上 ${it.n}`);save();build3D();reCr(c.id,'eq',it.slot)},
- shop(t){if(t)shopTab=t;let h=`<div class="tabs">${[['food','食物'],['gear','專屬裝備'],['acc','飾品']].map(a=>`<button class="${shopTab===a[0]?'on':''}" data-a="shop" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
+ shop(t){if(t)shopTab=t;let h=`<div class="tabs">${[['food','食物'],['gear','專屬裝備'],['acc','飾品'],['prem','✦精品']].map(a=>`<button class="${shopTab===a[0]?'on':''}" data-a="shop" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
   if(shopTab==='food')h+=FOOD.map(f=>`<div class="row">${fdi(f.id,48)}<span class="g"><b>${f.n}</b><small>經驗 +${fmt(f.exp)} · 心情 +${f.mood} · 持有 ${S.food[f.id]||0}</small></span><button class="btn" data-a="buyF" data-v="${f.id}">${fmt(f.price)}</button></div>`).join('');
-  else h+=Object.values(ITEMS).filter(it=>shopTab==='acc'?!it.sp:it.sp).map(it=>`<div class="row">${eqi(it.id,48)}<span class="g"><b>${it.n}</b><small>${it.sp?sp(it.sp).n+'專屬'+SLOT[it.slot]:'全物種飾品'} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn" data-a="buyE" data-v="${it.id}">${fmt(it.price)}</button></div>`).join('');
+  else if(shopTab==='prem')h+='<p class="note">傳說級裝備，全物種皆可穿戴，購買後永久擁有。</p>'+PREM.map(a=>ITEMS[a[0]]).map(it=>`<div class="row prem">${eqi(it.id,52)}<span class="g"><b>${it.n}</b><small>${SLOT[it.slot]} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn usd" data-a="iap" data-v="${it.id}">US$${it.usd}</button></div>`).join('');
+  else h+=Object.values(ITEMS).filter(it=>!it.prem&&(shopTab==='acc'?!it.sp:it.sp)).map(it=>`<div class="row">${eqi(it.id,48)}<span class="g"><b>${it.n}</b><small>${it.sp?sp(it.sp).n+'專屬'+SLOT[it.slot]:'全物種飾品'} · ${bon(it.bon)} · 持有 ${S.eq[it.id]||0}</small></span><button class="btn" data-a="buyE" data-v="${it.id}">${fmt(it.price)}</button></div>`).join('');
   sheet('商店',h,'shop')},
+ iap(id){const it=ITEMS[id],u=IAP_LINK[id];if(!u)return toast(`「${it.n}」付款功能即將開放`);location.href=u+(u.includes('?')?'&':'?')+'client_reference_id='+encodeURIComponent((S.tok||'guest').slice(0,40)+'_'+id)},
  buyF(id){const f=FOOD.find(x=>x.id===id);if(pay(f.price)){S.food[id]=(S.food[id]||0)+1;toast(`買了 ${f.n}`);save();A.shop()}},
  buyE(id){const it=ITEMS[id];if(pay(it.price)){S.eq[id]=(S.eq[id]||0)+1;toast(`買了 ${it.n}`);save();A.shop()}},
  rank(t){if(t)rankTab=t;const tabs=`<div class="tabs">${[['lv','等級榜'],['w','財產榜']].map(a=>`<button class="${rankTab===a[0]?'on':''}" data-a="rank" data-v="${a[0]}">${a[1]}</button>`).join('')}</div>`;
@@ -1053,6 +1079,19 @@ A.qGo=v=>{const c=cur();if(!c)return;if(v==='cr'||v==='praise'||v==='punish'){qC
 A.qEq=()=>{const c=cur();SUB().innerHTML=`<div class="grid3">${['w','a','c'].map(k=>{const it=ITEMS[c.eq[k]];return `<button class="slot" data-a="eq" data-v="${k}"><small>${SLOT[k]}</small>${it?`${eqi(it.id,40)}<b>${it.n}</b>`:'<b style="color:var(--muted)">未裝備</b>'}</button>`}).join('')}</div>`};
 A.qBack=()=>{if(QK==='eq'){QK='qEq';A.qEq()}else{const c=cur();qClose();if(c){const o=objs.find(x=>x.c.id===c.id);quick(c.id,innerWidth/2,innerHeight*.55)}}};
 A.qX=qClose;
+
+// 右下角提示：加入主畫面、用 LINE 邀請好友
+let BIP=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();BIP=e});
+const SHARE_URL='https://sunkinmen.github.io/game3/',SHARE_TXT='我在玩《封印物語》！用相機把自己和朋友收服成可愛夥伴，還能用台股真實行情賺 zeny、上排行榜。一起來玩👉 '+SHARE_URL;
+function tips(){const no=JSON.parse(localStorage.getItem('tipsOff')||'{}'),box=$('#tips'),ios=/iphone|ipad|ipod/i.test(navigator.userAgent),sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+ const card=(k,cls,title,body,btn)=>`<div class="tip ${cls}" data-k="${k}"><button class="tx" data-a="tipX" data-v="${k}" aria-label="關閉">×</button><b><img src="icon-192.png" alt="">${title}</b>${body}<button class="go" data-a="tip_${k}">${btn}</button><label><input type="checkbox" data-k="${k}">下次不再顯示</label></div>`;
+ let h='';if(!sa&&!no.home)h+=card('home','home','加入主畫面','像 App 一樣全螢幕開啟，載入更快。',ios?'怎麼加？':'加入主畫面');
+ if(!no.line)h+=card('line','line','邀請好友一起玩','用 LINE 把遊戲傳給朋友，一起比排行榜！','用 LINE 分享');
+ box.innerHTML=h;box.querySelectorAll('input').forEach(i=>i.onchange=()=>{const o=JSON.parse(localStorage.getItem('tipsOff')||'{}');o[i.dataset.k]=i.checked;localStorage.setItem('tipsOff',JSON.stringify(o))})}
+A.tipX=k=>{const t=$(`#tips .tip[data-k="${k}"]`);if(t)t.remove()};
+A.tip_home=()=>{if(BIP){BIP.prompt();BIP.userChoice.then(()=>A.tipX('home'));BIP=null}else toast(/iphone|ipad|ipod/i.test(navigator.userAgent)?'點 Safari 下方的「分享」⬆，再選「加入主畫面」':'點瀏覽器選單 ⋮，選「加到主畫面」或「安裝應用程式」')};
+A.tip_line=()=>{location.href='https://line.me/R/share?text='+encodeURIComponent(SHARE_TXT)};
+setTimeout(tips,1600);
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#qm,#qp'))qClose()},true);
 document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){if(!/^(snd|btgt|bact)$/.test(el.dataset.a))sfx2('click',.55);else if(el.dataset.a!=='snd')sfx2('click',.55);A[el.dataset.a](el.dataset.v)}});
 
