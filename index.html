@@ -531,6 +531,8 @@ body.intown #chatb{bottom:calc(env(safe-area-inset-bottom) + 176px)}
 #sk0{right:124px;bottom:calc(env(safe-area-inset-bottom) + 100px)}#sk1{right:84px;bottom:calc(env(safe-area-inset-bottom) + 146px)}#sk2{right:22px;bottom:calc(env(safe-area-inset-bottom) + 142px)}
 #hubb{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom) + 162px);z-index:7;width:46px;height:46px;border-radius:50%;border:0;font-size:22px;background:radial-gradient(circle at 35% 30%,#fffaf0,#f0d9a8);box-shadow:0 0 0 2.5px #a8743d,0 4px 0 #6b4426,0 8px 14px #0004}body.intown #hubb{bottom:calc(env(safe-area-inset-bottom) + 230px)}
 .btn.sm{padding:6px 12px;font-size:13px;width:auto;flex:none}.row.me{box-shadow:0 0 0 2px var(--gold)}.row em{font-style:normal;font-size:12px;color:var(--muted);flex:none}
+body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
+#sheet h2:not(.tt){font:900 28px var(--display)!important;letter-spacing:.06em;background:linear-gradient(#fff6c0 8%,#ffcf45 45%,#f0861a 92%);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 2.5px 0 #5a2e08) drop-shadow(1.5px 0 0 #5a2e08) drop-shadow(-1.5px 0 0 #5a2e08) drop-shadow(0 -1.5px 0 #5a2e08) drop-shadow(0 3px 3px #0004);margin:0 auto;text-align:center}
 </style>
 </head>
 <body>
@@ -1413,7 +1415,7 @@ function initHome3D(){R=mkR($('#gl'));scene=new THREE.Scene();scene.background=s
  const up=e=>{PT.delete(e.pointerId);if(PT.size<2){pin=0;if(!PT.size)window.__pinch=0}};addEventListener('pointerup',up);addEventListener('pointercancel',up);
  cv.addEventListener('pointercancel',e=>{up(e);dn=null});
  cv.addEventListener('pointerup',e=>{up(e);if(inTown){dn=null;return}if(dn&&dn.m<10){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),pcam);
-   const cand=objs.map(o=>o.g).concat([...PEERS.values()].map(p=>p.g),TBOSS3?[TBOSS3]:[],TOWER3?[TOWER3]:[]);const hh=rc.intersectObjects(cand,true)[0];
+   const cand=objs.map(o=>o.g).concat(TOWER3?[TOWER3]:[]).filter(Boolean);const hh=rc.intersectObjects(cand,true)[0];
    if(hh){let o=hh.object;if(o.userData.tower){sfx2('click');enterTown()}else{while(o&&!o.userData.cid&&!o.userData.peer&&!o.userData.boss)o=o.parent;
     if(o&&o.userData.boss)A.bossClick(e.clientX,e.clientY);else if(o&&o.userData.peer)peerMenu(o.userData.peer,e.clientX,e.clientY);
     else if(o){const ob=objs.find(x=>x.c.id===o.userData.cid);if(ob)speak(ob,'fun');quick(o.userData.cid,e.clientX,e.clientY)}}}}dn=null});
