@@ -17,6 +17,8 @@ function marketOpen() {
   const t = new Date(Date.now() + 8 * 3600e3), d = t.getUTCDay(), m = t.getUTCHours() * 60 + t.getUTCMinutes();
   return d >= 1 && d <= 5 && m >= 540 && m <= 810;
 }
+const QUESTS = [{ id: 'q1', n: '今日登入', k: 'login', need: 1, z: 2000 }, { id: 'q2', n: '在八卦城擊倒 20 隻魔物', k: 'kills', need: 20, z: 8000 }, { id: 'q3', n: '在八卦城擊倒 60 隻魔物', k: 'kills', need: 60, z: 25000 }, { id: 'q4', n: '打怪累積獲得 30,000 zeny', k: 'zeny', need: 30000, z: 15000 }];
+const weekStart = () => { const d = new Date(Date.now() + 8 * 3600e3); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
 const today = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 
 async function cached(key, ttl, make) {
@@ -67,10 +69,13 @@ async function ensure(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)'),
     db.prepare('CREATE TABLE IF NOT EXISTS promo(code TEXT PRIMARY KEY, zeny INTEGER DEFAULT 0, items TEXT, uses INTEGER DEFAULT 0, used INTEGER DEFAULT 0, exp INTEGER DEFAULT 0, note TEXT, created INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS redeem(pid INTEGER, code TEXT, ts INTEGER, PRIMARY KEY(pid, code))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS daily(pid INTEGER, day TEXT, kills INTEGER DEFAULT 0, zeny INTEGER DEFAULT 0, claim TEXT DEFAULT \'\', PRIMARY KEY(pid, day))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS guilds(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, owner INTEGER, ts INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS gifts(id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, item TEXT, note TEXT, ts INTEGER)')
   ]);
   try { await db.prepare('ALTER TABLE players ADD COLUMN seen INTEGER DEFAULT 0').run(); } catch (e) {}
   try { await db.prepare('ALTER TABLE players ADD COLUMN gm INTEGER DEFAULT 0').run(); } catch (e) {}
+  try { await db.prepare('ALTER TABLE players ADD COLUMN guild INTEGER DEFAULT 0').run(); } catch (e) {}
   READY = true;
 }
 const RC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -231,6 +236,72 @@ async function api(req, env, path) {
     p.zeny += n; const w = await wallet(env, p);
     return J({ got: n, zeny: w.zeny, wealth: w.wealth });
   }
+  if (path === '/api/kills' && req.method === 'POST') {
+    // 城鎮打怪：由伺服器計算獎金與掉寶；每次最多 14 隻、間隔 12 秒、與戰鬥獎金共用每日上限
+    const b = await body(req), d = today(), used = p.earn_day === d ? p.earn_amt : 0;
+    if (Date.now() - (p.last_earn || 0) < 12000) return J({ error: '太頻繁', zeny: Math.round(p.zeny) }, 429);
+    const cap = Math.min(110, (p.lv || 1) + 10 + (p.rb ? 100 : 0));
+    const ks = (Array.isArray(b.k) ? b.k : []).slice(0, 14).map(v => Math.max(1, Math.min(cap, Math.floor(+v || 1))));
+    let n = 0; const drops = [];
+    for (const lv of ks) { n += 50 + lv * 25; const r = Math.random(); if (r < .03) drops.push('eq'); else if (r < .15) drops.push('food'); }
+    n = Math.max(0, Math.min(n, 60000, 600000 - used));
+    await db.batch([
+      db.prepare('UPDATE players SET zeny=zeny+?,earn_day=?,earn_amt=?,last_earn=? WHERE id=?').bind(n, d, used + n, Date.now(), p.id),
+      db.prepare('INSERT INTO daily(pid,day,kills,zeny) VALUES(?,?,?,?) ON CONFLICT(pid,day) DO UPDATE SET kills=kills+excluded.kills, zeny=zeny+excluded.zeny').bind(p.id, d, ks.length, n)]);
+    p.zeny += n; const w = await wallet(env, p);
+    return J({ got: n, kills: ks.length, drops, zeny: w.zeny, wealth: w.wealth });
+  }
+  if (path === '/api/quest') {
+    const d = today(); await db.prepare('INSERT OR IGNORE INTO daily(pid,day) VALUES(?,?)').bind(p.id, d).run();
+    const row = await db.prepare('SELECT kills,zeny,claim FROM daily WHERE pid=? AND day=?').bind(p.id, d).first();
+    const done = (row.claim || '').split(',').filter(Boolean);
+    const list = QUESTS.map(q => ({ id: q.id, n: q.n, need: q.need, have: Math.min(q.need, q.k === 'login' ? 1 : row[q.k] || 0), z: q.z, got: done.includes(q.id) ? 1 : 0 }));
+    if (req.method === 'POST') {
+      const b = await body(req), q = list.find(x => x.id === b.id);
+      if (!q || q.got || q.have < q.need) return J({ error: '尚未完成或已領取' }, 400);
+      done.push(q.id); q.got = 1;
+      await db.batch([db.prepare('UPDATE daily SET claim=? WHERE pid=? AND day=?').bind(done.join(','), p.id, d), db.prepare('UPDATE players SET zeny=zeny+? WHERE id=?').bind(q.z, p.id)]);
+      p.zeny += q.z; const w = await wallet(env, p); return J({ list, got: q.z, zeny: w.zeny });
+    }
+    return J({ list });
+  }
+  if (path === '/api/season') {
+    const ws = weekStart();
+    const { results } = await db.prepare('SELECT p.id,p.name,p.sp,g.name gn,SUM(d.kills) k FROM daily d JOIN players p ON p.id=d.pid LEFT JOIN guilds g ON g.id=p.guild WHERE d.day>=? AND COALESCE(p.gm,0)=0 GROUP BY d.pid HAVING k>0 ORDER BY k DESC LIMIT 50').bind(ws).all();
+    const gs = await db.prepare('SELECT g.name,SUM(d.kills) k,COUNT(DISTINCT p.id) m FROM daily d JOIN players p ON p.id=d.pid JOIN guilds g ON g.id=p.guild WHERE d.day>=? GROUP BY g.id HAVING k>0 ORDER BY k DESC LIMIT 20').bind(ws).all();
+    const mine = await db.prepare('SELECT COALESCE(SUM(kills),0) k FROM daily WHERE pid=? AND day>=?').bind(p.id, ws).first();
+    return J({ since: ws, list: results.map(r => ({ name: r.name, sp: r.sp, gn: r.gn, k: r.k, me: r.id === p.id ? 1 : 0 })), guilds: gs.results, mine: mine.k });
+  }
+  if (path === '/api/guild') {
+    if (req.method === 'POST') {
+      const b = await body(req);
+      if (b.act === 'create') {
+        if (p.guild) return J({ error: '請先退出目前公會' }, 400);
+        const n = cleanName(b.name); if (n.length < 2 || BAD.test(n)) return J({ error: '公會名稱需 2–12 字且不可含不雅字' }, 400);
+        if (!p.gm && p.zeny < 50000) return J({ error: '創立公會需要 50,000 zeny' }, 400);
+        if (await db.prepare('SELECT id FROM guilds WHERE name=?').bind(n).first()) return J({ error: '名稱已被使用' }, 400);
+        const r = await db.prepare('INSERT INTO guilds(name,owner,ts) VALUES(?,?,?)').bind(n, p.id, Date.now()).run();
+        await db.prepare('UPDATE players SET guild=?,zeny=zeny-? WHERE id=?').bind(r.meta.last_row_id, p.gm ? 0 : 50000, p.id).run(); p.guild = r.meta.last_row_id;
+      } else if (b.act === 'join') {
+        if (p.guild) return J({ error: '請先退出目前公會' }, 400);
+        const g = await db.prepare('SELECT id FROM guilds WHERE id=?').bind(+b.id || 0).first(); if (!g) return J({ error: '公會不存在' }, 400);
+        const c = await db.prepare('SELECT COUNT(*) c FROM players WHERE guild=?').bind(g.id).first(); if (c.c >= 30) return J({ error: '公會已滿（30 人）' }, 400);
+        await db.prepare('UPDATE players SET guild=? WHERE id=?').bind(g.id, p.id).run(); p.guild = g.id;
+      } else if (b.act === 'leave' && p.guild) {
+        const g = await db.prepare('SELECT owner FROM guilds WHERE id=?').bind(p.guild).first();
+        await db.prepare('UPDATE players SET guild=0 WHERE id=?').bind(p.id).run();
+        if (g && g.owner === p.id) { const nx = await db.prepare('SELECT id FROM players WHERE guild=? ORDER BY lv DESC LIMIT 1').bind(p.guild).first();
+          if (nx) await db.prepare('UPDATE guilds SET owner=? WHERE id=?').bind(nx.id, p.guild).run(); else await db.prepare('DELETE FROM guilds WHERE id=?').bind(p.guild).run(); }
+        p.guild = 0;
+      }
+    }
+    const ws = weekStart(); let mine = null;
+    if (p.guild) { const g = await db.prepare('SELECT id,name,owner FROM guilds WHERE id=?').bind(p.guild).first();
+      if (g) { const { results } = await db.prepare('SELECT p.id,p.name,p.sp,p.lv,p.rb,(SELECT COALESCE(SUM(kills),0) FROM daily d WHERE d.pid=p.id AND d.day>=?) k FROM players p WHERE p.guild=? ORDER BY k DESC, p.lv DESC').bind(ws, g.id).all();
+        mine = { id: g.id, name: g.name, owner: g.owner === p.id ? 1 : 0, members: results.map(r => ({ name: r.name, sp: r.sp, lv: r.lv, rb: r.rb, k: r.k, boss: r.id === g.owner ? 1 : 0 })) }; } }
+    const { results } = await db.prepare('SELECT g.id,g.name,(SELECT COUNT(*) FROM players p WHERE p.guild=g.id) m FROM guilds g ORDER BY m DESC, g.id LIMIT 30').all();
+    return J({ mine, list: results, zeny: Math.round((await db.prepare('SELECT zeny FROM players WHERE id=?').bind(p.id).first()).zeny) });
+  }
   if (path === '/api/sync' && req.method === 'POST') {
     const b = await body(req), lv = Math.max(0, Math.min(100, Math.floor(+b.lv || 0))), rb = b.rb ? 1 : 0;
     // 等級合理性：建立後每小時最多升 12 級
@@ -340,6 +411,7 @@ export class Town {
       else this.all(o);
       return;
     }
+    if (m.t === 'act') { if (now - (a.la || 0) < 180) return; a.la = now; this.all({ t: 'act', id: a.id, k: ['jump', 'atk', 'sk'].includes(m.k) ? m.k : 'atk', i: Math.max(0, Math.min(2, +m.i || 0)), ry: +(+m.ry || 0).toFixed(2) }, ws); return; }
     if (m.t === 'emote') { this.all({ t: 'emote', id: a.id, e: String(m.e || '👋').slice(0, 4), to: +m.to || 0 }); return; }
     if (m.t === 'inv' || m.t === 'invr') {
       const to = this.state.getWebSockets('p' + (+m.to)); if (!to.length) return this.send(ws, { t: 'sys', m: '對方已離線' });

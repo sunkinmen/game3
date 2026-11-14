@@ -529,6 +529,8 @@ body.intown #chatb{bottom:calc(env(safe-area-inset-bottom) + 176px)}
 .skb{position:fixed;z-index:20;width:54px;height:54px;border:0;border-radius:50%;color:#fff;font:900 20px system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;background:radial-gradient(circle at 35% 30%,#ffffff55,var(--c,#888) 70%);opacity:.9;box-shadow:inset 0 0 0 2.5px #ffffff80,0 4px 12px #0004;touch-action:manipulation}
 .skb small{font:800 8.5px system-ui;margin-top:1px;white-space:nowrap;text-shadow:0 1px 2px #000}.skb i{position:absolute;inset:0;border-radius:50%;display:none;align-items:center;justify-content:center;background:#000a;font:900 20px system-ui;font-style:normal}.skb.cd i{display:flex}.skb:active{transform:scale(.9)}
 #sk0{right:124px;bottom:calc(env(safe-area-inset-bottom) + 100px)}#sk1{right:84px;bottom:calc(env(safe-area-inset-bottom) + 146px)}#sk2{right:22px;bottom:calc(env(safe-area-inset-bottom) + 142px)}
+#hubb{position:fixed;left:12px;bottom:calc(env(safe-area-inset-bottom) + 162px);z-index:7;width:46px;height:46px;border-radius:50%;border:0;font-size:22px;background:radial-gradient(circle at 35% 30%,#fffaf0,#f0d9a8);box-shadow:0 0 0 2.5px #a8743d,0 4px 0 #6b4426,0 8px 14px #0004}body.intown #hubb{bottom:calc(env(safe-area-inset-bottom) + 230px)}
+.btn.sm{padding:6px 12px;font-size:13px;width:auto;flex:none}.row.me{box-shadow:0 0 0 2px var(--gold)}.row em{font-style:normal;font-size:12px;color:var(--muted);flex:none}
 </style>
 </head>
 <body>
@@ -592,7 +594,7 @@ body.intown #chatb{bottom:calc(env(safe-area-inset-bottom) + 176px)}
  <button class="nkt" data-a="nkRc"><span class="a">已經有帳號？用引繼碼找回</span><span class="b">← 我是新玩家，取暱稱</span></button></div></div>
 <div id="tips"></div>
 <div id="tctl"><div id="joy"><i></i></div><button id="bjump" data-a="tJump" aria-label="跳躍">⤒<small>跳躍</small></button><button id="batk" data-a="tAtk" aria-label="攻擊">⚔<small>攻擊</small></button><button class="skb" id="sk0" data-a="tSk" data-v="0">🌀<small></small><i></i></button><button class="skb" id="sk1" data-a="tSk" data-v="1">💨<small></small><i></i></button><button class="skb" id="sk2" data-a="tSk" data-v="2">💥<small></small><i></i></button>
-<div id="thp"><b>隊伍</b><span><i></i></span><small></small></div><button id="tfarm" data-a="goFarm">🏠 回農場</button><button id="tact" data-a="tAct"></button></div><div id="hurtv"></div><div id="tload"><b>前往八卦城…</b></div><div id="online" data-a="chat"></div><button id="chatb" data-a="chat" aria-label="聊天">💬</button>
+<div id="thp"><b>隊伍</b><span><i></i></span><small></small></div><button id="tfarm" data-a="goFarm">🏠 回農場</button><button id="tact" data-a="tAct"></button></div><div id="hurtv"></div><div id="tload"><b>前往八卦城…</b></div><div id="online" data-a="chat"></div><button id="chatb" data-a="chat" aria-label="聊天">💬</button><button id="hubb" data-a="hub" aria-label="任務">📜</button>
 <div id="chat"><header><button data-a="chatAll" class="ca">大廳</button><span id="chatX" data-a="chatAll">✕ 私訊中</span><button data-a="chat" class="cx">×</button></header><div id="chatl"></div><form onsubmit="A.chatSend();return false"><input id="chatIn" maxlength="60" autocomplete="off"><button class="btn">送出</button></form></div>
 <div id="pmenu"></div><div id="invd"></div><div id="bossbar"><b></b><span><i></i></span><small></small></div><button id="autob" data-a="auto"></button><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
@@ -1143,7 +1145,7 @@ function buildArenaScene(){const g=new THREE.Group(),Y=DIO.arena.g*AS,R=DIO.aren
  return g}
 
 /* ═════════ 八卦城鎮（3D 開放城鎮：一拖三夥伴、搖桿、跳躍、攻擊、魔物） ═════════ */
-const TR=34;let TOWNSC=null,TCAM=null,inTown=false,TLIGHT=null,TCOL=[],TSPOT=[],TFX=[],MOBS=[],PARTY=[],TP=null,tStop=0,tShake=0,SKCD=[0,0,0],tAuto=false,tAutoIdle=0,YH=[],tCamD=9,tElE=.62,tAz=0,tEl=.62,tDist=9,JOY={x:0,y:0,on:false},TKEY={},tAtkCD=0,tHP=100,tHPM=100,tEarn=0,tEarnT=0,tNear=null,TRAIL=[];
+const TR=34;let TOWNSC=null,TCAM=null,inTown=false,TLIGHT=null,TCOL=[],TSPOT=[],TFX=[],MOBS=[],PARTY=[],TP=null,tKills=[],tStop=0,tShake=0,SKCD=[0,0,0],tAuto=false,tAutoIdle=0,YH=[],tCamD=9,tElE=.62,tAz=0,tEl=.62,tDist=9,JOY={x:0,y:0,on:false},TKEY={},tAtkCD=0,tHP=100,tHPM=100,tEarn=0,tEarnT=0,tNear=null,TRAIL=[];
 const MELEE=new Set(['shiba','cat','bear','tiger','wolf','guan','lion','leopard','otter']);
 const ELSFX={火:'fire',金:'slash',水:'charge',木:'cast',土:'crit'};
 const MOB_LINE=['你這種戰力也敢來城鎮？','回家吃自己啦！','我阿嬤都比你強','欸你夥伴是租來的喔','嘿嘿，雞排交出來','這條街是我罩的','打不到啦～','你的股票都綠的吧','菜就多練','先存夠 zeny 再說'];
@@ -1308,13 +1310,13 @@ function tele(k,x,z,sz,d,ry,fn){const mt=new THREE.MeshBasicMaterial({color:0xff
 const SKN={火:['烈焰旋風','火龍突進','天火燎原'],金:['金光連斬','破甲突刺','萬劍歸宗'],水:['水龍捲','怒濤衝擊','滄海橫流'],木:['落葉迴旋','疾風突襲','萬木逢春'],土:['裂地震擊','岩崩衝撞','泰山壓頂']},SKC=[5,8,22];
 function skUI(){for(let i=0;i<3;i++){const b=$('#sk'+i);if(!b)return;const c=SKCD[i];b.classList.toggle('cd',c>0);const n=c>0?Math.ceil(c):'';if(b._n!==n){b._n=n;b.querySelector('i').textContent=n}}}
 function skName(){const L=PARTY[0];if(!L)return;const el=WX[L.c.sp]||'土';for(let i=0;i<3;i++){const b=$('#sk'+i);b.querySelector('small').textContent=SKN[el][i];b.style.setProperty('--c',WXC[el])}}
-function tSkill(i){if(!inTown||!PARTY.length||SKCD[i]>0||tHP<=0)return;const L=PARTY[0],el=WX[L.c.sp]||'土',col=new THREE.Color(WXC[el]),pw=total(L.c),base=Math.round(8+Math.max(pw[0],pw[1])*1.4+L.c.lv*2),fx=Math.sin(L.ry),fz=Math.cos(L.ry);SKCD[i]=SKC[i];toast('✦ '+SKN[el][i]);sfx2(ELSFX[el]||'hit');
+function tSkill(i){if(!inTown||!PARTY.length||SKCD[i]>0||tHP<=0)return;const L=PARTY[0],el=WX[L.c.sp]||'土',col=new THREE.Color(WXC[el]),pw=total(L.c),base=Math.round(8+Math.max(pw[0],pw[1])*1.4+L.c.lv*2),fx=Math.sin(L.ry),fz=Math.cos(L.ry);SKCD[i]=SKC[i];toast('✦ '+SKN[el][i]);twSend({t:'act',k:'sk',i,ry:L.ry});sfx2(ELSFX[el]||'hit');
  if(i===0){L.atk=.4;for(let k=0;k<6;k++){const a=k/6*Math.PI*2;fxSpr(FXI.slash[el],L.x+Math.cos(a)*1.6,L.y+.8,L.z+Math.sin(a)*1.6,2.6,.4,{rot:a})}tShake=.5;MOBS.slice().forEach(m=>{if(Math.hypot(m.x-L.x,m.z-L.z)<3.4)mobHit(m,Math.round(base*1.5),col,el)})}
  else if(i===1){L.atk=.4;const hit=new Set();for(let k=0;k<12;k++){TP.x+=fx*.5;TP.z+=fz*.5;tCollide(TP,.35);if(k%3===0)fxSpr(FXI.orb[el],TP.x,.8,TP.z,1.6,.35,{g:.2});MOBS.slice().forEach(m=>{if(!hit.has(m)&&Math.hypot(m.x-TP.x,m.z-TP.z)<1.5){hit.add(m);mobHit(m,Math.round(base*2.1),col,el)}})}fxSpr(FXI.slash[el],TP.x+fx,.9,TP.z+fz,3.4,.4);tShake=.6}
  else{PARTY.forEach(p=>p.cast=.7);const cx=L.x,cz=L.z;tele('ring',cx,cz,7,.45,0,()=>{for(let k=0;k<10;k++){const a=rr(0,6.3),r=rr(0,6);fxSpr(FXI.imp[el],cx+Math.cos(a)*r,rr(.6,1.6),cz+Math.sin(a)*r,rr(2.4,4),.55,{rot:rr(0,6)})}fxSpr(14,cx,1.4,cz,5,.6);sfx2('crit');tShake=1;tStop=.12;
    MOBS.slice().forEach(m=>{if(Math.hypot(m.x-cx,m.z-cz)<7.2)mobHit(m,Math.round(base*3.2),col,el)});const h=Math.round(tHPM*.18);tHP=Math.min(tHPM,tHP+h);thpUI();tPop(PARTY[0],'+'+h,'#7af08a')});TFX[TFX.length-1].o.material.color.set(col)}}
 function tAttack(){if(!inTown||tAtkCD>0||!PARTY.length)return;const L=PARTY[0],el=WX[L.c.sp]||'土',col=new THREE.Color(WXC[el]),melee=MELEE.has(L.c.sp),pw=total(L.c),dmg=Math.round(8+(melee?pw[0]:pw[1])*1.4+L.c.lv*2);
- tAtkCD=melee?.45:.6;L.atk=.35;sfx2(ELSFX[el]||'hit');const fx=Math.sin(L.ry),fz=Math.cos(L.ry);
+ tAtkCD=melee?.45:.6;L.atk=.35;twSend({t:'act',k:'atk',ry:L.ry});sfx2(ELSFX[el]||'hit');const fx=Math.sin(L.ry),fz=Math.cos(L.ry);
  if(melee){const sx=L.x+fx*1.1,sz=L.z+fz*1.1;fxSpr(FXI.slash[el],sx,L.y+.75,sz,2.8,.3,{rot:rr(-.6,.6)+(Math.random()<.5?Math.PI:0),g:.35});
   MOBS.forEach(m=>{const dx=m.x-L.x,dz=m.z-L.z,d=Math.hypot(dx,dz);if(d<2.1&&(dx*fx+dz*fz)/Math.max(d,.01)>-.2)mobHit(m,dmg,col,el)})}
  else{const pr=new THREE.Sprite(new THREE.SpriteMaterial({map:fxTex()[FXI.orb[el]],transparent:true,depthWrite:false}));pr.scale.setScalar(1.5);
@@ -1329,10 +1331,11 @@ function mobSpawn(){const L=PARTY[0];if(!L)return;let x,z,ok=false;for(let k=0;k
  const H=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(H);const aura=new THREE.Mesh(new THREE.RingGeometry(.25,.7,32),new THREE.MeshBasicMaterial({color:0x8a30e0,transparent:true,opacity:.55,side:THREE.DoubleSide,depthWrite:false}));aura.rotation.x=-Math.PI/2;aura.position.y=.02;g.add(aura);TOWNSC.add(g);
  const b=document.createElement('div');b.className='bub mob';const tg=document.createElement('div');tg.className='ptag mob';tg.textContent=`魔物・失控${s.n} Lv${lv}`;$('#bubbles').append(tg,b);
  MOBS.push({g,b,tg,ty:Math.random()<.45?0:Math.random()<.5?1:2,sp:s.id,lv,x,z,y:0,ry:rr(0,6),hp:40+lv*14,mx:40+lv*14,st:'wander',tx:x,tz:z,cd:rr(.5,2),say:0,hurt:0,talk:rr(3,8),H})}
-function mobDie(m){fxSpr(15,m.x,m.y+.7,m.z,2.4,.6,{g:.5});fxSpr(14,m.x,m.y+.9,m.z,1.8,.4);tSpark(m.x,m.y+.6,m.z,0xffd75a,18,true);sfx2('ko');const z=50+m.lv*25;tEarn+=z;tPop(m,`+${z} zeny`,'#ffd75a');PARTY.forEach(p=>{if(gain(p.c,8+m.lv*2))toast(`${p.c.name} 升級了！`)});
- if(Math.random()<.12){const f=pick(FOOD.slice(0,4));S.food[f.id]=(S.food[f.id]||0)+1;toast(`魔物掉落：${f.n}`)}if(Math.random()<.03){const it=pick(Object.values(ITEMS).filter(i=>!i.prem));S.eq[it.id]=(S.eq[it.id]||0)+1;toast(`✨ 魔物掉落裝備：${it.n}`)}
+function mobDie(m){fxSpr(15,m.x,m.y+.7,m.z,2.4,.6,{g:.5});fxSpr(14,m.x,m.y+.9,m.z,1.8,.4);tSpark(m.x,m.y+.6,m.z,0xffd75a,18,true);sfx2('ko');const z=50+m.lv*25;tPop(m,`+${z} zeny`,'#ffd75a');PARTY.forEach(p=>{if(gain(p.c,8+m.lv*2))toast(`${p.c.name} 升級了！`)});
+ if(S.tok)tKills.push(m.lv);else{tEarn+=z;mobDrop(Math.random()<.03?'eq':Math.random()<.12?'food':'')}
  TOWNSC.remove(m.g);m.b.remove();m.tg.remove();MOBS.splice(MOBS.indexOf(m),1);save()}
-function flushEarn(force){if(!tEarn)return;if(!force&&performance.now()-tEarnT<16000)return;tEarnT=performance.now();const z=Math.min(60000,tEarn);tEarn-=z;if(S.tok)net('/api/earn',{n:z}).then(r=>{S.zeny=r.zeny;hud()}).catch(()=>{tEarn+=z});else{S.zeny+=z;hud()}}
+function mobDrop(k){if(k==='food'){const f=pick(FOOD.slice(0,4));S.food[f.id]=(S.food[f.id]||0)+1;toast(`魔物掉落：${f.n}`)}else if(k==='eq'){const it=pick(Object.values(ITEMS).filter(i=>!i.prem));S.eq[it.id]=(S.eq[it.id]||0)+1;toast(`✨ 魔物掉落裝備：${it.n}`)}}
+function flushEarn(force){if(!tEarn&&!tKills.length)return;if(!force&&performance.now()-tEarnT<13000)return;tEarnT=performance.now();if(S.tok){const k=tKills.splice(0,14);if(!k.length)return;net('/api/kills',{k}).then(r=>{S.zeny=r.zeny;hud();(r.drops||[]).forEach(mobDrop);save()}).catch(()=>{tKills.unshift(...k)})}else{S.zeny+=tEarn;tEarn=0;hud()}}
 function partyDown(){toast('隊伍倒下了…在南門重新集合');sfx2('lose');tHP=tHPM;thpUI();TP.x=0;TP.z=TR-12;TP.y=0;PARTY.forEach((p,i)=>{p.x=0;p.z=TR-12-i});MOBS.forEach(m=>{m.st='wander'})}
 // ── 每幀更新 ──
 let TBOSSPOS={x:0,z:3.2};
@@ -1389,6 +1392,7 @@ function joyInit(){const j=$('#joy'),k=$('#joy i');let id=null,cx=0,cy=0;const R
  j.addEventListener('pointerdown',e=>{id=e.pointerId;j.setPointerCapture(id);const r=j.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;mv(e.clientX,e.clientY);e.preventDefault()});
  j.addEventListener('pointermove',e=>{if(e.pointerId===id)mv(e.clientX,e.clientY)});const up=e=>{if(e.pointerId!==id)return;id=null;k.style.transform='';JOY.x=JOY.y=0};j.addEventListener('pointerup',up);j.addEventListener('pointercancel',up);
  addEventListener('keydown',e=>{if(!inTown||e.target.tagName==='INPUT')return;TKEY[e.key.toLowerCase()]=1});addEventListener('keyup',e=>{TKEY[e.key.toLowerCase()]=0});
+ document.querySelectorAll('#bjump,#batk,.skb').forEach(b=>{b.style.touchAction='none';b.addEventListener('pointerdown',e=>{e.preventDefault();b._pd=Date.now();A[b.dataset.a](b.dataset.v)})});
  const cv=$('#gl');let rd=null;cv.addEventListener('pointerdown',e=>{if(inTown)rd={x:e.clientX,y:e.clientY,az:tAz,el:tEl}});cv.addEventListener('pointermove',e=>{if(window.__pinch){rd=null;return}if(inTown&&rd){tAz=rd.az-(e.clientX-rd.x)*.008;tEl=Math.min(1.2,Math.max(.25,rd.el+(e.clientY-rd.y)*.004))}});addEventListener('pointerup',e=>{if(inTown&&rd&&Math.hypot(e.clientX-rd.x,e.clientY-rd.y)<10&&e.target===cv)townTap(e);rd=null});
  cv.addEventListener('wheel',e=>{if(inTown){tDist=Math.min(30,Math.max(3.5,tDist*(1+e.deltaY*.001)))}},{passive:true})}
 
@@ -1737,6 +1741,7 @@ function townMsg(m){
  else if(m.t==='sp'){const p=PEERS.get(m.id);if(p&&p.sp!==m.sp){const d=Object.assign({},p);peerDel(p.id);peerAdd({id:d.id,name:d.name,sp:m.sp,x:d.x,z:d.z,gm:d.gm})}}
  else if(m.t==='chat'||m.t==='pm'){chatAdd(m);const p=PEERS.get(m.id);if(p){p.b.textContent=m.m;p.say=4}if(m.id===TWme){const o=myLead();if(o){o.b.textContent=m.m;o.say=4}}}
  else if(m.t==='sys'){chatAdd({sys:1,m:m.m});toast(m.m)}
+ else if(m.t==='act'){const p=PEERS.get(m.id);if(p&&p.g&&inTown){if(m.k==='jump')p.hop=.5;else{p.atk=.4;p.ry=m.ry;const el=WX[p.sp]||'土',fx=Math.sin(m.ry),fz=Math.cos(m.ry);if(m.k==='sk'){for(let k=0;k<(m.i===2?8:4);k++){const a=k/4*Math.PI*2,r=m.i===2?rr(1,5):1.5;fxSpr(m.i===2?FXI.imp[el]:FXI.slash[el],p.x+Math.cos(a)*r,.9,p.z+Math.sin(a)*r,2.6,.45,{rot:a})}}else fxSpr(MELEE.has(p.sp)?FXI.slash[el]:FXI.orb[el],p.x+fx,.8,p.z+fz,2.2,.3)}}}
  else if(m.t==='emote'){const p=PEERS.get(m.id);if(p){p.b.textContent=m.e;p.say=2.5;p.hop=1}if(m.to===TWme&&p)toast(`${p.name} 向你打招呼 ${m.e}`)}
  else if(m.t==='inv')invAsk(m);
  else if(m.t==='duel')duelStart(m.vs);
@@ -1757,12 +1762,12 @@ function townTick(t,dt){if(TWok&&inTown&&TP&&t-posT>350){posT=t;if(Math.abs(TP.x
  const quiet=document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on,#sheet.on');
  PEERS.forEach(p=>{if(!inTown||!p.g){p.tg.style.display='none';p.b.classList.remove('on');return}const g=p.g,dx=p.tx-p.x,dz=p.tz-p.z,d=Math.hypot(dx,dz),H=g.userData.h;let hop=0;
   if(d>6){p.x=p.tx;p.z=p.tz}else if(d>.02){const s=Math.min(d,5.5*dt);p.x+=dx/d*s;p.z+=dz/d*s;const want=Math.atan2(dx,dz);let df=want-p.ry;df=Math.atan2(Math.sin(df),Math.cos(df));p.ry+=df*Math.min(1,dt*8)}
-  if(p.hop>0){p.hop-=dt;hop+=Math.abs(Math.sin(p.hop*10))*.35}
-  if(p.atk>0&&BOSSD){p.atk-=dt;hop+=Math.sin((.4-p.atk)/.4*Math.PI)*.25;p.ry=Math.atan2(TBOSSPOS.x-p.x,TBOSSPOS.z-p.z)}
+  if(p.hop>0){p.hop-=dt;hop+=Math.sin(Math.max(0,p.hop)/.5*Math.PI)*.9*(p.hop<=.5?1:.3)}
+  if(p.atk>0)p.atk-=dt;
   g.position.set(p.x,hop,p.z);g.rotation.y=p.ry;figAuto(g,p,t,dt,p.atk>0?'atk':p.hop>0?'jump':null);
   V.set(p.x,0,p.z).project(TCAM);const vis=V.z<1&&Math.hypot(p.x-TP.x,p.z-TP.z)<26;p.tg.style.left=(V.x+1)/2*innerWidth+'px';p.tg.style.top=((1-V.y)/2*innerHeight+4)+'px';p.tg.style.display=vis&&!quiet?'':'none';
   p.say-=dt;V.set(p.x,1.2*H,p.z).project(TCAM);p.b.style.left=(V.x+1)/2*innerWidth+'px';p.b.style.top=((1-V.y)/2*innerHeight-4)+'px';p.b.classList.toggle('on',p.say>0&&vis&&!quiet)});
- const hide=!!document.querySelector('#battle.on,#sheet.on,#cap.on,#phone.on');$('#chatb').style.display=$('#online').style.display=hide?'none':'';
+ const hide=!!document.querySelector('#battle.on,#sheet.on,#cap.on,#phone.on');$('#chatb').style.display=$('#hubb').style.display=$('#online').style.display=hide?'none':'';
  bossTick(t,dt,quiet)}
 
 // 點其他玩家
@@ -1846,7 +1851,19 @@ function startBattle(cs,foes,o){const U=(side,name,spid,t,lv,c)=>({side,name,sp:
 
 function townTap(e){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),TCAM);const cand=[...PEERS.values()].filter(p=>p.g).map(p=>p.g).concat(TBOSS3?[TBOSS3]:[]);const h=rc.intersectObjects(cand,true)[0];if(!h)return;let o=h.object;
  while(o&&!o.userData.peer&&!o.userData.boss)o=o.parent;if(!o)return;if(o.userData.boss)A.bossClick(e.clientX,e.clientY);else peerMenu(o.userData.peer,e.clientX,e.clientY)}
-A.tAct=()=>{if(tNear)tNear.a()};A.tSk=v=>tSkill(+v);A.tJump=()=>{if(inTown&&TP&&TP.y===0){TP.vy=8;sfx2('dash')}};A.tAtk=()=>{if(tAuto)return autoAtk(false);autoAtk(true);if(!MOBS.some(q=>Math.hypot(q.x-TP.x,q.z-TP.z)<11))tAttack()};
+A.tAct=()=>{if(tNear)tNear.a()};// ── 每日任務 / 賽季榜 / 公會 ──
+let hubTab='q';
+A.hub=async(v)=>{if(!S.tok)return toast('連線後才能使用任務與公會');if(v)hubTab=v;const tabs=`<div class="tabs">${[['q','每日任務'],['s','賽季榜'],['g','公會']].map(([k,n])=>`<button class="${hubTab===k?'on':''}" data-a="hub" data-v="${k}">${n}</button>`).join('')}</div>`;
+ sheet('冒險手冊',tabs+'<p class="note">讀取中…</p>','hub');try{let h='';
+ if(hubTab==='q'){const r=await net('/api/quest');h=r.list.map(q=>`<div class="row"><span class="g"><b>${q.n}</b><small>進度 ${fmt(q.have)} / ${fmt(q.need)}　獎勵 ${fmt(q.z)} zeny</small></span>${q.got?'<em>已領取</em>':q.have>=q.need?`<button class="btn sm" data-a="qClaim" data-v="${q.id}">領取</button>`:'<em>進行中</em>'}</div>`).join('')+'<p class="note">每日 00:00 重置。擊倒數與獎金由伺服器計算。</p>'}
+ else if(hubTab==='s'){const r=await net('/api/season');h=`<p class="note">本週（${r.since} 起）城鎮擊倒數排行，我的擊倒數：<b>${fmt(r.mine)}</b></p>`+(r.list.length?r.list.map((x,i)=>`<div class="row${x.me?' me':''}"><b style="width:28px">${i+1}</b>${icon(x.sp,null,34)}<span class="g"><b>${esc(x.name)}</b><small>${x.gn?'〈'+esc(x.gn)+'〉':''}</small></span><em>${fmt(x.k)} 隻</em></div>`).join(''):'<p class="note">本週還沒有人上榜，快去八卦城打怪！</p>')+(r.guilds.length?'<h3>公會排行</h3>'+r.guilds.map((g,i)=>`<div class="row"><b style="width:28px">${i+1}</b><span class="g"><b>〈${esc(g.name)}〉</b><small>${g.m} 人參與</small></span><em>${fmt(g.k)} 隻</em></div>`).join(''):'')}
+ else{const r=await net('/api/guild');h=guildHtml(r)}
+ if($('#sheet').dataset.k==='hub')$('#sbody').innerHTML=tabs+h}catch(e){$('#sbody').innerHTML=tabs+`<p class="note">${esc(e.message||'讀取失敗')}</p>`}};
+function guildHtml(r){if(r.zeny!=null){S.zeny=r.zeny;hud()}return r.mine?`<h3>〈${esc(r.mine.name)}〉　${r.mine.members.length}/30 人</h3>`+r.mine.members.map(m=>`<div class="row">${icon(m.sp,null,34)}<span class="g"><b>${m.boss?'👑 ':''}${esc(m.name)}</b><small>Lv${m.lv}${m.rb?' 轉生':''}</small></span><em>本週 ${fmt(m.k)} 隻</em></div>`).join('')+'<button class="btn" data-a="gAct" data-v="leave">退出公會</button>'
+ :`<p class="note">加入公會後，本週擊倒數會計入公會排行。創立公會需 50,000 zeny。</p><div class="row"><input id="gname" maxlength="12" placeholder="公會名稱（2–12 字）" style="flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid #c8923f"><button class="btn sm" data-a="gAct" data-v="create">創立</button></div>`+(r.list.length?r.list.map(g=>`<div class="row"><span class="g"><b>〈${esc(g.name)}〉</b><small>${g.m}/30 人</small></span><button class="btn sm" data-a="gAct" data-v="join:${g.id}">加入</button></div>`).join(''):'<p class="note">目前還沒有公會，來當第一個會長吧！</p>')}
+A.qClaim=async id=>{try{const r=await net('/api/quest',{id});S.zeny=r.zeny;hud();toast(`領取 ${fmt(r.got)} zeny！`);sfx2('ok');A.hub()}catch(e){toast(e.message||'領取失敗')}};
+A.gAct=async v=>{try{const [act,id]=String(v).split(':'),b={act};if(act==='create')b.name=($('#gname')||{}).value||'';if(act==='join')b.id=+id;await net('/api/guild',b);sfx2('ok');A.hub('g')}catch(e){toast(e.message||'操作失敗')}};
+A.tSk=v=>tSkill(+v);A.tJump=()=>{if(inTown&&TP&&TP.y===0){TP.vy=8;twSend({t:'act',k:'jump'});sfx2('dash')}};A.tAtk=()=>{if(tAuto)return autoAtk(false);autoAtk(true);if(!MOBS.some(q=>Math.hypot(q.x-TP.x,q.z-TP.z)<11))tAttack()};
 function autoAtk(on){tAuto=on;tAutoIdle=0;const b=$('#batk');if(b){b.classList.toggle('auto',on);b.querySelector('small').textContent=on?'自動中':'攻擊'}if(on)toast('⚔ 自動攻擊：鎖定最近魔物（再按一次停止）')}A.goTown=()=>enterTown();A.goFarm=()=>leaveTown();
 setTimeout(joyInit,0);
 // 右下角提示：加入主畫面、用 LINE 邀請好友
@@ -1862,7 +1879,7 @@ A.tip_home=()=>{if(BIP){BIP.prompt();BIP.userChoice.then(()=>A.tipX('home'));BIP
 A.tip_line=()=>{location.href='https://line.me/R/share?text='+encodeURIComponent(SHARE_TXT)};
 setTimeout(tips,1600);
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#qm,#qp'))qClose();if(!e.target.closest('#pmenu'))$('#pmenu').classList.remove('on');if(!e.target.closest('#autob')&&!AUTO)$('#autob').classList.remove('show')},true);
-document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&A[el.dataset.a]){if(!/^(snd|btgt|bact)$/.test(el.dataset.a))sfx2('click',.55);else if(el.dataset.a!=='snd')sfx2('click',.55);A[el.dataset.a](el.dataset.v)}});
+document.addEventListener('click',e=>{const el=e.target.closest('[data-a]');if(el&&el._pd&&Date.now()-el._pd<800)return;if(el&&A[el.dataset.a]){if(!/^(snd|btgt|bact)$/.test(el.dataset.a))sfx2('click',.55);else if(el.dataset.a!=='snd')sfx2('click',.55);A[el.dataset.a](el.dataset.v)}});
 
 /* ====== 收服細節 ====== */
 let capTier=1,capSrc=null,capRun=false,capX=0,capDir=1,capT=0,stream=null,busy=false,demoMode=false,cutId=0,FD=null,fdState='';
