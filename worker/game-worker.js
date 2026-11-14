@@ -7,6 +7,7 @@ const FAPI = 'https://api.fugle.tw/marketdata/v1.0/stock';
 const H = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'content-type,authorization', 'access-control-allow-methods': 'GET,POST,OPTIONS', 'content-type': 'application/json; charset=utf-8' };
 const J = (o, st = 200, extra = {}) => new Response(JSON.stringify(o), { status: st, headers: { ...H, ...extra } });
 const okCode = x => /^[0-9A-Z]{4,6}$/.test(x);
+const GMZ = 999999999; // GM 帳號（players.gm=1）：zeny 固定、不上排行榜、暱稱 GM 保留
 const START = 1000000, FEE = .001425, TAX = .003;
 
 function marketOpen() {
@@ -46,12 +47,13 @@ async function auth(req, env) {
   return env.DB.prepare('SELECT * FROM players WHERE token=?').bind(t).first();
 }
 async function wallet(env, p) {
+  if (p.gm && p.zeny !== GMZ) { p.zeny = GMZ; await env.DB.prepare('UPDATE players SET zeny=? WHERE id=?').bind(GMZ, p.id).run(); }
   const { results } = await env.DB.prepare('SELECT code,q,cost FROM holdings WHERE pid=?').bind(p.id).all();
   let mv = 0; const port = {};
   for (const h of results) { const q = await quote(env, h.code); const v = px(q) || h.cost / h.q; mv += h.q * v; port[h.code] = { q: h.q, cost: h.cost, n: q ? q.n : null }; }
   const w = Math.round(p.zeny + mv);
   await env.DB.prepare('UPDATE players SET wealth=?,wts=? WHERE id=?').bind(w, Date.now(), p.id).run();
-  return { id: p.id, name: p.name, zeny: Math.round(p.zeny), port, wealth: w, open: marketOpen() };
+  return { id: p.id, name: p.name, zeny: Math.round(p.zeny), port, wealth: w, open: marketOpen(), gm: p.gm ? 1 : 0 };
 }
 let READY = false;
 async function ensure(db) {
@@ -62,6 +64,7 @@ async function ensure(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)')
   ]);
   try { await db.prepare('ALTER TABLE players ADD COLUMN seen INTEGER DEFAULT 0').run(); } catch (e) {}
+  try { await db.prepare('ALTER TABLE players ADD COLUMN gm INTEGER DEFAULT 0').run(); } catch (e) {}
   READY = true;
 }
 const RC = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -88,7 +91,7 @@ async function api(req, env, path) {
   }
   if (path === '/api/reg' && req.method === 'POST') {
     const b = await body(req), tok = [...crypto.getRandomValues(new Uint8Array(24))].map(x => x.toString(16).padStart(2, '0')).join('');
-    const name = String(b.name || '').slice(0, 12) || '玩家';
+    let name = String(b.name || '').slice(0, 12) || '玩家'; if (/^\s*gm\s*$/i.test(name)) name = '玩家';
     // 首次上線可匯入本機錢包（現金上限 200 萬）
     const z = Math.max(0, Math.min(2000000, +b.zeny || START));
     const r = await db.prepare('INSERT INTO players(token,name,zeny,created,lv,rb,sp,wealth,wts) VALUES(?,?,?,?,0,0,?,?,?)').bind(tok, name, z, Date.now(), String(b.sp || 'shiba').slice(0, 10), z, Date.now()).run();
@@ -126,6 +129,7 @@ async function api(req, env, path) {
   }
   if (path === '/api/name' && req.method === 'POST') {
     const b = await body(req), n = String(b.name || '').trim().slice(0, 12);
+    if (!p.gm && /^gm$/i.test(n)) return J({ error: '這個暱稱已保留' }, 400);
     if (n) await db.prepare('UPDATE players SET name=? WHERE id=?').bind(n, p.id).run();
     return J({ ok: true, name: n || p.name });
   }
@@ -188,11 +192,11 @@ async function api(req, env, path) {
     const type = new URL(req.url).searchParams.get('type') === 'w' ? 'w' : 'lv';
     p.wealth = (await wallet(env, p)).wealth;
     const order = type === 'w' ? 'wealth DESC' : 'rb DESC, lv DESC, wealth DESC';
-    const { results } = await db.prepare(`SELECT id,name,sp,lv,rb,wealth FROM players ORDER BY ${order} LIMIT 100`).all();
+    const { results } = await db.prepare(`SELECT id,name,sp,lv,rb,wealth FROM players WHERE COALESCE(gm,0)=0 ORDER BY ${order} LIMIT 100`).all();
     const me = type === 'w'
-      ? await db.prepare('SELECT COUNT(*) c FROM players WHERE wealth>?').bind(p.wealth).first()
-      : await db.prepare('SELECT COUNT(*) c FROM players WHERE rb>? OR (rb=? AND lv>?)').bind(p.rb, p.rb, p.lv).first();
-    const tot = await db.prepare('SELECT COUNT(*) c FROM players').first();
+      ? await db.prepare('SELECT COUNT(*) c FROM players WHERE COALESCE(gm,0)=0 AND wealth>?').bind(p.wealth).first()
+      : await db.prepare('SELECT COUNT(*) c FROM players WHERE COALESCE(gm,0)=0 AND (rb>? OR (rb=? AND lv>?))').bind(p.rb, p.rb, p.lv).first();
+    const tot = await db.prepare('SELECT COUNT(*) c FROM players WHERE COALESCE(gm,0)=0').first();
     return J({ type, list: results.map(r => ({ ...r, me: r.id === p.id ? 1 : 0, id: undefined })), mine: me.c + 1, total: tot.c });
   }
   return J({ error: 'not found' }, 404);
