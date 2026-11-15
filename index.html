@@ -537,6 +537,8 @@ body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
 #sheet h2:not(.tt){font:900 28px var(--display)!important;letter-spacing:.06em;background:linear-gradient(#fff6c0 8%,#ffcf45 45%,#f0861a 92%);-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 2.5px 0 #5a2e08) drop-shadow(1.5px 0 0 #5a2e08) drop-shadow(-1.5px 0 0 #5a2e08) drop-shadow(0 -1.5px 0 #5a2e08) drop-shadow(0 3px 3px #0004);margin:0 auto;text-align:center}
 #tut{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 118px);transform:translateX(-50%);z-index:9;width:min(88vw,360px);display:none;align-items:center;gap:8px;padding:8px 10px 8px 14px;border-radius:14px;background:#fff8e8f2;color:#5a2e08;font:800 13px/1.4 system-ui;box-shadow:0 0 0 2.5px #c8923f,0 6px 16px #0005}#tut.on{display:flex}#tut span{flex:1}#tut button{flex:none;border:0;border-radius:99px;padding:4px 10px;font:800 11px system-ui;background:#e8d5a8;color:#7a5a30}
 #storym{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;background:#120c24cc;padding:24px}#storym.on{display:flex}#storym>div{max-width:340px;background:#f6e9c9;border:4px solid #a8743d;border-radius:20px;padding:20px;color:#4a2f18;box-shadow:0 12px 40px #000a}#storym h3{margin:0 0 12px;font:900 20px var(--display);color:#a14d0f;text-align:center}#storym p{font:500 15px/1.75 system-ui;margin:0 0 16px}
+#bcmd .bauto{grid-column:1/-1;background:linear-gradient(#b48cff,#7a4ae0)!important;color:#fff!important;box-shadow:inset 0 2px 0 #fff6,inset 0 -3px 0 #0003,0 3px 0 #4a2a9c!important}#bcmd .bauto.on{background:linear-gradient(#ffd66b,#f2b632)!important;color:#5a3a00!important;animation:apulse .8s infinite alternate}
+body.inbattle #chatb,body.inbattle #hubb,body.inbattle #tut{display:none!important}
 </style>
 </head>
 <body>
@@ -824,8 +826,18 @@ function bDraw(){const cu=B.phase==='cmd'?B.a[B.i]:null;
  if(B.phase==='cmd'){if(B.pend)cmd=B.f.map((x,i)=>x.hp>0?`<button data-a="btgt" data-v="f${i}">${esc(x.name)}</button>`:'').join('')+'<button data-a="bback">返回</button>';
   else{const s=SK[cu.sp];cmd=`<button data-a="bact" data-v="atk">攻擊<small>普通攻擊</small></button><button data-a="bact" data-v="sk" ${cu.qi<2?'disabled':''}>${s[0]}<small>${SKD[s[1]]} · 氣 2</small></button>${(()=>{const p=pairOf(cu,B.a);return p?`<button class="cmb" data-a="bact" data-v="cmb" ${cu.qi<2||p.m.qi<2||p.m.done?'disabled':''}>合體「${p.n}」<small>與 ${esc(p.m.name)} · 各耗氣 2</small></button>`:''})()}<button data-a="bact" data-v="def">防禦<small>傷害減半，氣 +1</small></button><button data-a="bact" data-v="run">逃跑<small>離開戰鬥</small></button>`}}
  else if(B.phase==='end')cmd='<button data-a="bexit">離開</button>';
+ if(B.phase!=='end')cmd=`<button class="bauto${BAUTO?' on':''}" data-a="bauto">${BAUTO?'■ 停止全自動':'⚡ 一鍵全自動'}<small>${BAUTO?'回合自動進行中':'自動選招與目標，打到結束'}</small></button>`+(BAUTO?'':cmd);
+ if(BAUTO&&B.phase==='cmd'&&!B.pend)setTimeout(bAutoPick,450);
  const msg=B.phase==='cmd'?(B.pend?`${esc(cu.name)} 要打誰？`:`第 ${B.round} 回合　${esc(cu.name)} 要做什麼？`):B.msg;
  $('#battle').innerHTML=`<div class="field"><div class="wea">${B.wx[1]} ${B.wx[0]}</div><div class="stage">${B.a.map(u).join('')}${B.f.map(u).join('')}</div></div><div class="bbox"><p id="bmsg">${msg}</p><div id="bcmd">${cmd}</div></div>`;b3Draw()}
+let BAUTO=!!localStorage.sealBA;
+// 全自動：氣夠就合體/絕招，血少的隊友多時防禦，否則攻擊血最少、屬性有利的敵人
+function bAutoPick(){if(!BAUTO||!B||B.phase!=='cmd'||B.pend)return;const u=B.a[B.i];if(!u)return;const al=B.f.filter(x=>x.hp>0);if(!al.length)return;
+ const tgt=al.slice().sort((x,y)=>(wxm(u.sp,y.sp)-wxm(u.sp,x.sp))||(x.hp-y.hp))[0],ti='f'+B.f.indexOf(tgt),p=pairOf(u,B.a);
+ if(p&&u.qi>=2&&p.m.qi>=2&&!p.m.done){A.bact('cmb');if(B.pend)A.btgt(ti);return}
+ if(u.qi>=2){A.bact('sk');if(B.pend)A.btgt(ti);return}
+ if(u.hp<u.mx*.25&&u.qi<2){A.bact('def');return}
+ A.bact('atk');if(B.pend)A.btgt(ti)}
 function bNext(){let i=B.i+1;while(i<B.a.length&&(B.a[i].hp<=0||B.a[i].skipc))i++;if(i<B.a.length){B.i=i;return bDraw()}
  const al=B.a.filter(x=>x.hp>0);B.f.forEach(e=>{if(e.hp<=0||e.skip)return;const r=Math.random(),low=al.slice().sort((x,y)=>x.hp-y.hp)[0];let k='atk',t=pick(al);
   const pr=e.qi>=2?pairOf(e,B.f):null;if(pr&&pr.m.qi>=2&&r<.5){pr.m.skip=1;B.acts.push({u:e,k:'cmb',p:pr,t:low});return}
@@ -849,7 +861,7 @@ function bStep(){if(!B||B.phase!=='run')return;const a=B.acts.shift();
    sfx2(win?'win':'lose');B.msg=(B.mode==='duel'?(win?`你贏了與 ${B.vs} 的友誼賽！`:`友誼賽輸給了 ${B.vs}，再接再厲！`):win?`勝利！獲得 ${fmt(z)} zeny，全員得到經驗。`:'全員倒下…… 得到少量經驗。')+extra+(ups.length?` ${ups.join('、')} 升級了！`:'');hud();build3D();netSync();return bDraw()}
   B.round++;B.phase='cmd';B.i=B.a.findIndex(x=>x.hp>0);return bDraw()}
  const u=a.u;if(u.hp<=0)return bStep();const foes=(u.side==='a'?B.f:B.a).filter(x=>x.hp>0);if(!foes.length)return bStep();
- let t=a.t&&a.t.hp>0?a.t:pick(foes),fx=[],m='';const nm=esc(u.name);
+ let t=a.t&&a.t.hp>0?a.t:pick(foes),fx=[],m='';B.cur=u;const nm=esc(u.name);
  const say=(r,x)=>{fx.push([x,r.miss?'MISS':r.d]);return r.miss?`${esc(x.name)} 閃開了`:`${r.ew>1?'效果絕佳！':r.ew<1?'效果不太好…':''}${esc(x.name)} 受到 ${r.d} 傷害${r.crit?'（爆擊）':''}`};
  if(a.k==='hl'){const al=(u.side==='a'?B.a:B.f).filter(x=>x.hp>0).sort((x,y)=>x.hp/x.mx-y.hp/y.mx)[0];const hl=Math.round(al.mx*.25);al.hp=Math.min(al.mx,al.hp+hl);fx.push([al,'+'+hl]);m=`${nm} 替 ${esc(al.name)} 治療，回復 ${hl}`;t=al}
  else if(a.k==='cmb'){const p=a.p;u.qi=Math.max(0,u.qi-2);if(p.m.hp>0)p.m.qi=Math.max(0,p.m.qi-2);m=`合體技！${nm} 與 ${esc(p.m.name)} 使出「${p.n}」！`;
@@ -1295,7 +1307,7 @@ function buildTown(){fxTex();RBN=1;BLD=1;SIGNS.length=0;const sc=new THREE.Scene
 function enterTown(){if(!HAS3D)return toast('此裝置不支援 3D 城鎮');if(!S.cr.length)return toast('先收服至少一位夥伴才能進城');qClose&&qClose();A.close&&A.close();
  const lo=$('#tload');lo.classList.add('on');setTimeout(()=>{if(!TOWNSC)buildTown();inTown=true;document.body.classList.add('intown');partyBuild();TP={x:0,z:TR-12,y:0,vy:0,ry:Math.PI};tAz=0;TRAIL=[];
   PEERS.forEach(p=>peerMesh(p));if(BOSSD&&!TBOSS3)bossMesh();TLIGHT.castShadow=qi<QL.length-1;lo.classList.remove('on');toast('歡迎來到八卦城！左下搖桿移動，右下跳躍與攻擊');sfx2('ok');twSend({t:'pos',x:TP.x,z:TP.z})},60)}
-function leaveTown(){autoAtk(false);inTown=false;document.body.classList.remove('intown');PARTY.forEach(p=>TOWNSC.remove(p.g));PARTY=[];MOBS.forEach(m=>{TOWNSC.remove(m.g);m.b.remove();m.tg.remove()});MOBS=[];flushEarn(true);build3D&&buildHome3D();toast('回到農場')}
+function leaveTown(){autoAtk(false);PEERS.forEach(p=>{p.b.classList.remove('on');p.tg.style.display='none'});if(BOSSD&&BOSSD.b)BOSSD.b.classList.remove('on');inTown=false;document.body.classList.remove('intown');PARTY.forEach(p=>TOWNSC.remove(p.g));PARTY=[];MOBS.forEach(m=>{TOWNSC.remove(m.g);m.b.remove();m.tg.remove()});MOBS=[];flushEarn(true);build3D&&buildHome3D();toast('回到農場')}
 function partyBuild(){PARTY.forEach(p=>TOWNSC.remove(p.g));const cs=S.cr.slice().sort((a,b)=>(b.lv-a.lv)||(b.rb-a.rb)).slice(0,3);PARTY=cs.map((c,i)=>{const s=sp(c.sp),g=fig3D(c),H=1.15*[0,1,1.1,1.25][s.t];g.scale.setScalar(H);g.userData.h=H;TOWNSC.add(g);return {c,g,H,x:0,z:TR-12-i,y:0,ry:Math.PI,atk:0}});
  tHPM=Math.round(120+cs.reduce((a,c)=>a+total(c)[3]*6,0));tHP=tHPM;thpUI();skName()}
 function thpUI(){const e=$('#thp');if(!e)return;e.querySelector('i').style.width=Math.max(0,tHP/tHPM*100)+'%';e.querySelector('small').textContent=`${Math.max(0,Math.round(tHP))} / ${tHPM}`}
@@ -1304,7 +1316,7 @@ function tCollide(o,r){const d=Math.hypot(o.x,o.z);if(d>TR-1.2){o.x*=(TR-1.2)/d;
 // ── 攻擊與特效 ──
 // ── Nano Banana 特效圖集 ──
 let FXT=null;const FXI={slash:{火:0,金:1,水:2,木:3,土:4},orb:{火:5,金:6,水:7,木:8,土:9},imp:{火:11,金:10,水:12,木:13,土:10}};
-function fxTex(){if(FXT)return FXT;FXT=[];const base=new THREE.TextureLoader().load('art/fx.webp');for(let i=0;i<16;i++){const t=base.clone();t.encoding=THREE.sRGBEncoding;t.repeat.set(.25,.25);t.offset.set((i%4)*.25,.75-Math.floor(i/4)*.25);FXT.push(t)}
+function fxTex(){if(FXT)return FXT;FXT=[];const base=new THREE.TextureLoader().load('art/fx.webp?v=2');base.generateMipmaps=false;base.minFilter=THREE.LinearFilter;for(let i=0;i<16;i++){const t=base.clone();t.encoding=THREE.sRGBEncoding;t.repeat.set(.25,.25);t.offset.set((i%4)*.25,.75-Math.floor(i/4)*.25);FXT.push(t)}
  base.onUpdate=null;const img=base.image;const fix=()=>FXT.forEach(t=>{t.image=base.image;t.needsUpdate=true});if(img&&img.complete)fix();else{const iv=setInterval(()=>{if(base.image&&base.image.complete){clearInterval(iv);fix()}},100)}return FXT}
 function fxSpr(i,x,y,z,sc,d,o){const m=new THREE.SpriteMaterial({map:fxTex()[i],transparent:true,depthWrite:false,rotation:(o&&o.rot)||0});const sp=new THREE.Sprite(m);sp.position.set(x,y,z);sp.scale.setScalar(sc);
  if(TCAM&&sp.position.distanceTo(TCAM.position)<sc*.9){m.dispose();return null}TOWNSC.add(sp);TFX.push(Object.assign({o:sp,t:0,d,k:'fx',s0:sc,g:(o&&o.g)||.6},o||{}));return sp}
@@ -1347,7 +1359,7 @@ function flushEarn(force){if(!tEarn&&!tKills.length)return;if(!force&&performanc
 function partyDown(){toast('隊伍倒下了…在南門重新集合');sfx2('lose');tHP=tHPM;thpUI();TP.x=0;TP.z=TR-12;TP.y=0;PARTY.forEach((p,i)=>{p.x=0;p.z=TR-12-i});MOBS.forEach(m=>{m.st='wander'})}
 // ── 每幀更新 ──
 let TBOSSPOS={x:0,z:3.2};
-function townLoop(t,dt){if(tStop>0){tStop-=dt;dt*=.06}tShake=Math.max(0,tShake-dt*2.2);for(let i=0;i<3;i++)if(SKCD[i]>0)SKCD[i]=Math.max(0,SKCD[i]-dt);skUI();const quiet=!!document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on,#sheet.on,#nickm.on');
+function townLoop(t,dt){if(tStop>0){tStop-=dt;dt*=.06}tShake=Math.max(0,tShake-dt*2.2);for(let i=0;i<3;i++)if(SKCD[i]>0)SKCD[i]=Math.max(0,SKCD[i]-dt);skUI();const quiet=!!document.querySelector('#cap.on,#phone.on,#cut.on,#battle.on,#sheet.on,#nickm.on');objs.forEach(o=>{if(o.b)o.b.classList.remove('on');if(o.tg)o.tg.style.display='none'});if(quiet)MOBS.forEach(m=>{m.b.classList.remove('on');m.tg.style.display='none'});
  if(!quiet&&PARTY.length){let mx=JOY.x,mz=JOY.y;if(TKEY.w||TKEY.arrowup)mz=-1;if(TKEY.s||TKEY.arrowdown)mz=1;if(TKEY.a||TKEY.arrowleft)mx=-1;if(TKEY.d||TKEY.arrowright)mx=1;
   const m=Math.min(1,Math.hypot(mx,mz)),L=PARTY[0];if(m>.08){const ang=Math.atan2(mx,mz)+tAz,sp2=5.2*m;TP.x+=Math.sin(ang)*sp2*dt;TP.z+=Math.cos(ang)*sp2*dt;let df=ang-TP.ry;df=Math.atan2(Math.sin(df),Math.cos(df));TP.ry+=df*Math.min(1,dt*10)}
   if(tAuto){let tg=null,bd=1e9;MOBS.forEach(q=>{const d=Math.hypot(q.x-TP.x,q.z-TP.z);if(d<bd){bd=d;tg=q}});
@@ -1507,7 +1519,7 @@ function flash(c){const el=document.createElement('i');el.className='bflash';el.
 function bp(x){const v=BU.get(x);return v?v.g.position.clone():new THREE.Vector3()}
 // 動作：回傳命中延遲（毫秒）與總時間
 function b3Act(kind,u,t,ty,list,ok){const a=BU.get(u),b=t&&BU.get(t);if(!a)return [0,700];
- if(kind==='atk'){a.an={k:'atk',t:0,d:.95,to:b?b.p.clone().sub(a.p).multiplyScalar(.7):new THREE.Vector3()};sfx2('dash');return [330,950]}
+ if(kind==='atk'){a.an={k:'atk',t:0,d:.95,to:b?b.p.clone().sub(a.p).multiplyScalar(.7):new THREE.Vector3()};sfx2('dash');if(b){const el=bElem(u),melee=MELEE.has(u.sp);setTimeout(()=>{if(!B)return;const hp=bp(t).add(new THREE.Vector3(0,.8,0));if(melee)bSpr(FXI.slash[el],hp.clone().add(new THREE.Vector3(-.2,0,.2)),2.4,.3,{rot:rr(-.6,.6),g:.3});else{const st=a.p.clone().add(new THREE.Vector3(0,.8,0));bSpr(FXI.orb[el],st.lerp(hp,.55),1.4,.25,{g:.2})}},melee?260:180)}return [330,950]}
  if(kind==='def'){a.an={k:'def',t:0,d:1};sfx2('guard');ring(a.p,0x7fd0ff,.4,1.6,.7);return [0,700]}
  // 絕招：先集氣
  a.an={k:'chg',t:0,d:.6};sfx2('charge');ring(a.p,0xffe27a,1.6,.3,.6);burst(a.p.clone().add(new THREE.Vector3(0,.4,0)),0xffe9a0,40,1.6,.25,.6,-1.5);
@@ -1521,8 +1533,13 @@ function b3Act(kind,u,t,ty,list,ok){const a=BU.get(u),b=t&&BU.get(t);if(!a)retur
    setTimeout(()=>{if(!b)return;if(ok){sfx2('crit');flash('#fff2a0');shake=.7;burst(bp(t).add(new THREE.Vector3(0,.6,0)),0xffe060,160,6,.55,1,3);ring(b.p,0xffe060,.3,4,.8);pillar(b.p,0xfff0a0,8,.6,.9)}else{sfx2('fail');burst(b.p.clone().add(new THREE.Vector3(0,.5,0)),0x999999,40,1,.6,1,-.5)}},500)}
  },600);
  return ty===3?[1500,1900]:ty===1?[1100,2300]:ty===2?[1000,2200]:[1100,2200]}
+// 競技場也用城鎮特效圖集
+function bSpr(i,pos,sc,d,o){if(!BS)return;const m=new THREE.SpriteMaterial({map:fxTex()[i],transparent:true,depthWrite:false,rotation:(o&&o.rot)||0}),sp=new THREE.Sprite(m);sp.position.copy(pos);sp.scale.setScalar(sc);
+ fxAdd(sp,d,f=>{const e=f<.2?f/.2:1;m.opacity=f<.6?1:1-(f-.6)/.4;sp.scale.setScalar(sc*(.7+.3*e+((o&&o.g)||.5)*f))})}
+function bElem(u){return u?WX[u.sp]||"土":"土"}
 function b3Hurt(x,v){const a=BU.get(x);if(!a)return;if(v==='MISS'){a.an={k:'dodge',t:0,d:.5};sfx2('miss');return}if(typeof v!=='number')return;
- a.hurt=.45;a.an={k:'hurt',t:0,d:.45,crit:v>=40};sfx2(v>=40?'crit':'hit');burst(a.g.position.clone().add(new THREE.Vector3(0,.8,0)),0xffffff,30,2.6,.28,.35,2);if(x.hp<=0)setTimeout(()=>sfx2('ko'),300)}
+ a.hurt=.45;a.an={k:'hurt',t:0,d:.45,crit:v>=40};const el=bElem(B&&B.cur),hp=a.g.position.clone().add(new THREE.Vector3(rr(-.15,.15),.8,rr(-.15,.15)));sfx2(ELSFX[el]||'hit');if(v>=40)setTimeout(()=>sfx2('crit'),60);
+ bSpr(FXI.imp[el],hp,v>=40?2.6:1.9,.4,{rot:rr(0,6)});if(v>=40)bSpr(14,hp.clone().add(new THREE.Vector3(0,.2,0)),2.8,.5,{g:.4});burst(hp,0xffffff,18,2.6,.22,.3,2);shake=Math.max(shake||0,v>=40?.45:.22);if(x.hp<=0)bSpr(15,hp,2.6,.7,{g:.5});if(x.hp<=0)setTimeout(()=>sfx2('ko'),300)}
 function b3Loop(tm){requestAnimationFrame(b3Loop);const dt=Math.min(.05,(tm-bLast)/1000);bLast=tm;if(!bOn||!B||!document.querySelector('#battle.on'))return;
  BU.forEach((v,x)=>{const g=v.g,cur=B.phase==='cmd'&&B.a[B.i]===x,dead=x.hp<=0;let ox=0,oz=0,oy=0,rx=0,rz=0,ry=v.ry,sy=1,sxz=1;
   const br=Math.sin(tm*.004+v.ph);oy=dead?0:Math.abs(br)*.03*v.k;sy=1+br*.025;sxz=1-br*.012;ry+=dead?0:Math.sin(tm*.0015+v.ph)*.08;
@@ -1634,7 +1651,8 @@ const A={
   B.pend=k;bDraw()},
  btgt(v){if(!B||B.phase!=='cmd'||!B.pend||v[0]!=='f')return;const t=B.f[+v.slice(1)];if(!t||t.hp<=0)return;B.acts.push({u:B.a[B.i],k:B.pend,t,p:B.pendP});B.pend=null;bNext()},
  bback(){B.pend=null;bDraw()},
- bexit(){const md=B&&B.mode;$('#battle').classList.remove('on');bOn=false;B=null;music(BOSSD?'battle':'bgm2');save();hud();if(md==='tower')A.tower();else if(md!=='duel')A.arena()},
+ bauto(){BAUTO=!BAUTO;localStorage.sealBA=BAUTO?1:'';bDraw()},
+ bexit(){const md=B&&B.mode;$('#battle').classList.remove('on');document.body.classList.remove('inbattle');bOn=false;B=null;music(BOSSD?'battle':'bgm2');save();hud();if(md==='tower')A.tower();else if(md!=='duel')A.arena()},
 
  /* ---- 收服 ---- */
  async cap(){A.close();$('#btyOn').checked=S.beauty!==false;capTier=capTier||1;demoMode=false;$('#cap').classList.add('on');$('#cap').classList.remove('demo');$('#capMsg').textContent='';drawSeals();loadFD();
@@ -1855,7 +1873,7 @@ function towerReward(n,first){const got=[];let z=Math.round((300+n*150)*(first?1
 function startBattle(cs,foes,o){const U=(side,name,spid,t,lv,c)=>({side,name,sp:spid,t,lv,c,mx:50+t[3]*8,hp:50+t[3]*8,qi:1,def:false});
  B={a:cs.map(c=>U('a',c.name,c.sp,total(c),c.lv,c)),f:foes,wx:o.mode==='tower'?WEA[0]:pick(WEA),round:1,phase:'cmd',i:0,pend:null,acts:[],msg:'',mode:o.mode||'wild',floor:o.floor,vs:o.vs};
  B.msg=o.msg||'';if(B.mode!=='tower')B.msg+=` ${B.wx[1]} 天候「${B.wx[0]}」：${B.wx[2]}`;AUTO=false;
- A.close();$('#battle').classList.add('on');b3Start();bDraw();music('battle')}
+ A.close();$('#battle').classList.add('on');document.body.classList.add('inbattle');b3Start();bDraw();music('battle')}
 
 function townTap(e){const rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1),TCAM);const cand=[...PEERS.values()].filter(p=>p.g).map(p=>p.g).concat(TBOSS3?[TBOSS3]:[]);const h=rc.intersectObjects(cand,true)[0];if(!h)return;let o=h.object;
  while(o&&!o.userData.peer&&!o.userData.boss)o=o.parent;if(!o)return;if(o.userData.boss)A.bossClick(e.clientX,e.clientY);else peerMenu(o.userData.peer,e.clientX,e.clientY)}
