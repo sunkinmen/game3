@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="封印物語">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preload" as="script" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"><link rel="preload" as="script" href="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="script" href="lib/three.min.js"><link rel="preload" as="script" href="lib/GLTFLoader.js"><link rel="preload" as="script" href="lib/BufferGeometryUtils.js"><link rel="preconnect" href="https://seal-game.sunkinmen.workers.dev" crossorigin>
 <link rel="preload" as="image" href="art/logo.webp">
 <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
@@ -607,9 +607,9 @@ body.inbattle #chatb,body.inbattle #hubb,body.inbattle #tut{display:none!importa
 <div id="chat"><header><button data-a="chatAll" class="ca">大廳</button><span id="chatX" data-a="chatAll">✕ 私訊中</span><button data-a="chat" class="cx">×</button></header><div id="chatl"></div><form onsubmit="A.chatSend();return false"><input id="chatIn" maxlength="60" autocomplete="off"><button class="btn">送出</button></form></div>
 <div id="pmenu"></div><div id="invd"></div><div id="bossbar"><b></b><span><i></i></span><small></small></div><button id="autob" data-a="auto"></button><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/utils/BufferGeometryUtils.js"></script>
+<script src="lib/three.min.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/BufferGeometryUtils.js"></script>
 <script>
 "use strict";
 /* ====== 設定：報價代理（Google Apps Script 網頁應用程式的 /exec 網址），留空則用模擬報價 ====== */
@@ -896,13 +896,13 @@ function sfxSynth(k){if(S.mute)return;try{AC=AC||new (window.AudioContext||windo
 /* 音樂與語音 */
 let BGM=null;const VC={};
 // 有錄音檔的台詞播錄音（ElevenLabs），其餘用裝置內建中文語音（女聲較高、男聲較低）
-const VREC=new Set(['m_fl0','m_fl1','m_fl2','m_bad0','m_bad1','m_bad2','m_fun0','m_fun1','m_fun2','m_cap0','m_eat0']);
+const VREC={has:k=>!!VOX[k[0]]};// ElevenLabs：男聲 AMeng、女聲 Stacy，全部台詞已錄製
 function ttsVoice(g){const v=speechSynthesis.getVoices().filter(x=>/^zh/i.test(x.lang)),tw=v.filter(x=>/TW|Hant|臺灣|台灣/i.test(x.lang+x.name));const L=tw.length?tw:v;
  const fem=/Meijia|美佳|Tingting|婷婷|Sinji|善怡|HsiaoChen|HsiaoYu|Yaoyao|Female|女/i,mal=/Zhiwei|志偉|Yunjhe|Kangkang|Male|男|Li-mu/i;return (g==='m'?L.find(x=>mal.test(x.name)):L.find(x=>fem.test(x.name)))||L[0]}
 function tts(t,g){try{if(!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t),v=ttsVoice(g);if(v)u.voice=v;u.lang=v?v.lang:'zh-TW';
  const male=g==='m'&&!(v&&/Zhiwei|志偉|Yunjhe|Kangkang|Male|男/i.test(v.name));u.pitch=g==='f'?1.3:male?.7:.95;u.rate=1.08;u.volume=1;speechSynthesis.speak(u)}catch(e){}}
 function voice(cat,i,g){if(S.mute)return;g=g||'m';if(i==null)i=vpick(g,cat);const k=g+'_'+cat+i;
- if(!VREC.has(k))return tts(VOX[g][cat][i],g);try{const a=VC[k]||(VC[k]=new Audio('audio/v/'+k+'.mp3'));a.currentTime=0;a.play().catch(()=>tts(VOX[g][cat][i],g))}catch(e){}}
+ if(!VREC.has(k))return tts(VOX[g][cat][i],g);try{const a=VC[k]||(VC[k]=new Audio('audio/v/'+k+'.mp3?v=2'));a.currentTime=0;a.play().catch(()=>tts(VOX[g][cat][i],g))}catch(e){}}
 let BGK='';const SFXK=['click','cast','tick','ok','fail','dash','hit','crit','miss','guard','heal','fire','slash','roar','charge','win','lose','ko','coin'],SB={};let sfxL=false;
 function acx(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
 function loadSfx(){if(sfxL)return;sfxL=true;const c=acx();SFXK.forEach(k=>fetch('audio/sfx/'+k+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(k)).then(b=>new Promise((ok,no)=>c.decodeAudioData(b,ok,no))).then(d=>SB[k]=d).catch(()=>{}))}
