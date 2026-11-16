@@ -69,6 +69,7 @@ async function ensure(db) {
     db.prepare('CREATE INDEX IF NOT EXISTS recov_pid ON recov(pid)'),
     db.prepare('CREATE TABLE IF NOT EXISTS promo(code TEXT PRIMARY KEY, zeny INTEGER DEFAULT 0, items TEXT, uses INTEGER DEFAULT 0, used INTEGER DEFAULT 0, exp INTEGER DEFAULT 0, note TEXT, created INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS redeem(pid INTEGER, code TEXT, ts INTEGER, PRIMARY KEY(pid, code))'),
+    db.prepare('CREATE TABLE IF NOT EXISTS feedback(id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, name TEXT, msg TEXT, ts INTEGER, rd INTEGER DEFAULT 0)'),
     db.prepare('CREATE TABLE IF NOT EXISTS daily(pid INTEGER, day TEXT, kills INTEGER DEFAULT 0, zeny INTEGER DEFAULT 0, claim TEXT DEFAULT \'\', PRIMARY KEY(pid, day))'),
     db.prepare('CREATE TABLE IF NOT EXISTS guilds(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, owner INTEGER, ts INTEGER)'),
     db.prepare('CREATE TABLE IF NOT EXISTS gifts(id INTEGER PRIMARY KEY AUTOINCREMENT, pid INTEGER, item TEXT, note TEXT, ts INTEGER)')
@@ -236,6 +237,26 @@ async function api(req, env, path) {
     p.zeny += n; const w = await wallet(env, p);
     return J({ got: n, zeny: w.zeny, wealth: w.wealth });
   }
+  if (path === '/api/feedback') {
+    if (req.method === 'POST') {
+      const b = await body(req);
+      if (b.read && p.gm) { await db.prepare('UPDATE feedback SET rd=1 WHERE id<=?').bind(+b.read || 0).run(); return J({ ok: 1 }); }
+      const msg = String(b.m || '').replace(/[<>]/g, '').trim().slice(0, 500);
+      if (msg.length < 2) return J({ error: '請至少輸入 2 個字' }, 400);
+      const last = await db.prepare('SELECT ts FROM feedback WHERE pid=? ORDER BY id DESC LIMIT 1').bind(p.id).first();
+      if (last && Date.now() - last.ts < 60000) return J({ error: '留言太頻繁，請 1 分鐘後再試' }, 429);
+      const day = await db.prepare('SELECT COUNT(*) c FROM feedback WHERE pid=? AND ts>?').bind(p.id, Date.now() - 864e5).first();
+      if (day.c >= 10) return J({ error: '今天留言次數已達上限' }, 429);
+      await db.prepare('INSERT INTO feedback(pid,name,msg,ts) VALUES(?,?,?,?)').bind(p.id, p.name, msg, Date.now()).run();
+      // 即時轉給在線的 GM
+      try { if (env.TOWN) { const gms = await db.prepare('SELECT id FROM players WHERE gm=1').all();
+        await env.TOWN.get(env.TOWN.idFromName('town-1')).fetch('https://town/notify', { method: 'POST', body: JSON.stringify({ to: gms.results.map(r => r.id), m: `📮 玩家留言｜${p.name}：${msg.slice(0, 80)}` }) }); } } catch (e) {}
+      return J({ ok: 1 });
+    }
+    if (!p.gm) return J({ error: 'GM only' }, 403);
+    const { results } = await db.prepare('SELECT id,name,msg,ts,rd FROM feedback ORDER BY id DESC LIMIT 60').all();
+    return J({ list: results });
+  }
   if (path === '/api/kills' && req.method === 'POST') {
     // 城鎮打怪：由伺服器計算獎金與掉寶；每次最多 14 隻、間隔 12 秒、與戰鬥獎金共用每日上限
     const b = await body(req), d = today(), used = p.earn_day === d ? p.earn_amt : 0;
@@ -381,6 +402,7 @@ export class Town {
   pub(a) { return { id: a.id, name: a.name, sp: a.sp, x: a.x, z: a.z, gm: a.gm ? 1 : 0 }; }
   bossPub() { const b = this.boss; return b ? { i: b.i, lv: b.lv, hp: Math.max(0, Math.round(b.hp)), mx: b.mx, name: b.name, sp: b.sp, ends: b.ends } : null; }
   async fetch(req) {
+    if (new URL(req.url).pathname === '/notify') { const b = await req.json(); for (const id of b.to || []) for (const w of this.state.getWebSockets('p' + id)) this.send(w, { t: 'sys', m: String(b.m || '').slice(0, 120), mail: 1 }); return new Response('ok'); }
     if (req.headers.get('Upgrade') !== 'websocket') return new Response(JSON.stringify({ online: this.socks().length, boss: this.bossPub() }), { headers: H });
     const u = new URL(req.url), tok = u.searchParams.get('tok') || '';
     if (!/^[0-9a-f]{32,64}$/.test(tok)) return new Response('unauthorized', { status: 401 });

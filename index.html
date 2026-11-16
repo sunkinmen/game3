@@ -541,6 +541,8 @@ body:not(.intown) #bossbar{display:none!important}#bossbar{z-index:5!important}
 body.inbattle #chatb,body.inbattle #hubb,body.inbattle #tut{display:none!important}
 body.tquiet #tctl,body.inbattle #tctl{display:none!important}
 .pty{flex:none;border:0;border-radius:99px;padding:6px 10px;font:800 12px system-ui;background:#e8d5a8;color:#7a5a30;box-shadow:inset 0 -2px 0 #0002}.pty.on{background:linear-gradient(#ffd66b,#f2b632);color:#5a3a00}
+#chat header .ca{margin-right:4px}.who{display:flex;justify-content:space-between;align-items:center;width:100%;margin:3px 0;padding:8px 10px;border:0;border-radius:10px;background:#fff5dd;color:#4a2f18;font:800 14px system-ui;box-shadow:0 0 0 1.5px #dcc394}.who small{font:600 11px system-ui;color:#9a7a50}
+.fbok{margin:6px 0;padding:14px;border-radius:12px;background:#e6f7df;color:#2f6b1f;font:800 15px system-ui;text-align:center}.fbm{padding:8px 10px;margin:6px 0;border-radius:10px;background:#fffaf0;box-shadow:0 0 0 1.5px #e6d3a8}.fbm.new{box-shadow:0 0 0 2px #e2731e}.fbm small{margin-left:8px;color:#9a7a50;font-size:11px}.fbm p{margin:4px 0 0;font-size:14px;white-space:pre-wrap;word-break:break-all}
 </style>
 </head>
 <body>
@@ -606,7 +608,7 @@ body.tquiet #tctl,body.inbattle #tctl{display:none!important}
 <div id="tips"></div>
 <div id="tctl"><div id="joy"><i></i></div><button id="bjump" data-a="tJump" aria-label="跳躍">⤒<small>跳躍</small></button><button id="batk" data-a="tAtk" aria-label="攻擊">⚔<small>攻擊</small></button><button class="skb" id="sk0" data-a="tSk" data-v="0">🌀<small></small><i></i></button><button class="skb" id="sk1" data-a="tSk" data-v="1">💨<small></small><i></i></button><button class="skb" id="sk2" data-a="tSk" data-v="2">💥<small></small><i></i></button>
 <div id="thp"><b>隊伍</b><span><i></i></span><small></small></div><button id="tfarm" data-a="goFarm">🏠 回農場</button><button id="tact" data-a="tAct"></button></div><div id="hurtv"></div><div id="tut"><span></span><button data-a="tutSkip">跳過</button></div><div id="storym"><div><h3></h3><p></p><button class="btn gd" data-a="storyX">繼續冒險</button></div></div><div id="tload"><b>前往八卦城…</b></div><div id="online" data-a="chat"></div><button id="chatb" data-a="chat" aria-label="聊天">💬</button><button id="hubb" data-a="hub" aria-label="任務">📜</button>
-<div id="chat"><header><button data-a="chatAll" class="ca">大廳</button><span id="chatX" data-a="chatAll">✕ 私訊中</span><button data-a="chat" class="cx">×</button></header><div id="chatl"></div><form onsubmit="A.chatSend();return false"><input id="chatIn" maxlength="60" autocomplete="off"><button class="btn">送出</button></form></div>
+<div id="chat"><header><button data-a="chatAll" class="ca">大廳</button><button data-a="chatWho" class="ca">👥 私訊</button><span id="chatX" data-a="chatAll">✕ 私訊中</span><button data-a="chat" class="cx">×</button></header><div id="chatl"></div><form onsubmit="A.chatSend();return false"><input id="chatIn" maxlength="60" autocomplete="off"><button class="btn">送出</button></form></div>
 <div id="pmenu"></div><div id="invd"></div><div id="bossbar"><b></b><span><i></i></span><small></small></div><button id="autob" data-a="auto"></button><div id="qm"></div><div id="qp"><header><button class="qb" data-a="qBack" aria-label="返回">‹</button><h4></h4><button class="qb" data-a="qX" aria-label="關閉">×</button></header><div class="in"></div></div>
 
 <script src="lib/three.min.js"></script>
@@ -1734,6 +1736,8 @@ function promoList(l){const b=$('#gpL');if(!b)return;b.innerHTML=(l||[]).map(p=>
 A.acct=()=>{const t=CLS?new Date(CLS).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}):'—';
  sheet('帳號與存檔',`<div class="sec"><h3>優惠碼</h3><div class="row"><input id="pcIn" placeholder="輸入活動優惠碼" maxlength="20" autocapitalize="characters" style="flex:1;letter-spacing:.08em"><button class="btn" data-a="redeem">兌換</button></div></div>
  ${S.gm?`<div class="sec gmsec"><h3>GM · 建立優惠碼</h3><div class="gpf"><input id="gpC" placeholder="代碼（英數）" maxlength="20" autocapitalize="characters"><input id="gpZ" type="number" inputmode="numeric" placeholder="zeny"><select id="gpFi">${FOOD.map(f=>`<option value="${f.id}">${f.n}</option>`).join('')}</select><input id="gpF" type="number" inputmode="numeric" placeholder="食物數量"><select id="gpE"><option value="">（不送裝備）</option>${Object.values(ITEMS).map(i=>`<option value="${i.id}">${i.n}</option>`).join('')}</select><input id="gpU" type="number" inputmode="numeric" placeholder="總次數（0＝不限）"><input id="gpD" type="number" inputmode="numeric" placeholder="有效天數（0＝永久）"><input id="gpN" placeholder="備註（例：開服禮）" maxlength="40"></div><button class="btn gd" data-a="promoNew">建立／更新</button><div id="gpL" style="margin-top:8px"><p class="note">讀取中…</p></div></div>`:''}
+ <div class="sec"><h3>留言給開發者</h3><div id="fbBox"><p class="note">遇到問題、想要的新功能、任何建議都歡迎，開發者會親自看。</p><textarea id="fbIn" maxlength="500" rows="4" placeholder="想說的話（500 字內）" style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1.5px solid #dcc394;background:#fffaf0;color:#4a2f18;font:15px/1.5 system-ui;resize:vertical"></textarea><button class="btn gd" data-a="fbSend" ${S.tok?'':'disabled'}>送出留言</button></div></div>
+ ${S.gm?'<div class="sec gmsec"><h3>GM · 玩家留言</h3><div id="fbL"><p class="note">讀取中…</p></div></div>':''}
  <div class="sec"><h3>雲端存檔</h3><p class="note">夥伴、等級、物品、裝備會自動同步到伺服器；zeny 和持股本來就存在伺服器。${S.tok?'':'<b>目前尚未連線，連上後會自動備份。</b>'}</p>
  <div class="row"><span class="g"><b>上次備份</b><small>${t}</small></span><button class="btn" data-a="bkNow" ${S.tok?'':'disabled'}>立即備份</button></div>
  <label class="row"><span class="g"><b>一併備份夥伴臉照</b><small>預設臉照只留在這支手機；勾選後換機也能找回臉</small></span><input type="checkbox" id="fbk" ${S.faceBk?'checked':''}></label></div>
@@ -1741,7 +1745,9 @@ A.acct=()=>{const t=CLS?new Date(CLS).toLocaleTimeString('zh-TW',{hour:'2-digit'
  <div id="rcBox"></div><button class="btn gd" data-a="rcode" ${S.tok?'':'disabled'}>產生引繼碼</button></div>
  <div class="sec"><h3>用引繼碼找回帳號</h3><p class="note">會用找回的帳號取代這支手機目前的進度。</p>
  <div class="row"><input id="rcIn" placeholder="XXXX-XXXX-XXXX" maxlength="14" autocapitalize="characters" style="flex:1;letter-spacing:.1em"><button class="btn" data-a="recover">找回</button></div></div>`);
- $('#fbk').onchange=e=>{S.faceBk=e.target.checked;save();if(S.faceBk)cloudSave(true)};if(S.gm)net('/api/promo').then(r=>promoList(r.list)).catch(e=>promoList([]))};
+ $('#fbk').onchange=e=>{S.faceBk=e.target.checked;save();if(S.faceBk)cloudSave(true)};if(S.gm){net('/api/promo').then(r=>promoList(r.list)).catch(e=>promoList([]));fbList()}};
+A.fbSend=async()=>{const t=$('#fbIn'),m=(t&&t.value||'').trim();if(m.length<2)return toast('請至少輸入 2 個字');const b=$('#fbBox');b.style.opacity=.6;try{const r=await net('/api/feedback',{m});if(r.error)throw new Error(r.error);b.innerHTML='<p class="fbok">✅ 已送出，謝謝你的留言！</p>';sfx2('ok')}catch(e){b.style.opacity=1;toast(e.message||'送出失敗，請稍後再試')}};
+async function fbList(){const el=$('#fbL');if(!el)return;try{const r=await net('/api/feedback');el.innerHTML=r.list.length?r.list.map(x=>`<div class="fbm${x.rd?'':' new'}"><b>${esc(x.name)}</b><small>${new Date(x.ts).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}${x.rd?'':' · 未讀'}</small><p>${esc(x.msg)}</p></div>`).join(''):'<p class="note">目前沒有留言</p>';if(r.list.length&&!r.list[0].rd)net('/api/feedback',{read:r.list[0].id}).catch(()=>{})}catch(e){el.innerHTML='<p class="note">讀取失敗</p>'}}
 A.bkNow=()=>cloudSave(true);
 A.rcode=async()=>{try{const r=await net('/api/rcode',{});if(!r.code)return toast(r.error||'產生失敗');await cloudSave();$('#rcBox').innerHTML=`<div class="rc"><b>${r.code}</b><button class="btn g2" data-a="rcCopy" data-v="${r.code}">複製</button></div>`}catch(e){toast(e.message||'連線失敗')}};
 A.rcCopy=v=>{navigator.clipboard&&navigator.clipboard.writeText(v).then(()=>toast('已複製引繼碼'),()=>toast('請長按手動複製'))};
@@ -1769,7 +1775,7 @@ function townMsg(m){
  else if(m.t==='pos'){const p=PEERS.get(m.id);if(p){p.tx=m.x;p.tz=m.z}}
  else if(m.t==='sp'){const p=PEERS.get(m.id);if(p&&p.sp!==m.sp){const d=Object.assign({},p);peerDel(p.id);peerAdd({id:d.id,name:d.name,sp:m.sp,x:d.x,z:d.z,gm:d.gm})}}
  else if(m.t==='chat'||m.t==='pm'){chatAdd(m);const p=PEERS.get(m.id);if(p){p.b.textContent=m.m;p.say=4}if(m.id===TWme){const o=myLead();if(o){o.b.textContent=m.m;o.say=4}}}
- else if(m.t==='sys'){chatAdd({sys:1,m:m.m});toast(m.m)}
+ else if(m.t==='sys'){if(m.mail){toast(m.m);sfx2('ok')}chatAdd({sys:1,m:m.m});toast(m.m)}
  else if(m.t==='act'){const p=PEERS.get(m.id);if(p&&p.g&&inTown){if(m.k==='jump')p.hop=.5;else{p.atk=.4;p.ry=m.ry;const el=WX[p.sp]||'土',fx=Math.sin(m.ry),fz=Math.cos(m.ry);if(m.k==='sk'){for(let k=0;k<(m.i===2?8:4);k++){const a=k/4*Math.PI*2,r=m.i===2?rr(1,5):1.5;fxSpr(m.i===2?FXI.imp[el]:FXI.slash[el],p.x+Math.cos(a)*r,.9,p.z+Math.sin(a)*r,2.6,.45,{rot:a})}}else fxSpr(MELEE.has(p.sp)?FXI.slash[el]:FXI.orb[el],p.x+fx,.8,p.z+fz,2.2,.3)}}}
  else if(m.t==='emote'){const p=PEERS.get(m.id);if(p){p.b.textContent=m.e;p.say=2.5;p.hop=1}if(m.to===TWme&&p)toast(`${p.name} 向你打招呼 ${m.e}`)}
  else if(m.t==='inv')invAsk(m);
@@ -1813,10 +1819,12 @@ function duelStart(vs){if(!vs||!vs.team||!vs.team.length)return toast('對手沒
 // 聊天
 let chatTo=0;function chatAdd(m){CHATLOG.push(m);if(CHATLOG.length>60)CHATLOG.shift();if(!$('#chat').classList.contains('on')){chatUnread++;$('#chatb').dataset.n=chatUnread}else chatDraw()}
 function chatDraw(){const l=$('#chatl');l.innerHTML=CHATLOG.map(m=>m.sys?`<p class="sys">${esc(m.m)}</p>`:`<p class="${m.t==='pm'?'pm':''}${m.id===TWme?' me':''}"><b data-a="chatTo" data-v="${m.id}">${m.gm?'👑':''}${esc(m.name)}</b>${m.t==='pm'?(m.to?' ➜ 私訊':' 悄悄說'):''}：${esc(m.m)}</p>`).join('');l.scrollTop=l.scrollHeight}
+A.chatWho=()=>{const l=$('#chatl'),ps=[...PEERS.values()].filter(p=>p.id!==TWme).sort((a,b)=>a.name.localeCompare(b.name,'zh-Hant'));l.innerHTML='<p class="sys">點暱稱開始私訊，或在輸入框打「@暱稱 內容」</p>'+(ps.length?ps.map(p=>`<button class="who" data-a="chatPm" data-v="${p.id}">${p.gm?'👑':''}${esc(p.name)}<small>${PEERS.get(p.id).g&&inTown?'在八卦城':'在線'}</small></button>`).join(''):'<p class="sys">目前沒有其他玩家在線</p>')};
+A.chatPm=id=>chatOpen(+id);
 function chatOpen(to){chatTo=to||0;$('#chat').classList.add('on');chatUnread=0;delete $('#chatb').dataset.n;const p=PEERS.get(chatTo);$('#chatIn').placeholder=p?`私訊 ${p.name}…`:'說點什麼…（60 字內）';$('#chatX').style.display=p?'':'none';chatDraw();setTimeout(()=>$('#chatIn').focus(),100)}
 A.chat=()=>{if(!TWok)return toast('城鎮連線中，請稍候');$('#chat').classList.contains('on')?$('#chat').classList.remove('on'):chatOpen(0)};
 A.chatTo=id=>{if(+id!==TWme&&PEERS.has(+id))chatOpen(+id)};A.chatAll=()=>chatOpen(0);
-A.chatSend=()=>{const i=$('#chatIn'),v=i.value.trim();if(!v)return;twSend(chatTo?{t:'pm',to:chatTo,m:v}:{t:'chat',m:v});i.value=''};
+A.chatSend=()=>{const i=$('#chatIn');let v=i.value.trim();if(!v)return;{const mm=v.match(/^[@＠]\s*(\S+)\s+([\s\S]+)/);if(mm){const p=[...PEERS.values()].find(x=>x.name===mm[1]);if(!p)return toast(`找不到在線玩家「${mm[1]}」`);chatOpen(p.id);v=mm[2].trim()}}twSend(chatTo?{t:'pm',to:chatTo,m:v}:{t:'chat',m:v});i.value=''};
 // 世界王
 function bossMesh(){if(!BOSSD||!TOWNSC||TBOSS3)return;const g=fig3D(null,BOSSD.sp),H=3.4;g.scale.setScalar(H);g.userData.h=H;g.userData.boss=1;g.userData.onBuild=()=>g.traverse(o=>{o.userData.boss=1;if(o.isMesh&&o.material&&o.material.emissive&&!o.userData.face){o.material=o.material.clone();o.material.emissive=new THREE.Color(0x5a0a00);o.material.emissiveIntensity=.35}});
  const aura=new THREE.Mesh(new THREE.RingGeometry(.35,.6,48),new THREE.MeshBasicMaterial({color:0xff4a1a,transparent:true,opacity:.6,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));aura.rotation.x=-Math.PI/2;aura.position.y=.03;g.add(aura);g.userData.aura=aura;g.position.set(TBOSSPOS.x,0,TBOSSPOS.z);TOWNSC.add(g);TBOSS3=g}
