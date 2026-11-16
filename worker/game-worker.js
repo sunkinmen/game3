@@ -19,6 +19,19 @@ function marketOpen() {
 }
 const QUESTS = [{ id: 'q1', n: '今日登入', k: 'login', need: 1, z: 2000 }, { id: 'q2', n: '在八卦城擊倒 20 隻魔物', k: 'kills', need: 20, z: 8000 }, { id: 'q3', n: '在八卦城擊倒 60 隻魔物', k: 'kills', need: 60, z: 25000 }, { id: 'q4', n: '打怪累積獲得 30,000 zeny', k: 'zeny', need: 30000, z: 15000 }];
 const weekStart = () => { const d = new Date(Date.now() + 8 * 3600e3); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+// 刪除玩家帳號與所有相關紀錄（GM 帳號永遠不刪）
+async function purgeNames(env, names) {
+  const db = env.DB, out = [];
+  for (const n of names) {
+    const p = await db.prepare('SELECT id FROM players WHERE name=? AND COALESCE(gm,0)=0').bind(n).first(); if (!p) continue;
+    await db.batch(['holdings', 'saves', 'recov', 'redeem', 'feedback', 'daily', 'gifts'].map(t => db.prepare(`DELETE FROM ${t} WHERE pid=?`).bind(p.id))
+      .concat([db.prepare('DELETE FROM guilds WHERE owner=? AND NOT EXISTS (SELECT 1 FROM players WHERE guild=guilds.id AND id<>?)').bind(p.id, p.id), db.prepare('DELETE FROM players WHERE id=?').bind(p.id)]));
+    out.push(n);
+  }
+  return out;
+}
+// 開發者指定清除的測試帳號（排程自動執行一次，已刪除者自動略過）
+const PURGE_ONCE = ['玩家1790', '玩家8141', '玩家5405', '暫時測試764', 'GM01', '存檔測試'];
 const today = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
 
 async function cached(key, ttl, make) {
@@ -257,6 +270,11 @@ async function api(req, env, path) {
     const { results } = await db.prepare('SELECT id,name,msg,ts,rd FROM feedback ORDER BY id DESC LIMIT 60').all();
     return J({ list: results });
   }
+  if (path === '/api/gm/purge' && req.method === 'POST') {
+    if (!p.gm) return J({ error: 'GM only' }, 403);
+    const b = await body(req); const names = (Array.isArray(b.names) ? b.names : []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+    return J({ deleted: await purgeNames(env, names) });
+  }
   if (path === '/api/kills' && req.method === 'POST') {
     // 城鎮打怪：由伺服器計算獎金與掉寶；每次最多 14 隻、間隔 12 秒、與戰鬥獎金共用每日上限
     const b = await body(req), d = today(), used = p.earn_day === d ? p.earn_amt : 0;
@@ -374,6 +392,7 @@ export default {
   },
   // 每 10 分鐘重新計算最近有活動玩家的財產（財產榜用）
   async scheduled(ev, env) {
+    try { await ensure(env.DB); await purgeNames(env, PURGE_ONCE); } catch (e) {}
     const { results } = await env.DB.prepare('SELECT * FROM players ORDER BY wts ASC LIMIT 40').all();
     for (const p of results) await wallet(env, p);
   }
